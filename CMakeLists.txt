@@ -9,7 +9,8 @@ add_subdirectory(src/headers/glfw-3.3.8)
 add_subdirectory(src/headers/glm)
 
 
-add_executable(tutorial src/main.cpp)
+add_executable(tutorial src/main.cpp
+        src/utils.h)
 target_link_libraries(tutorial glfw)
 target_link_libraries(tutorial glm)
 target_link_libraries(tutorial Vulkan::Vulkan)
