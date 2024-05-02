@@ -1,3 +1,6 @@
+#ifndef STARTER_HPP
+#define STARTER_HPP
+
 #define GLFW_INCLUDE_VULKAN
 #include "glfw-3.3.8/include/GLFW/glfw3.h"
 
@@ -2365,3 +2368,6 @@ void DescriptorSet::map(int currentImage, void *src, int size, int slot) {
     memcpy(data, src, size);
     vkUnmapMemory(BP->device, uniformBuffersMemory[slot][currentImage]);
 }
+
+
+#endif

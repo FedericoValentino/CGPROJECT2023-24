@@ -1,5 +1,5 @@
 #include <iostream>
-#include "Engine/Project.h"
+#include "Engine/Project.hpp"
 
 int main() {
     Project app;
