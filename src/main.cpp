@@ -1,8 +1,8 @@
 #include <iostream>
-#include "appTutorial.cpp"
+#include "Engine/Project.h"
 
 int main() {
-    Application app;
+    Project app;
 
     try {
         app.run();
