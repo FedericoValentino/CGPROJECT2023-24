@@ -2,7 +2,7 @@
 #define STARTER_HPP
 
 #define GLFW_INCLUDE_VULKAN
-#include "glfw-3.3.8/include/GLFW/glfw3.h"
+#include "glfw-3.4/include/GLFW/glfw3.h"
 
 #include <iostream>
 #include <stdexcept>
