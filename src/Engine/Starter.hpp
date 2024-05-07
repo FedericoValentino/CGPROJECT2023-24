@@ -322,7 +322,8 @@ public:
 
     VkRenderPass renderPass;
 
-    VkDescriptorPool descriptorPool;
+    std::vector<VkDescriptorPool> descriptorPool;
+    size_t poolSize = 0;
 
     VkDebugUtilsMessengerEXT debugMessenger;
 
@@ -379,7 +380,7 @@ public:
         createColorResources();
         createDepthResources();
         createFramebuffers();
-        createDescriptorPool();
+        createDescriptorPool(0);
 
         localInit();
         pipelinesAndDescriptorSetsInit();
@@ -1360,7 +1361,10 @@ public:
         throw std::runtime_error("failed to find suitable memory type!");
     }
 
-    void createDescriptorPool() {
+    void createDescriptorPool(int i) {
+
+        VkDescriptorPool pool;
+        descriptorPool.push_back(pool);
         std::array<VkDescriptorPoolSize, 2> poolSizes{};
         poolSizes[0].type = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
         poolSizes[0].descriptorCount = static_cast<uint32_t>(uniformBlocksInPool *
@@ -1376,7 +1380,7 @@ public:
         poolInfo.maxSets = static_cast<uint32_t>(setsInPool * swapChainImages.size());
 
         VkResult result = vkCreateDescriptorPool(device, &poolInfo, nullptr,
-                                                 &descriptorPool);
+                                                 &descriptorPool[i]);
         if (result != VK_SUCCESS) {
             PrintVkError(result);
             throw std::runtime_error("failed to create descriptor pool!");
@@ -1586,7 +1590,10 @@ public:
         createColorResources();
         createDepthResources();
         createFramebuffers();
-        createDescriptorPool();
+        VkDescriptorPool pool;
+        descriptorPool.push_back(pool);
+        createDescriptorPool(0);
+        poolSize = 0;
 
         pipelinesAndDescriptorSetsInit();
         createdCommandBuffers = false;
@@ -1619,7 +1626,11 @@ public:
 
         vkDestroySwapchainKHR(device, swapChain, nullptr);
 
-        vkDestroyDescriptorPool(device, descriptorPool, nullptr);
+        for(size_t i = 0; i <= poolSize / setsInPool; i++)
+        {
+            vkDestroyDescriptorPool(device, descriptorPool[i], nullptr);
+        }
+        descriptorPool.clear();
     }
 
     void cleanup() {
@@ -2302,7 +2313,7 @@ void DescriptorSet::init(BaseProject *bp, DescriptorSetLayout *DSL,
                                                DSL->descriptorSetLayout);
     VkDescriptorSetAllocateInfo allocInfo{};
     allocInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_ALLOCATE_INFO;
-    allocInfo.descriptorPool = BP->descriptorPool;
+    allocInfo.descriptorPool = BP->descriptorPool[BP->poolSize/BP->setsInPool];
     allocInfo.descriptorSetCount = static_cast<uint32_t>(BP->swapChainImages.size());
     allocInfo.pSetLayouts = layouts.data();
 
@@ -2350,8 +2361,17 @@ void DescriptorSet::init(BaseProject *bp, DescriptorSetLayout *DSL,
         vkUpdateDescriptorSets(BP->device,
                                static_cast<uint32_t>(descriptorWrites.size()),
                                descriptorWrites.data(), 0, nullptr);
-    }
 
+
+    }
+    BP->poolSize += 1;
+    if(BP->poolSize%BP->setsInPool == 0)
+    {
+        VkDescriptorPool pool;
+        BP->descriptorPool.push_back(pool);
+        BP->createDescriptorPool(BP->poolSize/BP->setsInPool);
+    }
+    printf("Current Pool Size = %d\n", BP->poolSize);
 
 }
 
