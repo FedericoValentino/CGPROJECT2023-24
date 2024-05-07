@@ -310,6 +310,7 @@ public:
     VkDevice device;
     VkQueue graphicsQueue;
     VkQueue presentQueue;
+    bool createdCommandBuffers = false;
     VkCommandPool commandPool;
     std::vector<VkCommandBuffer> commandBuffers;
 
@@ -1385,9 +1386,7 @@ public:
     virtual void populateCommandBuffer(VkCommandBuffer commandBuffer, int i) = 0;
 
     void createCommandBuffers() {
-
-        static bool created = false;
-        if(!created)
+        if(!createdCommandBuffers)
         {
             commandBuffers.resize(swapChainFramebuffers.size());
 
@@ -1403,7 +1402,7 @@ public:
                 PrintVkError(result);
                 throw std::runtime_error("failed to allocate command buffers!");
             }
-            created = true;
+            createdCommandBuffers = true;
         }
 
         vkDeviceWaitIdle(device);
@@ -1590,7 +1589,7 @@ public:
         createDescriptorPool();
 
         pipelinesAndDescriptorSetsInit();
-
+        createdCommandBuffers = false;
         createCommandBuffers();
     }
 
