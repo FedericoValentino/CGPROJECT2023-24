@@ -1,7 +1,7 @@
 #ifndef CGPROJECT_2023_24_PIECE_HPP
 #define CGPROJECT_2023_24_PIECE_HPP
 
-#include "Engine/Starter.hpp"
+#include "../Engine/Starter.hpp"
 
 struct UniformBufferObject {
     alignas(16) glm::mat4 worldViewProj;
@@ -9,7 +9,7 @@ struct UniformBufferObject {
     alignas(16) glm::mat4 normal;
 };
 
-class Piece {
+class PlaneView {
 public:
     DescriptorSetLayout DSL;
     Pipeline P;

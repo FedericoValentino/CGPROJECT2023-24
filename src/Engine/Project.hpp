@@ -3,7 +3,7 @@
 
 #include "ControlWrapper.cpp"
 #include "Starter.hpp"
-#include "../Piece.hpp"
+#include "../View/PlaneView.hpp"
 
 struct GlobalUniformBufferObject {
     alignas(16) glm::vec3 lightDir;
@@ -15,7 +15,7 @@ class Project : public BaseProject
 {
 private:
 
-    std::vector<Piece*> pieces;
+    std::vector<PlaneView*> Planes;
 
     int numObj = 100;
     float Ar;
@@ -39,24 +39,24 @@ private:
 
 void Project::localInit() {
 
-    Piece* p = new Piece();
+    PlaneView* p = new PlaneView();
 
     p->init(this);
     p->ubo.model = glm::mat4(1);
 
-    pieces.push_back(p);
+    Planes.push_back(p);
 
 }
 
 void Project::pipelinesAndDescriptorSetsInit() {
-    for(Piece* p : pieces)
+    for(PlaneView* p : Planes)
     {
         p->pipelineAndDSInit(this, sizeof(UniformBufferObject), sizeof(GlobalUniformBufferObject));
     }
 }
 
 void Project::populateCommandBuffer(VkCommandBuffer commandBuffer, int i) {
-    for(Piece* p : pieces)
+    for(PlaneView* p : Planes)
     {
         p->populateCommandBuffer(commandBuffer, i);
     }
@@ -97,7 +97,7 @@ void Project::updateUniformBuffer(uint32_t currentImage) {
 
     glm::mat4 S = updateCam(Ar, deltaT, m, r);
 
-    for(Piece* p : pieces)
+    for(PlaneView* p : Planes)
     {
         p->ubo.model =  glm::rotate(p->ubo.model, deltaT *glm::radians(90.0f), glm::vec3(0.0f, 0.0f, 1.0f));
         p->ubo.worldViewProj = S * p->ubo.model;
@@ -111,14 +111,14 @@ void Project::updateUniformBuffer(uint32_t currentImage) {
 }
 
 void Project::pipelinesAndDescriptorSetsCleanup() {
-    for(Piece* p : pieces)
+    for(PlaneView* p : Planes)
     {
         p->pipelineAndDSClenup();
     }
 }
 
 void Project::localCleanup() {
-    for(Piece* p : pieces)
+    for(PlaneView* p : Planes)
     {
         p->cleanup();
         p->P.destroy();
@@ -153,13 +153,13 @@ void Project::entityGeneration() {
 
     if(spacePress)
     {
-        Piece* p = new Piece();
+        PlaneView* p = new PlaneView();
 
         p->init(this);
         p->ubo.model = glm::mat4(1);
         p->pipelineAndDSInit(this, sizeof(UniformBufferObject), sizeof(GlobalUniformBufferObject));
 
-        pieces.push_back(p);
+        Planes.push_back(p);
 
         printf("Added a cube!\n");
     }
@@ -167,11 +167,11 @@ void Project::entityGeneration() {
     if(backSpace)
     {
 
-        if(pieces.size() > 0)
+        if(Planes.size() > 0)
         {
             vkDeviceWaitIdle(this->device);
-            Piece* p = pieces[pieces.size() - 1];
-            pieces.pop_back();
+            PlaneView* p = Planes[Planes.size() - 1];
+            Planes.pop_back();
             p->pipelineAndDSClenup();
 
             p->cleanup();
