@@ -992,7 +992,7 @@ public:
         VkCommandPoolCreateInfo poolInfo{};
         poolInfo.sType = VK_STRUCTURE_TYPE_COMMAND_POOL_CREATE_INFO;
         poolInfo.queueFamilyIndex = queueFamilyIndices.graphicsFamily.value();
-        poolInfo.flags = 0; // Optional
+        poolInfo.flags = VK_COMMAND_POOL_CREATE_RESET_COMMAND_BUFFER_BIT; // Optional
 
         VkResult result = vkCreateCommandPool(device, &poolInfo, nullptr, &commandPool);
         if (result != VK_SUCCESS) {
@@ -1385,26 +1385,36 @@ public:
     virtual void populateCommandBuffer(VkCommandBuffer commandBuffer, int i) = 0;
 
     void createCommandBuffers() {
-        commandBuffers.resize(swapChainFramebuffers.size());
 
-        VkCommandBufferAllocateInfo allocInfo{};
-        allocInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO;
-        allocInfo.commandPool = commandPool;
-        allocInfo.level = VK_COMMAND_BUFFER_LEVEL_PRIMARY;
-        allocInfo.commandBufferCount = (uint32_t) commandBuffers.size();
+        static bool created = false;
+        if(!created)
+        {
+            commandBuffers.resize(swapChainFramebuffers.size());
 
-        VkResult result = vkAllocateCommandBuffers(device, &allocInfo,
-                                                   commandBuffers.data());
-        if (result != VK_SUCCESS) {
-            PrintVkError(result);
-            throw std::runtime_error("failed to allocate command buffers!");
+            VkCommandBufferAllocateInfo allocInfo{};
+            allocInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO;
+            allocInfo.commandPool = commandPool;
+            allocInfo.level = VK_COMMAND_BUFFER_LEVEL_PRIMARY;
+            allocInfo.commandBufferCount = (uint32_t) commandBuffers.size();
+
+            VkResult result = vkAllocateCommandBuffers(device, &allocInfo,
+                                                       commandBuffers.data());
+            if (result != VK_SUCCESS) {
+                PrintVkError(result);
+                throw std::runtime_error("failed to allocate command buffers!");
+            }
+            created = true;
         }
+
+        vkDeviceWaitIdle(device);
 
         for (size_t i = 0; i < commandBuffers.size(); i++) {
             VkCommandBufferBeginInfo beginInfo{};
             beginInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
             beginInfo.flags = 0; // Optional
             beginInfo.pInheritanceInfo = nullptr; // Optional
+
+            vkResetCommandBuffer(commandBuffers[i], 0);
 
             if (vkBeginCommandBuffer(commandBuffers[i], &beginInfo) !=
                 VK_SUCCESS) {
@@ -1472,12 +1482,14 @@ public:
         }
     }
 
+    virtual void entityGeneration() = 0;
+
     void mainLoop() {
         while (!glfwWindowShouldClose(window)){
             glfwPollEvents();
+            entityGeneration();
             drawFrame();
         }
-
         vkDeviceWaitIdle(device);
     }
 
@@ -1485,10 +1497,13 @@ public:
         vkWaitForFences(device, 1, &inFlightFences[currentFrame],
                         VK_TRUE, UINT64_MAX);
 
+        vkResetFences(device, 1, &inFlightFences[currentFrame]);
+
         uint32_t imageIndex;
 
         VkResult result = vkAcquireNextImageKHR(device, swapChain, UINT64_MAX,
                                                 imageAvailableSemaphores[currentFrame], VK_NULL_HANDLE, &imageIndex);
+
 
         if (result == VK_ERROR_OUT_OF_DATE_KHR) {
             recreateSwapChain();
@@ -1497,7 +1512,7 @@ public:
             throw std::runtime_error("failed to acquire swap chain image!");
         }
 
-        vkResetFences(device, 1, &inFlightFences[currentFrame]);
+
 
         updateUniformBuffer(imageIndex);
 
@@ -1655,13 +1670,13 @@ public:
     }
 
 
-    void getSixAxis(float &deltaT, glm::vec3 &m, glm::vec3 &r, bool &click, bool& backSpace)
+    void getSixAxis(float &deltaT, float &time, glm::vec3 &m, glm::vec3 &r, bool &click, bool& backSpace)
     {
         static auto startTime = std::chrono::high_resolution_clock::now();
         static float lastTime = 0.0f;
 
         auto currentTime = std::chrono::high_resolution_clock::now();
-        float time = std::chrono::duration<float, std::chrono::seconds::period>
+        time = std::chrono::duration<float, std::chrono::seconds::period>
                 (currentTime - startTime).count();
         deltaT = time - lastTime;
         lastTime = time;
