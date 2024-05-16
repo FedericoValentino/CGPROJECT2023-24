@@ -12,6 +12,7 @@ struct UniformBufferObject {
 class PlaneView {
 public:
     DescriptorSetLayout DSL;
+    VertexDescriptor VD;
     Pipeline P;
     Model M;
     Texture T;
@@ -33,9 +34,20 @@ public:
                 {1, VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, VK_SHADER_STAGE_FRAGMENT_BIT},
                 {2, VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, VK_SHADER_STAGE_ALL_GRAPHICS}});
 
-        this->P.init(bp, "../src/shaders/vert.spv", "../src/shaders/frag.spv", {&this->DSL});
+        this->VD.init(bp, {
+            {0, sizeof(Vertex), VK_VERTEX_INPUT_RATE_VERTEX}
+        }, {
+                {0, 0, VK_FORMAT_R32G32B32_SFLOAT, offsetof(Vertex, pos),
+                 sizeof(glm::vec3), POSITION},
+                {0, 1, VK_FORMAT_R32G32_SFLOAT, offsetof(Vertex, UV),
+                 sizeof(glm::vec2), UV},
+                {0, 2, VK_FORMAT_R32G32B32_SFLOAT, offsetof(Vertex, norm),
+                 sizeof(glm::vec3), NORMAL}
+        });
+
+        this->P.init(bp, &VD, "../src/shaders/vert.spv", "../src/shaders/frag.spv", {&this->DSL});
         this->T.init(bp, "../src/textures/cube.png");
-        this->M.init(bp, "../src/models/cube.obj");
+        this->M.init(bp, &VD, "../src/models/Aereo.obj", OBJ);
     }
 
     void pipelineAndDSInit(BaseProject* bp, int ubosize, int gubosize){
@@ -50,7 +62,7 @@ public:
     void populateCommandBuffer(VkCommandBuffer commandBuffer, int currentImage){
         this->P.bind(commandBuffer);
         this->M.bind(commandBuffer);
-        this->DS.bind(commandBuffer, this->P, currentImage);
+        this->DS.bind(commandBuffer, this->P, 0, currentImage);
 
         vkCmdDrawIndexed(commandBuffer,
                          static_cast<uint32_t>(this->M.indices.size()), 1, 0, 0, 0);

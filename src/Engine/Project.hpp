@@ -28,6 +28,8 @@ private:
 
     void setWindowParameters() final;
 
+    void onWindowResize(int w, int h) final;
+
     void updateUniformBuffer(uint32_t currentImage) final;
 
     void pipelinesAndDescriptorSetsCleanup() final;
@@ -99,7 +101,7 @@ void Project::updateUniformBuffer(uint32_t currentImage) {
 
     for(PlaneView* p : Planes)
     {
-        p->ubo.model =  glm::rotate(p->ubo.model, deltaT *glm::radians(90.0f), glm::vec3(0.0f, 0.0f, 1.0f));
+        //p->ubo.model =  glm::rotate(p->ubo.model, deltaT *glm::radians(90.0f), glm::vec3(0.0f, 0.0f, 1.0f));
         p->ubo.worldViewProj = S * p->ubo.model;
         p->ubo.normal = glm::inverse(glm::transpose(p->ubo.model));
 
@@ -180,6 +182,11 @@ void Project::entityGeneration() {
         }
     }
 
+
+}
+
+void Project::onWindowResize(int w, int h)
+{
 
 }
 
