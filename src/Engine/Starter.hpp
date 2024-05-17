@@ -1746,6 +1746,7 @@ std::cout << "Starting createInstance()\n"  << std::flush;
 
 		pipelinesAndDescriptorSetsInit();
 
+        createdCommandBuffers = false;
 		createCommandBuffers();
 	}
 
