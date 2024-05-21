@@ -6,10 +6,15 @@
 #include "Player.h"
 #include "Enemy.h"
 #include "Tiles.h"
-#include "../lib/PerlinNoise.hpp"
 
 
-#define MAPDIM 1000
+#define MAPDIM 24
+
+enum GAMESTATE{
+    GAMING,
+    PAUSE,
+    END
+};
 
 enum STAGE{
     BIPLANI,
@@ -18,15 +23,14 @@ enum STAGE{
 };
 
 class Partita {
+    int state;
     int stage;
-    Player player;
-    std::vector<Enemy> enemies;
-    std::vector<Tiles> map;
-
-    siv::PerlinNoise::seed_type seed = 123456u;
-    siv::PerlinNoise perlin{seed};
+    Player* player;
+    std::vector<Enemy*> enemies;
+    Tiles map[MAPDIM][MAPDIM];
 
 
+    Partita();
 
     void generateWorld();
 
