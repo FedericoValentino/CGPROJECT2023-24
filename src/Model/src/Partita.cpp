@@ -3,3 +3,11 @@
 //
 
 #include "../Include/Partita.h"
+
+
+
+
+void Partita::generateWorld() {
+    map.clear();
+
+}
