@@ -9,7 +9,11 @@ add_subdirectory(src/headers/glfw-3.4)
 add_subdirectory(src/headers/glm)
 
 
-add_executable(Project src/main.cpp)
+add_executable(Project src/main.cpp
+        src/Model/Include/Partita.h
+        src/Model/src/Partita.cpp
+        src/Model/src/Player.cpp
+        src/Model/src/Projectile.cpp)
 target_link_libraries(Project glfw)
 target_link_libraries(Project glm)
 target_link_libraries(Project Vulkan::Vulkan)
