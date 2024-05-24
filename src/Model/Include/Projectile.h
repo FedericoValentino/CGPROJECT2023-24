@@ -10,15 +10,21 @@
 
 class Projectile {
 
-public:
+private:
 
     glm::vec4 position;
     glm::vec4 direction;
-    glm::vec4 size;
+    int size;
     int speed;
 
-    Projectile(glm::vec4 position, glm::vec4 direction, glm::vec4 size, int speed);
+public:
 
+    Projectile(glm::vec4 position, glm::vec4 direction, int size, int speed);
+
+    glm::vec4 getPosition();
+    glm::vec4 getDirection();
+    int getSize();
+    int getSpeed();
 };
 
 

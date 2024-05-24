@@ -12,13 +12,27 @@
 
 class Player {
 
-public:
+private:
 
     glm::vec4 direction;
     int hp;
     std::vector<Projectile*> projectiles;
 
+public:
+
+    glm::vec4 getDirection();
+
+    int getHp();
+
+    std::vector<Projectile*> getProjectiles();
+
+    void hit(glm::vec4 projectilePosition, int size);
+
+    bool dead();
+
     void shoot();
+
+    void clearProjectile(Projectile own);
 
     void changeDirection(float roll,float pitch, float yaw);
 
