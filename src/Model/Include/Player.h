@@ -26,7 +26,7 @@ public:
 
     std::vector<Projectile*> getProjectiles();
 
-    void hit(glm::vec4 projectilePosition, int size);
+    void hit(Projectile* projectile);
 
     bool dead();
 

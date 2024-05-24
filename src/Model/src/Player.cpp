@@ -38,14 +38,13 @@ void Player::changeDirection(float roll, float pitch, float yaw) {
 
 
 /**
- * Checks whether the enemy projectile has reached the center of the screen (Player's position)
- * and adjusts the Player's health based on the projectile size.
- * Should always be followed by Player::dead
- * @param projectilePosition - the position of the enemy projectile colliding with the player
+ * Checks whether the projectile has hit the player's position, which is the center of the screen, and
+ * applies to the Player's health pool based on its own size
+ * @param projectile - the projectile to test
  */
-void Player::hit(glm::vec4 projectilePosition, int size) {
-    if (projectilePosition == glm::vec4{0,0,0,1})
-        hp -= size;
+void Player::hit(Projectile* projectile) {
+    if (projectile->getPosition() == glm::vec4{0,0,0,1})
+        hp -= projectile->getSize();
 }
 
 /**
