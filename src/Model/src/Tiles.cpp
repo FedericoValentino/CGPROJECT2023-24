@@ -3,3 +3,9 @@
 //
 
 #include "../Include/Tiles.h"
+
+
+Tiles::Tiles() {
+    this->height = 0;
+}
+

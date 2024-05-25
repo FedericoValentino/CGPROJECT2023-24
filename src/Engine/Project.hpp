@@ -4,6 +4,7 @@
 #include "ControlWrapper.cpp"
 #include "Starter.hpp"
 #include "../View/PlaneView.hpp"
+#include "../Model/Include/Partita.h"
 
 struct GlobalUniformBufferObject {
     alignas(16) glm::vec3 lightDir;
@@ -15,6 +16,7 @@ class Project : public BaseProject
 {
 private:
 
+    Partita* partita;
     std::vector<PlaneView*> Planes;
 
     int numObj = 100;
@@ -41,6 +43,8 @@ private:
 
 void Project::localInit() {
 
+    this->partita = new Partita();
+    partita->generateWorld();
     PlaneView* p = new PlaneView();
 
     p->init(this);
@@ -97,11 +101,11 @@ void Project::updateUniformBuffer(uint32_t currentImage) {
     getSixAxis(deltaT, time, m, r, SpaceBar, BackSpace);
 
 
-    glm::mat4 S = updateCam(Ar, deltaT, m, r);
+    glm::mat4 S = updateCam(Ar, deltaT, m, r, true);
 
     for(PlaneView* p : Planes)
     {
-        //p->ubo.model =  glm::rotate(p->ubo.model, deltaT *glm::radians(90.0f), glm::vec3(0.0f, 0.0f, 1.0f));
+        p->ubo.model =  glm::rotate(p->ubo.model, deltaT *glm::radians(90.0f), glm::vec3(0.0f, 1.0f, 0.0f));
         p->ubo.worldViewProj = S * p->ubo.model;
         p->ubo.normal = glm::inverse(glm::transpose(p->ubo.model));
 

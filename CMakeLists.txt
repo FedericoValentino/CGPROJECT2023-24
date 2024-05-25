@@ -12,6 +12,7 @@ add_subdirectory(src/headers/glm)
 add_executable(Project src/main.cpp
         src/Model/Include/Partita.h
         src/Model/src/Partita.cpp
+        src/Model/src/Tiles.cpp
         src/Model/src/Player.cpp
         src/Model/src/Projectile.cpp)
 target_link_libraries(Project glfw)

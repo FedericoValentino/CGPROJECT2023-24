@@ -8,7 +8,7 @@
 #include "Tiles.h"
 
 
-#define MAPDIM 24
+#define MAPDIM 12
 
 enum GAMESTATE{
     GAMING,
@@ -23,14 +23,14 @@ enum STAGE{
 };
 
 class Partita {
+
+    friend class Project;
+
     int state;
     int stage;
     Player* player;
     std::vector<Enemy*> enemies;
-    Tiles map[MAPDIM][MAPDIM];
-
-
-    Partita();
+    Tiles* map[MAPDIM][MAPDIM];
 
     void generateWorld();
 
@@ -45,6 +45,9 @@ class Partita {
     void set_counter();
 
     void cleanup();
+
+public:
+    Partita();
 };
 
 
