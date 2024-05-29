@@ -97,7 +97,7 @@ void Partita::generateWorld() {
 
 
 void Partita::spawn() {
-    enemies.push_back(new Enemy());
+    //enemies.push_back(new Enemy());
 }
 
 void Partita::checkCollision() {

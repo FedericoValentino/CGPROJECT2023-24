@@ -4,10 +4,13 @@
 
 #ifndef CGPRJ2023_24_BOSS_H
 #define CGPRJ2023_24_BOSS_H
+#include "Enemy.h"
 
-
-class Boss {
-
+class Boss: public Enemy{
+public:
+    Boss(const Position3D& position3D,const float speed, bool debug=false);
+public:
+    virtual void move(const Player& player,const float deltaT) override;
 };
 
 

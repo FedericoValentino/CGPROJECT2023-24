@@ -1,7 +1,11 @@
 #include <iostream>
 #include "Engine/Project.hpp"
+#include "Model/Include/Projectile.h"
+
+// Mutex for synchronizing access to the critical section
 
 int main() {
+
     Project app;
 
     try {
@@ -14,4 +18,5 @@ int main() {
     }
 
     return EXIT_SUCCESS;
+
 }

@@ -19,7 +19,7 @@ Player::Player() {
  * Adds a new projectile in the Player's projectiles vector, with same Player's position and direction
  */
 void Player::shoot() {
-    projectiles.push_back(new Projectile(glm::vec4{0,0,0,1}, direction, 1, 1));
+    //projectiles.push_back(new Projectile(glm::vec4{0,0,0,1}, direction, 1, 1));
 }
 
 /**
@@ -43,7 +43,7 @@ void Player::changeDirection(float roll, float pitch, float yaw) {
  * @param projectile - the projectile to test
  */
 void Player::hit(Projectile* projectile) {
-    if (projectile->getPosition() == glm::vec4{0,0,0,1})
+    if (projectile->getPosition3D().origin == glm::vec3{0,0,0})
         hp -= projectile->getSize();
 }
 

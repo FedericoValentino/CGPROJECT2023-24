@@ -6,25 +6,30 @@
 #define CGPRJ2023_24_PROJECTILE_H
 
 #include "glm/glm.hpp"
+#include "Position3D.h"
+#include <iostream>
+#include <glm/gtx/string_cast.hpp>
 
 
 class Projectile {
 
 private:
-
-    glm::vec4 position;
-    glm::vec4 direction;
-    int size;
-    int speed;
-
+    unsigned int static count_;
+    Position3D position3D_;
+    const float size_;
+    const float speed_;
+    const unsigned int id_;
+    bool debug_;
 public:
+    Projectile(const Position3D& position3D, float size, float speed,bool debug=false);
 
-    Projectile(glm::vec4 position, glm::vec4 direction, int size, int speed);
-
-    glm::vec4 getPosition();
-    glm::vec4 getDirection();
-    int getSize();
-    int getSpeed();
+    [[nodiscard]] const Position3D& getPosition3D() const ;
+    [[nodiscard]] float getSize() const;
+    [[nodiscard]] float getSpeed() const;
+    [[nodiscard]] unsigned int getId() const;
+    void move(const float deltaT); // move to direction_
+    bool isPositionInsideScreen(const unsigned int SCREEN_WIDTH,
+                                const unsigned int SCREEN_HEIGHT) const;
 };
 
 
