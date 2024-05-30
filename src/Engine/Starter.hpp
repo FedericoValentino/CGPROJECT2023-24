@@ -64,6 +64,12 @@
 
 const int MAX_FRAMES_IN_FLIGHT = 2;
 
+struct UniformBufferObject {
+    alignas(16) glm::mat4 worldViewProj;
+    alignas(16) glm::mat4 model;
+    alignas(16) glm::mat4 normal;
+};
+
 const std::vector<const char*> validationLayers = {
 	"VK_LAYER_KHRONOS_validation"
 };
