@@ -74,6 +74,8 @@ void Project::localInit() {
 
     printf("Total vertex number: %d", V_number);
 
+    p->ubo.model *= glm::translate(glm::mat4(1), glm::vec3(0.0, 8.40, 0.0));
+
     Planes.push_back(p);
 
 }

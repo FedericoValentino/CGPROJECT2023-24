@@ -16,7 +16,8 @@ add_executable(Project src/main.cpp
         src/Model/src/Player.cpp
         src/Model/src/Projectile.cpp
         src/Model/Include/Boss.h
-        src/Model/src/Enemy.cpp)
+        src/Model/src/Enemy.cpp
+        src/Model/src/Boss.cpp)
 target_link_libraries(Project glfw)
 target_link_libraries(Project glm)
 target_link_libraries(Project Vulkan::Vulkan)
