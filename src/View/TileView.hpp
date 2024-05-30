@@ -29,7 +29,7 @@ public:
 
         std::string modelURL;
         switch(type)
-        {
+        { 
             case 0:
                 modelURL = "../src/models/floor.obj";
                 break;

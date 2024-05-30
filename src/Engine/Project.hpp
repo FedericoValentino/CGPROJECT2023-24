@@ -55,6 +55,9 @@ void Project::localInit() {
             TileView* tp = new TileView(row, col);
             tp->init(this, partita->getMap(row, col)->height);
             tp->ubo.model = glm::mat4(1);
+            tp->ubo.model = glm::translate(glm::mat4(1.0), glm::vec3((MAPDIM/2) * 2.80, 0.0, (MAPDIM/2) * 2.80));
+            tp->ubo.model *= glm::translate(glm::mat4(1.0), glm::vec3(tp->row_ * 5.60 - 5.60 * (MAPDIM), 0.0, tp->col_ * 5.60 - 5.60 * (MAPDIM)));
+            tp->ubo.normal = glm::inverse(glm::transpose(tp->ubo.model));
             mapTiles.push_back(tp);
         }
     }
@@ -122,21 +125,21 @@ void Project::updateUniformBuffer(uint32_t currentImage) {
     glm::vec3 r = glm::vec3(0.0f);
 
     getSixAxis(deltaT, time, m, r, SpaceBar, BackSpace);
+    printf("%f\n", deltaT);
 
 
     glm::mat4 S = updateCam(Ar, deltaT, m, r, false);
 
+
     for(TileView* tp : mapTiles)
     {
-        tp->ubo.model = glm::translate(glm::mat4(1.0), glm::vec3((MAPDIM/2) * 2.80, 0.0, (MAPDIM/2) * 2.80));
-        tp->ubo.model *= glm::translate(glm::mat4(1.0), glm::vec3(tp->row_ * 5.60 - 5.60 * (MAPDIM), 0.0, tp->col_ * 5.60 - 5.60 * (MAPDIM)));
         tp->ubo.worldViewProj = S * tp->ubo.model;
-        tp->ubo.normal = glm::inverse(glm::transpose(tp->ubo.model));
-
         tp->DS.map(currentImage, &tp->ubo, sizeof(tp->ubo), 0);
 
         tp->DS.map(currentImage, &gubo, sizeof(gubo), 2);
     }
+
+
 
     for(PlaneView* p : Planes)
     {
