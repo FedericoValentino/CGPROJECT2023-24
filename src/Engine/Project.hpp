@@ -45,6 +45,7 @@ private:
 
 void Project::localInit() {
 
+    int V_number = 0;
     this->partita = new Partita();
     partita->generateWorld();
 
@@ -59,6 +60,8 @@ void Project::localInit() {
             tp->ubo.model *= glm::translate(glm::mat4(1.0), glm::vec3(tp->row_ * 5.60 - 5.60 * (MAPDIM), 0.0, tp->col_ * 5.60 - 5.60 * (MAPDIM)));
             tp->ubo.normal = glm::inverse(glm::transpose(tp->ubo.model));
             mapTiles.push_back(tp);
+
+            V_number += tp->M.vertices.size();
         }
     }
 
@@ -67,6 +70,9 @@ void Project::localInit() {
 
     p->init(this);
     p->ubo.model = glm::mat4(1);
+    V_number += p->M.vertices.size();
+
+    printf("Total vertex number: %d", V_number);
 
     Planes.push_back(p);
 
