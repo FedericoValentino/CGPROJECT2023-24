@@ -20,6 +20,11 @@ private:
     Partita* partita;
     std::vector<PlaneView*> Planes;
     std::vector<TileView*> mapTiles;
+    Model house;
+    Model floor;
+    Model skyscraper;
+
+    VertexDescriptor VD;
 
     int numObj = 100;
     float Ar;
@@ -45,9 +50,25 @@ private:
 
 void Project::localInit() {
 
-    int V_number = 0;
     this->partita = new Partita();
     partita->generateWorld();
+
+    VD.init(this, {
+            {0, sizeof(Vertex), VK_VERTEX_INPUT_RATE_VERTEX}
+    }, {
+                          {0, 0, VK_FORMAT_R32G32B32_SFLOAT, offsetof(Vertex, pos),
+                                  sizeof(glm::vec3), POSITION},
+                          {0, 1, VK_FORMAT_R32G32_SFLOAT, offsetof(Vertex, UV),
+                                  sizeof(glm::vec2), UV},
+                          {0, 2, VK_FORMAT_R32G32B32_SFLOAT, offsetof(Vertex, norm),
+                                  sizeof(glm::vec3), NORMAL}
+                  });
+
+    house.init(this, &VD, "../src/models/house.obj", OBJ);
+    floor.init(this, &VD, "../src/models/floor.obj", OBJ);
+    skyscraper.init(this, &VD, "../src/models/floor.obj", OBJ);
+
+
 
     for(int row = 0; row < MAPDIM; row++)
     {
@@ -55,13 +76,26 @@ void Project::localInit() {
         {
             TileView* tp = new TileView(row, col);
             tp->init(this, partita->getMap(row, col)->height);
+            switch(partita->getMap(row, col)->height)
+            {
+                case 0:
+                    tp->M = floor;
+                    break;
+                case 1:
+                    tp->M = house;
+                    break;
+                case 2:
+                    tp->M = skyscraper;
+                    break;
+                default:
+                    exit(1);
+                    break;
+            }
             tp->ubo.model = glm::mat4(1);
             tp->ubo.model = glm::translate(glm::mat4(1.0), glm::vec3((MAPDIM/2) * 2.80, 0.0, (MAPDIM/2) * 2.80));
             tp->ubo.model *= glm::translate(glm::mat4(1.0), glm::vec3(tp->row_ * 5.60 - 5.60 * (MAPDIM), 0.0, tp->col_ * 5.60 - 5.60 * (MAPDIM)));
             tp->ubo.normal = glm::inverse(glm::transpose(tp->ubo.model));
             mapTiles.push_back(tp);
-
-            V_number += tp->M.vertices.size();
         }
     }
 
@@ -70,9 +104,7 @@ void Project::localInit() {
 
     p->init(this);
     p->ubo.model = glm::mat4(1);
-    V_number += p->M.vertices.size();
 
-    printf("Total vertex number: %d", V_number);
 
     p->ubo.model *= glm::translate(glm::mat4(1), glm::vec3(0.0, 8.40, 0.0));
 
@@ -174,6 +206,9 @@ void Project::pipelinesAndDescriptorSetsCleanup() {
 }
 
 void Project::localCleanup() {
+    floor.cleanup();
+    house.cleanup();
+    skyscraper.cleanup();
     for(TileView* tp : mapTiles)
     {
         tp->cleanup();

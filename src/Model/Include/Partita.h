@@ -8,7 +8,7 @@
 #include "Tiles.h"
 
 
-#define MAPDIM 12
+#define MAPDIM 24
 
 enum GAMESTATE{
     GAMING,
