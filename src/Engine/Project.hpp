@@ -4,6 +4,7 @@
 #include "ControlWrapper.cpp"
 #include "Starter.hpp"
 #include "../View/PlaneView.hpp"
+#include "../View/TileView.hpp"
 #include "../Model/Include/Partita.h"
 
 struct GlobalUniformBufferObject {
@@ -18,6 +19,7 @@ private:
 
     Partita* partita;
     std::vector<PlaneView*> Planes;
+    std::vector<TileView*> mapTiles;
 
     int numObj = 100;
     float Ar;
@@ -45,6 +47,19 @@ void Project::localInit() {
 
     this->partita = new Partita();
     partita->generateWorld();
+
+    for(int row = 0; row < MAPDIM; row++)
+    {
+        for(int col = 0; col < MAPDIM; col++)
+        {
+            TileView* tp = new TileView(row, col);
+            tp->init(this, partita->getMap(row, col)->height);
+            tp->ubo.model = glm::mat4(1);
+            mapTiles.push_back(tp);
+        }
+    }
+
+
     PlaneView* p = new PlaneView();
 
     p->init(this);
@@ -55,6 +70,10 @@ void Project::localInit() {
 }
 
 void Project::pipelinesAndDescriptorSetsInit() {
+    for(TileView* tp : mapTiles)
+    {
+        tp->pipelineAndDSInit(this, sizeof(UniformBufferObject), sizeof(GlobalUniformBufferObject));
+    }
     for(PlaneView* p : Planes)
     {
         p->pipelineAndDSInit(this, sizeof(UniformBufferObject), sizeof(GlobalUniformBufferObject));
@@ -62,6 +81,10 @@ void Project::pipelinesAndDescriptorSetsInit() {
 }
 
 void Project::populateCommandBuffer(VkCommandBuffer commandBuffer, int i) {
+    for(TileView* tp : mapTiles)
+    {
+        tp->populateCommandBuffer(commandBuffer, i);
+    }
     for(PlaneView* p : Planes)
     {
         p->populateCommandBuffer(commandBuffer, i);
@@ -101,7 +124,19 @@ void Project::updateUniformBuffer(uint32_t currentImage) {
     getSixAxis(deltaT, time, m, r, SpaceBar, BackSpace);
 
 
-    glm::mat4 S = updateCam(Ar, deltaT, m, r, true);
+    glm::mat4 S = updateCam(Ar, deltaT, m, r, false);
+
+    for(TileView* tp : mapTiles)
+    {
+        tp->ubo.model = glm::translate(glm::mat4(1.0), glm::vec3((MAPDIM/2) * 2.80, 0.0, (MAPDIM/2) * 2.80));
+        tp->ubo.model *= glm::translate(glm::mat4(1.0), glm::vec3(tp->row_ * 5.60 - 5.60 * (MAPDIM), 0.0, tp->col_ * 5.60 - 5.60 * (MAPDIM)));
+        tp->ubo.worldViewProj = S * tp->ubo.model;
+        tp->ubo.normal = glm::inverse(glm::transpose(tp->ubo.model));
+
+        tp->DS.map(currentImage, &tp->ubo, sizeof(tp->ubo), 0);
+
+        tp->DS.map(currentImage, &gubo, sizeof(gubo), 2);
+    }
 
     for(PlaneView* p : Planes)
     {
@@ -117,6 +152,10 @@ void Project::updateUniformBuffer(uint32_t currentImage) {
 }
 
 void Project::pipelinesAndDescriptorSetsCleanup() {
+    for(TileView* tp : mapTiles)
+    {
+        tp->pipelineAndDSClenup();
+    }
     for(PlaneView* p : Planes)
     {
         p->pipelineAndDSClenup();
@@ -124,6 +163,12 @@ void Project::pipelinesAndDescriptorSetsCleanup() {
 }
 
 void Project::localCleanup() {
+    for(TileView* tp : mapTiles)
+    {
+        tp->cleanup();
+        tp->P.destroy();
+        tp->DSL.cleanup();
+    }
     for(PlaneView* p : Planes)
     {
         p->cleanup();

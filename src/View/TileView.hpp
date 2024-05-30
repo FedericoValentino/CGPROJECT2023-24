@@ -1,9 +1,10 @@
-#ifndef CGPROJECT_2023_24_PIECE_HPP
-#define CGPROJECT_2023_24_PIECE_HPP
+
+#ifndef CGPRJ2023_24_TILEVIEW_H
+#define CGPRJ2023_24_TILEVIEW_H
 
 #include "../Engine/Starter.hpp"
 
-class PlaneView {
+class TileView {
 public:
     DescriptorSetLayout DSL;
     VertexDescriptor VD;
@@ -15,8 +16,35 @@ public:
 
     BaseProject* app;
 
-    void init(BaseProject* bp)
+    int row_;
+    int col_;
+
+    TileView(int row, int col):
+        row_(row), col_(col){}
+
+
+
+    void init(BaseProject* bp, int type)
     {
+
+        std::string modelURL;
+        switch(type)
+        {
+            case 0:
+                modelURL = "../src/models/floor.obj";
+                break;
+            case 1:
+                modelURL = "../src/models/house.obj";
+                break;
+            case 2:
+                modelURL = "../src/models/skyscraper.obj";
+                break;
+            default:
+                exit(1);
+                break;
+        }
+
+
         this->app = bp;
 
         this->DSL.init(bp, {
@@ -29,19 +57,19 @@ public:
                 {2, VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, VK_SHADER_STAGE_ALL_GRAPHICS}});
 
         this->VD.init(bp, {
-            {0, sizeof(Vertex), VK_VERTEX_INPUT_RATE_VERTEX}
+                {0, sizeof(Vertex), VK_VERTEX_INPUT_RATE_VERTEX}
         }, {
-                {0, 0, VK_FORMAT_R32G32B32_SFLOAT, offsetof(Vertex, pos),
-                 sizeof(glm::vec3), POSITION},
-                {0, 1, VK_FORMAT_R32G32_SFLOAT, offsetof(Vertex, UV),
-                 sizeof(glm::vec2), UV},
-                {0, 2, VK_FORMAT_R32G32B32_SFLOAT, offsetof(Vertex, norm),
-                 sizeof(glm::vec3), NORMAL}
-        });
+                              {0, 0, VK_FORMAT_R32G32B32_SFLOAT, offsetof(Vertex, pos),
+                                      sizeof(glm::vec3), POSITION},
+                              {0, 1, VK_FORMAT_R32G32_SFLOAT, offsetof(Vertex, UV),
+                                      sizeof(glm::vec2), UV},
+                              {0, 2, VK_FORMAT_R32G32B32_SFLOAT, offsetof(Vertex, norm),
+                                      sizeof(glm::vec3), NORMAL}
+                      });
 
         this->P.init(bp, &VD, "../src/shaders/vert.spv", "../src/shaders/frag.spv", {&this->DSL});
         this->T.init(bp, "../src/textures/cube.png");
-        this->M.init(bp, &VD, "../src/models/floor.obj", OBJ);
+        this->M.init(bp, &VD, modelURL, OBJ);
     }
 
     void pipelineAndDSInit(BaseProject* bp, int ubosize, int gubosize){
@@ -74,6 +102,4 @@ public:
 
 
 };
-
-
-#endif //CGPROJECT_2023_24_PIECE_HPP
+#endif //CGPRJ2023_24_TILEVIEW_H

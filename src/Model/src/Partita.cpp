@@ -83,7 +83,7 @@ void Partita::generateWorld() {
             }
         }
     }
-/*
+
     for(int x = 0; x < MAPDIM; x++)
     {
         for (int y = 0; y < MAPDIM; y++)
@@ -92,7 +92,6 @@ void Partita::generateWorld() {
         }
         printf("\n");
     }
-*/
 }
 
 
@@ -135,4 +134,8 @@ void Partita::checkCollision() {
             }
         }
     }*/
+}
+
+const Tiles* Partita::getMap(int x, int y) const {
+    return map[x][y];
 }

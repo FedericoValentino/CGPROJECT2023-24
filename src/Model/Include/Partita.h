@@ -8,7 +8,7 @@
 #include "Tiles.h"
 
 
-#define MAPDIM 12
+#define MAPDIM 20
 
 enum GAMESTATE{
     GAMING,
@@ -48,6 +48,8 @@ class Partita {
 
 public:
     Partita();
+
+    [[nodiscard]] const Tiles* getMap(int x, int y) const;
 };
 
 
