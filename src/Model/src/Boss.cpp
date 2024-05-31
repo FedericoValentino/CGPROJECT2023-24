@@ -4,8 +4,8 @@
 
 #include "../Include/Boss.h"
 
-Boss::Boss(const Position3D& position3D,const float speed, bool debug=false):
-    Enemy(position3D,speed,debug);
+Boss::Boss(const Position3D& position3D,const float speed, bool debug):
+           Enemy(position3D,speed,debug){};
 
 void Boss::move(const Player& player,const float deltaT)
 {

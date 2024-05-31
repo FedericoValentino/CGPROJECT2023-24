@@ -19,6 +19,7 @@ private:
     std::vector<Projectile*> projectiles;
 
 public:
+    glm::vec3 origin_;
 
     glm::vec4 getDirection();
 
