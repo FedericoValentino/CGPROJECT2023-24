@@ -28,8 +28,8 @@ public:
     [[nodiscard]] float getSpeed() const;
     [[nodiscard]] unsigned int getId() const;
     void move(const float deltaT); // move to direction_
-    bool isPositionInsideScreen(const unsigned int SCREEN_WIDTH,
-                                const unsigned int SCREEN_HEIGHT) const;
+    [[nodiscard]]bool isPositionInsideScreen(const float SCREEN_WIDTH,
+                                const float SCREEN_HEIGHT) const;
 };
 
 

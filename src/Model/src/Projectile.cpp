@@ -23,7 +23,7 @@ float Projectile::getSpeed() const {
     return speed_;
 }
 
- unsigned int Projectile::getId() const
+unsigned int Projectile::getId() const
 {
     return id_;
 }
@@ -39,8 +39,8 @@ void Projectile::move(const float deltaT) {
 
 }
 
-bool Projectile::isPositionInsideScreen(const unsigned int SCREEN_WIDTH,
-                                        const unsigned int SCREEN_HEIGHT) const
+bool Projectile::isPositionInsideScreen(const float SCREEN_WIDTH,
+                                        const float SCREEN_HEIGHT) const
 {
     return (position3D_.origin.x >= 0 && position3D_.origin.x < SCREEN_WIDTH &&
             position3D_.origin.y >= 0 && position3D_.origin.y < SCREEN_HEIGHT);

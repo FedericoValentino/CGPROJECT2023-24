@@ -9,7 +9,7 @@
 #include "glm/glm.hpp"
 #include "glm/gtc/matrix_transform.hpp"
 
-Player::Player() {
+Player::Player(): origin_(250.0f,250.0f,0.0f){
     this->direction = glm::vec4 {0,0,0,1};
     this->hp = 10;
     this->projectiles.clear();
