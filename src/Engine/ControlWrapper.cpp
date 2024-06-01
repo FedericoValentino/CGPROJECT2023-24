@@ -13,6 +13,17 @@ enum DIR
 };
 
 
+enum Planes
+{
+    Left = 0,
+    Right,
+    Bottom,
+    Top,
+    Near,
+    Far,
+};
+
+
 glm::mat4 generateYRotation(float degree)
 {
     return glm::mat4(glm::cos(degree), 0, -glm::sin(degree), 0,
@@ -29,7 +40,7 @@ glm::mat4 generateXRotation(float degree)
                      0, 0, 0, 1);
 }
 
-/** Creates a view projection matrix, with near plane at 0.1, and far plane at 50.0, and
+/** Creates a view projection matrix, with near plane at 0.1, and far plane at 150.0, and
  aspect ratio given in <Ar>. The view matrix, uses the Look-in-Direction model, with
  vector <pos> specifying the position of the camera, and angles <Alpha>, <Beta> and <Rho>
  defining its direction. In particular, <Alpha> defines the direction (Yaw), <Beta> the
@@ -37,7 +48,7 @@ glm::mat4 generateXRotation(float degree)
 glm::mat4 updateCam(float Ar, float deltaT, glm::vec3 m, glm::vec3 r, bool model){
     const float FOVy = glm::radians(105.0f);
     const float nearPlane = 0.1f;
-    const float farPlane = 100.f;
+    const float farPlane = 150.f;
     const float camHeight = 2.5;
     const float camDist = 7;
     const float ROT_SPEED = glm::radians(120.0f);
@@ -65,7 +76,6 @@ glm::mat4 updateCam(float Ar, float deltaT, glm::vec3 m, glm::vec3 r, bool model
     CamPos += MOVE_SPEED * m.y * glm::vec3(0,1,0) * deltaT;
     CamPos += MOVE_SPEED * m.z * uz * deltaT;
 
-
     if(model)
     {
         return glm::scale(glm::mat4(1),glm::vec3(1,-1,1)) *
@@ -88,29 +98,26 @@ glm::mat4 updateCam(float Ar, float deltaT, glm::vec3 m, glm::vec3 r, bool model
     }
 }
 
-int getNewSquare(GLFWwindow* window)
+bool sphereInFrustum(glm::vec4* m_planes, glm::vec3 point, float radius)
 {
-    glfwSetInputMode(window, GLFW_STICKY_MOUSE_BUTTONS, GLFW_TRUE);
-    if(glfwGetKey(window, GLFW_KEY_I))
-    {
-        return UP;
+    for (uint32_t i = 0; i < 6; i++) {
+        if (m_planes[i][0] * point.x + m_planes[i][1] * point.y + m_planes[i][2] * point.z + m_planes[i][3] <= -radius) {
+            return false;
+        }
     }
-    if(glfwGetKey(window, GLFW_KEY_K))
-    {
-        return DOWN;
-    }
-    if(glfwGetKey(window, GLFW_KEY_J))
-    {
-        return LEFT;
-    }
-    if(glfwGetKey(window, GLFW_KEY_L))
-    {
-        return RIGHT;
-    }
-
-    return NONE;
+    return true;
 }
 
+void extractFrustumPlanes(glm::vec4* m_planes, glm::mat4 m)
+{
+    m = glm::transpose(m);
+    m_planes[Left]   = m[3] + m[0];
+    m_planes[Right]  = m[3] - m[0];
+    m_planes[Bottom] = m[3] + m[1];
+    m_planes[Top]    = m[3] - m[1];
+    m_planes[Near]   = m[3] + m[2];
+    m_planes[Far]    = m[3] - m[2];
+}
 
 
 

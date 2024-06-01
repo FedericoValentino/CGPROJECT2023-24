@@ -9,6 +9,7 @@
 struct TileInfo{
     int row_;
     int col_;
+    bool toDraw;
     DescriptorSet DS;
     UniformBufferObject ubo;
 };
@@ -127,9 +128,11 @@ public:
             this->floor.bind(commandBuffer);
 
             for (TileInfo* info: floorTiles) {
-                info->DS.bind(commandBuffer, this->P, 0, currentImage);
-                vkCmdDrawIndexed(commandBuffer,
-                                 static_cast<uint32_t>(this->floor.indices.size()), 1, 0, 0, 0);
+                if(info->toDraw) {
+                    info->DS.bind(commandBuffer, this->P, 0, currentImage);
+                    vkCmdDrawIndexed(commandBuffer,
+                                     static_cast<uint32_t>(this->floor.indices.size()), 1, 0, 0, 0);
+                }
             }
         }
 
@@ -138,9 +141,11 @@ public:
             this->house.bind(commandBuffer);
 
             for (TileInfo* info: houseTiles) {
-                info->DS.bind(commandBuffer, this->P, 0, currentImage);
-                vkCmdDrawIndexed(commandBuffer,
-                                 static_cast<uint32_t>(this->house.indices.size()), 1, 0, 0, 0);
+                if (info->toDraw) {
+                    info->DS.bind(commandBuffer, this->P, 0, currentImage);
+                    vkCmdDrawIndexed(commandBuffer,
+                                     static_cast<uint32_t>(this->house.indices.size()), 1, 0, 0, 0);
+                }
             }
         }
 
@@ -150,9 +155,11 @@ public:
             this->skyscraper.bind(commandBuffer);
 
             for (TileInfo* info: skyscraperTiles) {
-                info->DS.bind(commandBuffer, this->P, 0, currentImage);
-                vkCmdDrawIndexed(commandBuffer,
-                                 static_cast<uint32_t>(this->skyscraper.indices.size()), 1, 0, 0, 0);
+                if (info->toDraw) {
+                    info->DS.bind(commandBuffer, this->P, 0, currentImage);
+                    vkCmdDrawIndexed(commandBuffer,
+                                     static_cast<uint32_t>(this->skyscraper.indices.size()), 1, 0, 0, 0);
+                }
             }
         }
 

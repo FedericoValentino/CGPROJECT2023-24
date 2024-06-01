@@ -495,7 +495,7 @@ protected:
 		localInit();
 		pipelinesAndDescriptorSetsInit();
 
-		createCommandBuffers();			
+		createCommandBuffers(0);
 		createSyncObjects();			 
     }
 
@@ -1564,7 +1564,7 @@ std::cout << "Starting createInstance()\n"  << std::flush;
 	
 	virtual void populateCommandBuffer(VkCommandBuffer commandBuffer, int i) = 0;
 
-    void createCommandBuffers() {
+    void createCommandBuffers(int currentImage) {
         if(!createdCommandBuffers)
         {
             commandBuffers.resize(swapChainFramebuffers.size());
@@ -1584,49 +1584,47 @@ std::cout << "Starting createInstance()\n"  << std::flush;
             createdCommandBuffers = true;
         }
 
-        vkDeviceWaitIdle(device);
-		
-		for (size_t i = 0; i < commandBuffers.size(); i++) {
-			VkCommandBufferBeginInfo beginInfo{};
-			beginInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
-			beginInfo.flags = 0; // Optional
-			beginInfo.pInheritanceInfo = nullptr; // Optional
+        int i = currentImage;
 
-            vkResetCommandBuffer(commandBuffers[i], 0);
+        VkCommandBufferBeginInfo beginInfo{};
+        beginInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
+        beginInfo.flags = 0; // Optional
+        beginInfo.pInheritanceInfo = nullptr; // Optional
 
-			if (vkBeginCommandBuffer(commandBuffers[i], &beginInfo) !=
-						VK_SUCCESS) {
-				throw std::runtime_error("failed to begin recording command buffer!");
-			}
-			
-			VkRenderPassBeginInfo renderPassInfo{};
-			renderPassInfo.sType = VK_STRUCTURE_TYPE_RENDER_PASS_BEGIN_INFO;
-			renderPassInfo.renderPass = renderPass; 
-			renderPassInfo.framebuffer = swapChainFramebuffers[i];
-			renderPassInfo.renderArea.offset = {0, 0};
-			renderPassInfo.renderArea.extent = swapChainExtent;
-	
-			std::array<VkClearValue, 2> clearValues{};
-			clearValues[0].color = initialBackgroundColor;
-			clearValues[1].depthStencil = {1.0f, 0};
-	
-			renderPassInfo.clearValueCount =
-							static_cast<uint32_t>(clearValues.size());
-			renderPassInfo.pClearValues = clearValues.data();
-			
-			vkCmdBeginRenderPass(commandBuffers[i], &renderPassInfo,
-					VK_SUBPASS_CONTENTS_INLINE);			
-	
+        //vkResetCommandBuffer(commandBuffers[i], 0);
 
-			populateCommandBuffer(commandBuffers[i], i);
-			
+        if (vkBeginCommandBuffer(commandBuffers[i], &beginInfo) !=
+            VK_SUCCESS) {
+            throw std::runtime_error("failed to begin recording command buffer!");
+        }
 
-			vkCmdEndRenderPass(commandBuffers[i]);
+        VkRenderPassBeginInfo renderPassInfo{};
+        renderPassInfo.sType = VK_STRUCTURE_TYPE_RENDER_PASS_BEGIN_INFO;
+        renderPassInfo.renderPass = renderPass;
+        renderPassInfo.framebuffer = swapChainFramebuffers[i];
+        renderPassInfo.renderArea.offset = {0, 0};
+        renderPassInfo.renderArea.extent = swapChainExtent;
 
-			if (vkEndCommandBuffer(commandBuffers[i]) != VK_SUCCESS) {
-				throw std::runtime_error("failed to record command buffer!");
-			}
-		}
+        std::array<VkClearValue, 2> clearValues{};
+        clearValues[0].color = initialBackgroundColor;
+        clearValues[1].depthStencil = {1.0f, 0};
+
+        renderPassInfo.clearValueCount =
+                static_cast<uint32_t>(clearValues.size());
+        renderPassInfo.pClearValues = clearValues.data();
+
+        vkCmdBeginRenderPass(commandBuffers[i], &renderPassInfo,
+                             VK_SUBPASS_CONTENTS_INLINE);
+
+
+        populateCommandBuffer(commandBuffers[i], i);
+
+
+        vkCmdEndRenderPass(commandBuffers[i]);
+
+        if (vkEndCommandBuffer(commandBuffers[i]) != VK_SUCCESS) {
+            throw std::runtime_error("failed to record command buffer!");
+        }
 	}
     
     void createSyncObjects() {
@@ -1697,7 +1695,7 @@ std::cout << "Starting createInstance()\n"  << std::flush;
 		
 		updateUniformBuffer(imageIndex);
 
-        createCommandBuffers();
+        createCommandBuffers(imageIndex);
 		
 		VkSubmitInfo submitInfo{};
 		submitInfo.sType = VK_STRUCTURE_TYPE_SUBMIT_INFO;
@@ -1776,7 +1774,7 @@ std::cout << "Starting createInstance()\n"  << std::flush;
 		pipelinesAndDescriptorSetsInit();
 
         createdCommandBuffers = false;
-		createCommandBuffers();
+		createCommandBuffers(0);
 	}
 
 	void cleanupSwapChain() {
