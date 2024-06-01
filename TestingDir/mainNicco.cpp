@@ -1,22 +1,12 @@
-#include <iostream>
-#include "Engine/Project.hpp"
+#include <chrono>
+#include "../src/Model/Include/Enemy.h"
+#include "../src/Model/Include/Position3D.h"
+#include "../src/Model/Include/Projectile.h"
 
-// Mutex for synchronizing access to the critical section
+
+
 
 int main() {
-    Project app;
-
-    try {
-        app.run();
-    }
-    catch(const std::exception& e)
-    {
-        std::cerr<<e.what()<<std::endl;
-        return EXIT_FAILURE;
-    }
-
-    return EXIT_SUCCESS;
-/*
     constexpr float SCREEN_WIDHT = 800.0f;
     constexpr float SCREEN_HEIGHT = 600.0f;
     const glm::vec3 origin = {0.1f,0.1f,0.0f};
@@ -38,5 +28,4 @@ int main() {
     return 0;
 
     // Enemy can perform other actions here
-    */
 }
