@@ -19,12 +19,7 @@ private:
 
     Partita* partita;
     std::vector<PlaneView*> Planes;
-    std::vector<TileView*> mapTiles;
-    Model house;
-    Model floor;
-    Model skyscraper;
-
-    VertexDescriptor VD;
+    TileView* tiles;
 
     int numObj = 100;
     float Ar;
@@ -53,59 +48,21 @@ void Project::localInit() {
     this->partita = new Partita();
     partita->generateWorld();
 
-    VD.init(this, {
-            {0, sizeof(Vertex), VK_VERTEX_INPUT_RATE_VERTEX}
-    }, {
-                          {0, 0, VK_FORMAT_R32G32B32_SFLOAT, offsetof(Vertex, pos),
-                                  sizeof(glm::vec3), POSITION},
-                          {0, 1, VK_FORMAT_R32G32_SFLOAT, offsetof(Vertex, UV),
-                                  sizeof(glm::vec2), UV},
-                          {0, 2, VK_FORMAT_R32G32B32_SFLOAT, offsetof(Vertex, norm),
-                                  sizeof(glm::vec3), NORMAL}
-                  });
-
-    house.init(this, &VD, "../src/models/house.obj", OBJ);
-    floor.init(this, &VD, "../src/models/floor.obj", OBJ);
-    skyscraper.init(this, &VD, "../src/models/floor.obj", OBJ);
-
-
+    this->tiles = new TileView;
+    tiles->init(this);
 
     for(int row = 0; row < MAPDIM; row++)
     {
         for(int col = 0; col < MAPDIM; col++)
         {
-            TileView* tp = new TileView(row, col);
-            tp->init(this, partita->getMap(row, col)->height);
-            switch(partita->getMap(row, col)->height)
-            {
-                case 0:
-                    tp->M = floor;
-                    break;
-                case 1:
-                    tp->M = house;
-                    break;
-                case 2:
-                    tp->M = skyscraper;
-                    break;
-                default:
-                    exit(1);
-                    break;
-            }
-            tp->ubo.model = glm::mat4(1);
-            tp->ubo.model = glm::translate(glm::mat4(1.0), glm::vec3((MAPDIM/2) * 2.80, 0.0, (MAPDIM/2) * 2.80));
-            tp->ubo.model *= glm::translate(glm::mat4(1.0), glm::vec3(tp->row_ * 5.60 - 5.60 * (MAPDIM), 0.0, tp->col_ * 5.60 - 5.60 * (MAPDIM)));
-            tp->ubo.normal = glm::inverse(glm::transpose(tp->ubo.model));
-            mapTiles.push_back(tp);
+            tiles->newTile(this, sizeof(UniformBufferObject), sizeof(GlobalUniformBufferObject), row, col, partita->map[row][col]->height);
         }
     }
 
 
     PlaneView* p = new PlaneView();
-
     p->init(this);
     p->ubo.model = glm::mat4(1);
-
-
     p->ubo.model *= glm::translate(glm::mat4(1), glm::vec3(0.0, 8.40, 0.0));
 
     Planes.push_back(p);
@@ -113,10 +70,8 @@ void Project::localInit() {
 }
 
 void Project::pipelinesAndDescriptorSetsInit() {
-    for(TileView* tp : mapTiles)
-    {
-        tp->pipelineAndDSInit(this, sizeof(UniformBufferObject), sizeof(GlobalUniformBufferObject));
-    }
+    tiles->pipelineAndDSInit(this, sizeof(UniformBufferObject), sizeof(GlobalUniformBufferObject));
+
     for(PlaneView* p : Planes)
     {
         p->pipelineAndDSInit(this, sizeof(UniformBufferObject), sizeof(GlobalUniformBufferObject));
@@ -124,20 +79,17 @@ void Project::pipelinesAndDescriptorSetsInit() {
 }
 
 void Project::populateCommandBuffer(VkCommandBuffer commandBuffer, int i) {
-    for(TileView* tp : mapTiles)
-    {
-        tp->populateCommandBuffer(commandBuffer, i);
-    }
     for(PlaneView* p : Planes)
     {
         p->populateCommandBuffer(commandBuffer, i);
     }
+    tiles->populateCommandBuffer(commandBuffer, i);
 }
 
 void Project::setWindowParameters() {
     windowWidth = 1280;
     windowHeight = 720;
-    windowTitle = "TIME PILOT 2024";
+    windowTitle = "TIMEPILOT 0.1";
     windowResizable = GLFW_TRUE;
     initialBackgroundColor = {0.0f, 0.0f, 0.0f, 1.0f};
 
@@ -165,18 +117,32 @@ void Project::updateUniformBuffer(uint32_t currentImage) {
     glm::vec3 r = glm::vec3(0.0f);
 
     getSixAxis(deltaT, time, m, r, SpaceBar, BackSpace);
-    printf("%f\n", deltaT);
 
 
     glm::mat4 S = updateCam(Ar, deltaT, m, r, false);
 
-
-    for(TileView* tp : mapTiles)
+    for(TileInfo* info : tiles->floorTiles)
     {
-        tp->ubo.worldViewProj = S * tp->ubo.model;
-        tp->DS.map(currentImage, &tp->ubo, sizeof(tp->ubo), 0);
+        info->ubo.worldViewProj = S * info->ubo.model;
+        info->DS.map(currentImage, &info->ubo, sizeof(info->ubo), 0);
 
-        tp->DS.map(currentImage, &gubo, sizeof(gubo), 2);
+        info->DS.map(currentImage, &gubo, sizeof(gubo), 2);
+    }
+
+    for(TileInfo* info : tiles->houseTiles)
+    {
+        info->ubo.worldViewProj = S * info->ubo.model;
+        info->DS.map(currentImage, &info->ubo, sizeof(info->ubo), 0);
+
+        info->DS.map(currentImage, &gubo, sizeof(gubo), 2);
+    }
+
+    for(TileInfo* info : tiles->skyscraperTiles)
+    {
+        info->ubo.worldViewProj = S * info->ubo.model;
+        info->DS.map(currentImage, &info->ubo, sizeof(info->ubo), 0);
+
+        info->DS.map(currentImage, &gubo, sizeof(gubo), 2);
     }
 
 
@@ -195,10 +161,7 @@ void Project::updateUniformBuffer(uint32_t currentImage) {
 }
 
 void Project::pipelinesAndDescriptorSetsCleanup() {
-    for(TileView* tp : mapTiles)
-    {
-        tp->pipelineAndDSClenup();
-    }
+    tiles->pipelineAndDSCleanup();
     for(PlaneView* p : Planes)
     {
         p->pipelineAndDSClenup();
@@ -206,15 +169,8 @@ void Project::pipelinesAndDescriptorSetsCleanup() {
 }
 
 void Project::localCleanup() {
-    floor.cleanup();
-    house.cleanup();
-    skyscraper.cleanup();
-    for(TileView* tp : mapTiles)
-    {
-        tp->cleanup();
-        tp->P.destroy();
-        tp->DSL.cleanup();
-    }
+
+    tiles->cleanup();
     for(PlaneView* p : Planes)
     {
         p->cleanup();
