@@ -3,12 +3,6 @@
 
 #include "../Engine/Starter.hpp"
 
-struct UniformBufferObject {
-    alignas(16) glm::mat4 worldViewProj;
-    alignas(16) glm::mat4 model;
-    alignas(16) glm::mat4 normal;
-};
-
 class PlaneView {
 public:
     DescriptorSetLayout DSL;
@@ -45,9 +39,9 @@ public:
                  sizeof(glm::vec3), NORMAL}
         });
 
-        this->P.init(bp, &VD, "../src/shaders/vert.spv", "../src/shaders/frag.spv", {&this->DSL});
+        this->P.init(bp, &VD, "../src/shaders/planeVert.spv", "../src/shaders/planeFrag.spv", {&this->DSL});
         this->T.init(bp, "../src/textures/cube.png");
-        this->M.init(bp, &VD, "../src/models/Aereo.obj", OBJ);
+        this->M.init(bp, &VD, "../src/models/plane.obj", OBJ);
     }
 
     void pipelineAndDSInit(BaseProject* bp, int ubosize, int gubosize){

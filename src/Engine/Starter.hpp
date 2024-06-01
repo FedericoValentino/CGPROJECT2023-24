@@ -64,6 +64,12 @@
 
 const int MAX_FRAMES_IN_FLIGHT = 2;
 
+struct UniformBufferObject {
+    alignas(16) glm::mat4 worldViewProj;
+    alignas(16) glm::mat4 model;
+    alignas(16) glm::mat4 normal;
+};
+
 const std::vector<const char*> validationLayers = {
 	"VK_LAYER_KHRONOS_validation"
 };
@@ -444,8 +450,29 @@ protected:
 						(glfwGetWindowUserPointer(window));
 		app->framebufferResized = true;
 		app->onWindowResize(width, height);
-	} 
-	
+	}
+
+    void showFPS(GLFWwindow *pWindow)
+    {
+        static double lastTime = 0;
+        static int nbFrames = 0;
+        // Measure speed
+        double currentTime = glfwGetTime();
+        double delta = currentTime - lastTime;
+        nbFrames++;
+        if ( delta >= 1.0 ){
+
+            double fps = double(nbFrames) / delta;
+
+            std::stringstream ss;
+            ss << "TIMEPILOT" << " " << "0.1" << " [" << fps << " FPS]";
+
+            glfwSetWindowTitle(pWindow, ss.str().c_str());
+
+            nbFrames = 0;
+            lastTime = currentTime;
+        }
+    }
 
 	virtual void localInit() = 0;
 	virtual void pipelinesAndDescriptorSetsInit() = 0;
@@ -468,7 +495,7 @@ protected:
 		localInit();
 		pipelinesAndDescriptorSetsInit();
 
-		createCommandBuffers();			
+		createCommandBuffers(0);
 		createSyncObjects();			 
     }
 
@@ -500,7 +527,7 @@ std::cout << "Starting createInstance()\n"  << std::flush;
 			static_cast<uint32_t>(extensions.size());
 		createInfo.ppEnabledExtensionNames = extensions.data();		
 
-		createInfo.flags |= VK_INSTANCE_CREATE_ENUMERATE_PORTABILITY_BIT_KHR;
+		createInfo.flags |= 0x00000001;
 		
 		if (!checkValidationLayerSupport()) {
 			throw std::runtime_error("validation layers requested, but not available!");
@@ -533,11 +560,11 @@ std::cout << "Starting createInstance()\n"  << std::flush;
 			glfwExtensions + glfwExtensionCount);
 			
 		extensions.push_back(VK_EXT_DEBUG_UTILS_EXTENSION_NAME);		
-		
+		/*
 		if(checkIfItHasExtension(VK_KHR_PORTABILITY_ENUMERATION_EXTENSION_NAME)) {
 			extensions.push_back(VK_KHR_PORTABILITY_ENUMERATION_EXTENSION_NAME);
 
-		}
+		}*/
 		if(checkIfItHasExtension(VK_KHR_GET_PHYSICAL_DEVICE_PROPERTIES_2_EXTENSION_NAME)) {
 			extensions.push_back(VK_KHR_GET_PHYSICAL_DEVICE_PROPERTIES_2_EXTENSION_NAME);
 		}
@@ -961,7 +988,8 @@ std::cout << "Starting createInstance()\n"  << std::flush;
 	VkPresentModeKHR chooseSwapPresentMode(
 			const std::vector<VkPresentModeKHR>& availablePresentModes) {
 		for (const auto& availablePresentMode : availablePresentModes) {
-			if (availablePresentMode == VK_PRESENT_MODE_MAILBOX_KHR) {
+            //NO VSYNC VK_PRESENT_MODE_IMMEDIATE_KHR
+			if (availablePresentMode == VK_PRESENT_MODE_IMMEDIATE_KHR) {
 				return availablePresentMode;
 			}
 		}
@@ -1536,7 +1564,7 @@ std::cout << "Starting createInstance()\n"  << std::flush;
 	
 	virtual void populateCommandBuffer(VkCommandBuffer commandBuffer, int i) = 0;
 
-    void createCommandBuffers() {
+    void createCommandBuffers(int currentImage) {
         if(!createdCommandBuffers)
         {
             commandBuffers.resize(swapChainFramebuffers.size());
@@ -1556,49 +1584,47 @@ std::cout << "Starting createInstance()\n"  << std::flush;
             createdCommandBuffers = true;
         }
 
-        vkDeviceWaitIdle(device);
-		
-		for (size_t i = 0; i < commandBuffers.size(); i++) {
-			VkCommandBufferBeginInfo beginInfo{};
-			beginInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
-			beginInfo.flags = 0; // Optional
-			beginInfo.pInheritanceInfo = nullptr; // Optional
+        int i = currentImage;
 
-            vkResetCommandBuffer(commandBuffers[i], 0);
+        VkCommandBufferBeginInfo beginInfo{};
+        beginInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
+        beginInfo.flags = 0; // Optional
+        beginInfo.pInheritanceInfo = nullptr; // Optional
 
-			if (vkBeginCommandBuffer(commandBuffers[i], &beginInfo) !=
-						VK_SUCCESS) {
-				throw std::runtime_error("failed to begin recording command buffer!");
-			}
-			
-			VkRenderPassBeginInfo renderPassInfo{};
-			renderPassInfo.sType = VK_STRUCTURE_TYPE_RENDER_PASS_BEGIN_INFO;
-			renderPassInfo.renderPass = renderPass; 
-			renderPassInfo.framebuffer = swapChainFramebuffers[i];
-			renderPassInfo.renderArea.offset = {0, 0};
-			renderPassInfo.renderArea.extent = swapChainExtent;
-	
-			std::array<VkClearValue, 2> clearValues{};
-			clearValues[0].color = initialBackgroundColor;
-			clearValues[1].depthStencil = {1.0f, 0};
-	
-			renderPassInfo.clearValueCount =
-							static_cast<uint32_t>(clearValues.size());
-			renderPassInfo.pClearValues = clearValues.data();
-			
-			vkCmdBeginRenderPass(commandBuffers[i], &renderPassInfo,
-					VK_SUBPASS_CONTENTS_INLINE);			
-	
+        //vkResetCommandBuffer(commandBuffers[i], 0);
 
-			populateCommandBuffer(commandBuffers[i], i);
-			
+        if (vkBeginCommandBuffer(commandBuffers[i], &beginInfo) !=
+            VK_SUCCESS) {
+            throw std::runtime_error("failed to begin recording command buffer!");
+        }
 
-			vkCmdEndRenderPass(commandBuffers[i]);
+        VkRenderPassBeginInfo renderPassInfo{};
+        renderPassInfo.sType = VK_STRUCTURE_TYPE_RENDER_PASS_BEGIN_INFO;
+        renderPassInfo.renderPass = renderPass;
+        renderPassInfo.framebuffer = swapChainFramebuffers[i];
+        renderPassInfo.renderArea.offset = {0, 0};
+        renderPassInfo.renderArea.extent = swapChainExtent;
 
-			if (vkEndCommandBuffer(commandBuffers[i]) != VK_SUCCESS) {
-				throw std::runtime_error("failed to record command buffer!");
-			}
-		}
+        std::array<VkClearValue, 2> clearValues{};
+        clearValues[0].color = initialBackgroundColor;
+        clearValues[1].depthStencil = {1.0f, 0};
+
+        renderPassInfo.clearValueCount =
+                static_cast<uint32_t>(clearValues.size());
+        renderPassInfo.pClearValues = clearValues.data();
+
+        vkCmdBeginRenderPass(commandBuffers[i], &renderPassInfo,
+                             VK_SUBPASS_CONTENTS_INLINE);
+
+
+        populateCommandBuffer(commandBuffers[i], i);
+
+
+        vkCmdEndRenderPass(commandBuffers[i]);
+
+        if (vkEndCommandBuffer(commandBuffers[i]) != VK_SUCCESS) {
+            throw std::runtime_error("failed to record command buffer!");
+        }
 	}
     
     void createSyncObjects() {
@@ -1637,6 +1663,7 @@ std::cout << "Starting createInstance()\n"  << std::flush;
     void mainLoop() {
         while (!glfwWindowShouldClose(window)){
             glfwPollEvents();
+            showFPS(window);
             entityGeneration();
             drawFrame();
         }
@@ -1668,7 +1695,7 @@ std::cout << "Starting createInstance()\n"  << std::flush;
 		
 		updateUniformBuffer(imageIndex);
 
-        createCommandBuffers();
+        createCommandBuffers(imageIndex);
 		
 		VkSubmitInfo submitInfo{};
 		submitInfo.sType = VK_STRUCTURE_TYPE_SUBMIT_INFO;
@@ -1747,7 +1774,7 @@ std::cout << "Starting createInstance()\n"  << std::flush;
 		pipelinesAndDescriptorSetsInit();
 
         createdCommandBuffers = false;
-		createCommandBuffers();
+		createCommandBuffers(0);
 	}
 
 	void cleanupSwapChain() {

@@ -8,7 +8,7 @@
 
 unsigned int Projectile::count_ = 0;
 
-Projectile::Projectile(const Position3D& position3D, float size, float speed,bool debug):
+Projectile::Projectile(const Position3D& position3D, float size, float speed ,bool debug):
         position3D_(position3D),size_(size),speed_(speed),id_(++count_),debug_(debug){};
 
 const Position3D& Projectile::getPosition3D() const {
