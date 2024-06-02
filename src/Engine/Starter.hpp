@@ -1658,13 +1658,13 @@ std::cout << "Starting createInstance()\n"  << std::flush;
 		}
 	}
 
-    virtual void entityGeneration() = 0;
+    virtual void gameLogic() = 0;
 
     void mainLoop() {
         while (!glfwWindowShouldClose(window)){
             glfwPollEvents();
             showFPS(window);
-            entityGeneration();
+            gameLogic();
             drawFrame();
         }
         

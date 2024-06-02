@@ -18,7 +18,7 @@ class Project : public BaseProject
 private:
 
     Partita* partita;
-    std::vector<PlaneView*> Planes;
+    std::set<PlaneView*> Planes;
     TileView* tiles;
 
     int numObj = 100;
@@ -40,7 +40,11 @@ private:
 
     void localCleanup() final;
 
-    void entityGeneration() final;
+    void gameLogic() final;
+
+    void spawnPlane();
+
+    void destroyPlane(PlaneView* p);
 };
 
 void Project::localInit() {
@@ -55,7 +59,7 @@ void Project::localInit() {
     {
         for(int col = 0; col < MAPDIM; col++)
         {
-            tiles->newTile(this, sizeof(UniformBufferObject), sizeof(GlobalUniformBufferObject), row, col, partita->map[row][col]->height);
+            tiles->newTile(row, col, partita->map[row][col]->height);
         }
     }
 
@@ -65,7 +69,7 @@ void Project::localInit() {
     p->ubo.model = glm::mat4(1);
     p->ubo.model *= glm::translate(glm::mat4(1), glm::vec3(0.0, 8.40, 0.0));
 
-    Planes.push_back(p);
+    Planes.insert(p);
 
 }
 
@@ -204,66 +208,36 @@ void Project::localCleanup() {
     }
 }
 
-void Project::entityGeneration() {
-
-    static bool spacePress = false;
-    if(glfwGetKey(window, GLFW_KEY_SPACE) == GLFW_PRESS && !spacePress){
-        if(!spacePress) {
-            spacePress = true;
-        }
-    }
-
-    if(glfwGetKey(window, GLFW_KEY_SPACE) == GLFW_RELEASE){
-        spacePress = false;
-    }
-
-    static bool backSpace = false;
-    if(glfwGetKey(window, GLFW_KEY_BACKSPACE) == GLFW_PRESS && !backSpace){
-        if(!backSpace) {
-            backSpace = true;
-        }
-    }
-
-    if(glfwGetKey(window, GLFW_KEY_BACKSPACE) == GLFW_RELEASE){
-        backSpace = false;
-    }
-
-
-    if(spacePress)
-    {
-        PlaneView* p = new PlaneView();
-
-        p->init(this);
-        p->ubo.model = glm::mat4(1);
-        p->pipelineAndDSInit(this, sizeof(UniformBufferObject), sizeof(GlobalUniformBufferObject));
-
-        Planes.push_back(p);
-
-        printf("Added a cube!\n");
-    }
-
-    if(backSpace)
-    {
-
-        if(Planes.size() > 0)
-        {
-            vkDeviceWaitIdle(this->device);
-            PlaneView* p = Planes[Planes.size() - 1];
-            Planes.pop_back();
-            p->pipelineAndDSClenup();
-
-            p->cleanup();
-            p->P.destroy();
-            p->DSL.cleanup();
-        }
-    }
-
-
-}
-
 void Project::onWindowResize(int w, int h)
 {
 
+}
+
+void Project::gameLogic()
+{
+
+}
+
+void Project::spawnPlane()
+{
+    PlaneView* p = new PlaneView();
+
+    p->init(this);
+    p->ubo.model = glm::mat4(1);
+    p->pipelineAndDSInit(this, sizeof(UniformBufferObject), sizeof(GlobalUniformBufferObject));
+
+    Planes.insert(p);
+}
+
+void Project::destroyPlane(PlaneView* p)
+{
+    vkDeviceWaitIdle(this->device);
+    Planes.erase(p);
+
+    p->pipelineAndDSClenup();
+    p->cleanup();
+    p->P.destroy();
+    p->DSL.cleanup();
 }
 
 #endif

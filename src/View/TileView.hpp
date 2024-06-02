@@ -33,7 +33,7 @@ public:
     BaseProject* app;
 
 
-    void newTile(BaseProject* bp, int ubosize, int gubosize, int row, int col, int type)
+    void newTile(int row, int col, int type)
     {
         TileInfo* newInfo = new TileInfo();
 
