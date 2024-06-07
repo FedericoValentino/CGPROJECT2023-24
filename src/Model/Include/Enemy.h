@@ -1,5 +1,5 @@
 //
-// Created by feder34 on 21/05/24.
+// Created by Puddu && Niccolo on 21/05/24.
 //
 
 #ifndef CGPROJECT2023_24_ENEMY_H
@@ -25,11 +25,11 @@ public:
 
     Enemy(Position3D position);
 
-    void changePosition(Position3D position, const float deltaT);
+    void changePosition(Position3D position, float deltaT);
 
-    void changeDirection(Position3D position, const float deltaT);
+    void changeDirection(Position3D position, float deltaT);
 
-    void shoot(Position3D position, const float deltaT);
+    void shoot(Position3D position, float deltaT);
 
 };
 #endif //CGPROJECT2023_24_ENEMY_H

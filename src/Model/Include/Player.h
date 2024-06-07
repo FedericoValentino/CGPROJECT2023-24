@@ -1,5 +1,5 @@
 //
-// Created by feder34 on 21/05/24.
+// Created by Pudduh on 21/05/24.
 //
 
 #ifndef CGPRJ2023_24_PLAYER_H
@@ -17,11 +17,11 @@ public:
 
     Player();
 
-    void changePosition(Position3D position, const float deltaT);
+    void changePosition(Position3D inputPosition, float deltaT);
 
-    void changeDirection(Position3D position, const float deltaT);
+    void changeDirection(Position3D inputPosition, float deltaT);
 
-    void shoot(Position3D position, const float deltaT);
+    void shoot(Position3D inputPosition, float deltaT);
 
 };
 

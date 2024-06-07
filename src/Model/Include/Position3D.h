@@ -8,7 +8,7 @@
 
 struct Position3D
 {
-    glm::vec3 origin;
-    glm::vec3 orientation;
+    glm::vec4 origin;
+    glm::vec4 orientation;
 };
 #endif //CGPRJ2023_24_POSITION3D_H
