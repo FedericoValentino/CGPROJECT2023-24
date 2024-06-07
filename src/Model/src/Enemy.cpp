@@ -4,6 +4,7 @@
 
 #include "../Include/Enemy.h"
 
+
 Enemy::Enemy(Position3D position) {
 
     this->position = position;
@@ -13,16 +14,31 @@ Enemy::Enemy(Position3D position) {
     dead = false;
 }
 
-void Enemy::changePosition(Position3D position, const float deltaT) {
-
+void Enemy::changePosition(Position3D inputPosition, const float deltaT)
+{
+    float x =  glm::sin(glm::radians(position.orientation.y)) * speed * deltaT;
+    float y =  0.0f;
+    float z =  glm::cos(glm::radians(position.orientation.y)) * speed * deltaT;
+    glm::mat4 T = glm::translate(glm::mat4(1), glm::vec3(x, y, z));
+    position.origin= position.origin * T;
 }
 
-void Enemy::changeDirection(Position3D position, const float deltaT) {
-
+void Enemy::changeDirection(Position3D inputPosition, const float deltaT)
+{
+    glm::vec3 pointingDirection = glm::vec4(glm::sin(glm::radians(position.orientation.y)), 0.0f, glm::cos(glm::radians(position.orientation.y)), 1.0f);
+    glm::vec3 cross  = glm::cross(pointingDirection, glm::vec3(inputPosition.origin));
+    if(cross.y > 0)
+        position.orientation.y -= speed * deltaT;
+    else if (cross.y < 0)
+        position.orientation.y += speed * deltaT;
+    //TODO If cross==0
 }
 
-void Enemy::shoot(Position3D position, const float deltaT) {
-
+void Enemy::shoot(Position3D inputPosition, const float deltaT)
+{
+    float distance;
+    if(glm::intersectRaySphere(position.origin, position.orientation, inputPosition.origin, pow(1.0f, 2.0f), distance))
+        bullets->insert(new Bullet(position, 1.0f, 1.0f, false));
 }
 
 

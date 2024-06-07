@@ -13,14 +13,22 @@ Boss::Boss(Position3D position){
     dead = false;
 }
 
-void Boss::changePosition(Position3D position, const float deltaT) {
+void Boss::changePosition(Position3D inputPosition, const float deltaT)
+{
+
 }
 
-void Boss::changeDirection(Position3D position, const float deltaT) {
+void Boss::changeDirection(Position3D inputPosition, const float deltaT)
+{
+
 }
 
-void Boss::shoot(Position3D position, const float deltaT) {
-
+void Boss::shoot(Position3D inputPosition, const float deltaT)
+{
+    Position3D shootingVector;
+    shootingVector.origin = position.origin;
+    shootingVector.orientation = (position.origin - inputPosition.origin);
+    bullets->insert(new Bullet(shootingVector, 3.0f, 3.0f, false));
 }
 
 

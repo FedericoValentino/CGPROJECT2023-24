@@ -19,9 +19,9 @@ Player::Player() {
 }
 
 void Player::changePosition(Position3D inputPosition, const float deltaT) {
-    float x = inputPosition.origin.x * deltaT;
-    float y = inputPosition.origin.y * deltaT;
-    float z = inputPosition.origin.z * deltaT;
+    float x = inputPosition.origin.x * speed * deltaT;
+    float y = inputPosition.origin.y * speed * deltaT;
+    float z = inputPosition.origin.z * speed * deltaT;
     glm::mat4 T = glm::translate(glm::mat4(1), glm::vec3(x, y, z));
     position.origin= position.origin * T;
 

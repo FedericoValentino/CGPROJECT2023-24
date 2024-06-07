@@ -48,7 +48,17 @@ target_link_libraries(NICCOTEST Vulkan::Vulkan)
 target_include_directories(NICCOTEST PRIVATE src/headers)
 
 
-add_executable(PUDDUHTEST TestingDir/mainHenry.cpp)
+add_executable(PUDDUHTEST TestingDir/mainHenry.cpp
+        src/Model/Include/Partita.h
+        src/Model/src/Partita.cpp
+        src/Model/src/Tiles.cpp
+        src/Model/src/Player.cpp
+        src/Model/src/Bullet.cpp
+        src/Model/Include/Boss.h
+        src/Model/src/Enemy.cpp
+        src/Model/src/Boss.cpp
+        src/Model/Include/Plane.h
+        src/Model/src/Plane.cpp)
 target_link_libraries(PUDDUHTEST glfw)
 target_link_libraries(PUDDUHTEST glm)
 target_link_libraries(PUDDUHTEST Vulkan::Vulkan)

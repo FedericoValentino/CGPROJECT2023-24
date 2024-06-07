@@ -5,13 +5,13 @@
 #ifndef CGPROJECT2023_24_ENEMY_H
 #define CGPROJECT2023_24_ENEMY_H
 #include <glm/glm.hpp>
+#include "glm/gtx/intersect.hpp"
 #include <unordered_map>
 #include "Bullet.h"
 #include "Player.h"
 #include "Position3D.h"
 #include "Plane.h"
-#include <mutex>
-#include <thread>
+
 
 
 class Enemy : public Plane{
@@ -25,11 +25,11 @@ public:
 
     Enemy(Position3D position);
 
-    void changePosition(Position3D position, float deltaT);
+    void changePosition(Position3D inputPosition, float deltaT);
 
-    void changeDirection(Position3D position, float deltaT);
+    void changeDirection(Position3D inputPosition, float deltaT);
 
-    void shoot(Position3D position, float deltaT);
+    void shoot(Position3D inputPosition, float deltaT);
 
 };
 #endif //CGPROJECT2023_24_ENEMY_H
