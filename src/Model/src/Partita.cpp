@@ -113,7 +113,7 @@ void Partita::checkCollision() {
     //check Collision of player with enemy projectiles
     for(Enemy* enemy : enemies)
     {
-        /*for(Projectile* p : enemy->projectiles)
+        /*for(Bullet* p : enemy->projectiles)
         {
             if(p.pos == player.pos)
             {
@@ -124,7 +124,7 @@ void Partita::checkCollision() {
 
     //check collision of player projectiles with enemies
     /*
-    for (Projectile *p : player->projectiles)
+    for (Bullet *p : player->projectiles)
     {
         for(Enemy* enemy: enemies)
         {

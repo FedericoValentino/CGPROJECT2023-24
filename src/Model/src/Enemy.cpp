@@ -19,7 +19,7 @@ const Position3D& Enemy::getPosition() const
 }
 void Enemy::shoot(const float deltaT,float SCREEN_WIDTH, float SCREEN_HEIGHT)
 {
-    Projectile bullet(position3D_,50.0f,3.0f,true); // velocita del proiettile da cambiare
+    Bullet bullet(position3D_, 50.0f, 3.0f, true); // velocita del proiettile da cambiare
     projectiles_.insert({bullet.getId(),bullet});
 
     std::thread(&Enemy::moveProjectile, this, bullet.getId(),deltaT,
@@ -52,7 +52,7 @@ void Enemy::moveProjectile(unsigned int projectileId, float deltaT,
             it->second.move(deltaT);
             if(!it->second.isPositionInsideScreen(SCREEN_WIDTH, SCREEN_HEIGHT)) {
                 projectiles_.erase(it);
-                std::cout << "Projectile " << projectileId << " is out of bounds and removed.\n";
+                std::cout << "Bullet " << projectileId << " is out of bounds and removed.\n";
                 break;
             }
         }

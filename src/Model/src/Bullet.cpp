@@ -2,33 +2,33 @@
 // Created by feder34 on 21/05/24.
 //
 
-#include "../Include/Projectile.h"
+#include "../Include/Bullet.h"
 #include "glm/glm.hpp"
 
 
-unsigned int Projectile::count_ = 0;
+unsigned int Bullet::count_ = 0;
 
-Projectile::Projectile(const Position3D& position3D, float size, float speed ,bool debug):
+Bullet::Bullet(const Position3D& position3D, float size, float speed, bool debug):
         position3D_(position3D),size_(size),speed_(speed),id_(++count_),debug_(debug){};
 
-const Position3D& Projectile::getPosition3D() const {
+const Position3D& Bullet::getPosition3D() const {
     return position3D_;
 }
 
-float Projectile::getSize() const {
+float Bullet::getSize() const {
     return size_;
 }
 
-float Projectile::getSpeed() const {
+float Bullet::getSpeed() const {
     return speed_;
 }
 
-unsigned int Projectile::getId() const
+unsigned int Bullet::getId() const
 {
     return id_;
 }
 
-void Projectile::move(const float deltaT) {
+void Bullet::move(const float deltaT) {
     position3D_.origin += position3D_.orientation * speed_ * deltaT;
     if(debug_)
     {
@@ -39,8 +39,8 @@ void Projectile::move(const float deltaT) {
 
 }
 
-bool Projectile::isPositionInsideScreen(const float SCREEN_WIDTH,
-                                        const float SCREEN_HEIGHT) const
+bool Bullet::isPositionInsideScreen(const float SCREEN_WIDTH,
+                                    const float SCREEN_HEIGHT) const
 {
     return (position3D_.origin.x >= 0 && position3D_.origin.x < SCREEN_WIDTH &&
             position3D_.origin.y >= 0 && position3D_.origin.y < SCREEN_HEIGHT);

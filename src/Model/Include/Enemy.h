@@ -6,7 +6,7 @@
 #define CGPROJECT2023_24_ENEMY_H
 #include <glm/glm.hpp>
 #include <unordered_map>
-#include "Projectile.h"
+#include "Bullet.h"
 #include "Player.h"
 #include "Position3D.h"
 #include <mutex>
@@ -14,9 +14,9 @@
 
 
 class Enemy{
-protected:
+private:
     Position3D position3D_;
-    std::unordered_map<unsigned int,Projectile> projectiles_;
+    std::unordered_map<unsigned int,Bullet> projectiles_;
     const float speed_;
     bool debug_;
     mutable std::mutex projectiles_mutex_;
