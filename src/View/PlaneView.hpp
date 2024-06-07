@@ -2,18 +2,53 @@
 #define CGPROJECT_2023_24_PIECE_HPP
 
 #include "../Engine/Starter.hpp"
+#include "../Model/Include/Enemy.h"
+
+struct PlaneInfo
+{
+    void* pEnemy;
+    bool toDraw;
+    DescriptorSet DS;
+    UniformBufferObject ubo;
+};
 
 class PlaneView {
 public:
+    Pipeline P;
     DescriptorSetLayout DSL;
     VertexDescriptor VD;
-    Pipeline P;
-    Model M;
+
+    Model player;
+    Model baseEnemy;
+    Model Boss;
     Texture T;
-    DescriptorSet DS;
-    UniformBufferObject ubo;
+
+    std::vector<PlaneInfo*> enemyInfo;
+    PlaneInfo* bossInfo;
+    PlaneInfo* playerInfo;
+
 
     BaseProject* app;
+
+
+    void newPlayer(Player* enemy)
+    {
+        playerInfo = new PlaneInfo();
+        playerInfo->pEnemy = enemy;
+    }
+
+    void newEnemy(Enemy* enemy)
+    {
+        PlaneInfo* newenemyInfo = new PlaneInfo();
+        newenemyInfo->pEnemy = enemy;
+        enemyInfo.push_back(newenemyInfo);
+    }
+
+    void newBoss(Enemy* enemy)
+    {
+        bossInfo = new PlaneInfo();
+        bossInfo->pEnemy = enemy;
+    }
 
     void init(BaseProject* bp)
     {
@@ -41,12 +76,14 @@ public:
 
         this->P.init(bp, &VD, "../src/shaders/planeVert.spv", "../src/shaders/planeFrag.spv", {&this->DSL});
         this->T.init(bp, "../src/textures/cube.png");
-        this->M.init(bp, &VD, "../src/models/plane.obj", OBJ);
+        this->player.init(bp, &VD, "../src/models/B32.obj", OBJ);
+        this->Boss.init(bp, &VD, "../src/models/cube.obj", OBJ);
+        this->baseEnemy.init(bp, &VD, "../src/models/plane.obj", OBJ);
     }
 
     void pipelineAndDSInit(BaseProject* bp, int ubosize, int gubosize){
         this->P.create();
-        this->DS.init(bp, &this->DSL, {
+        this->playerInfo->DS.init(bp, &this->DSL, {
                 {0, UNIFORM, ubosize, nullptr},
                 {1, TEXTURE, 0, &this->T},
                 {2, UNIFORM, gubosize, nullptr}
@@ -55,21 +92,50 @@ public:
 
     void populateCommandBuffer(VkCommandBuffer commandBuffer, int currentImage){
         this->P.bind(commandBuffer);
-        this->M.bind(commandBuffer);
-        this->DS.bind(commandBuffer, this->P, 0, currentImage);
+        if(!enemyInfo.empty())
+        {
+            this->baseEnemy.bind(commandBuffer);
+            for(PlaneInfo* planeInfo : enemyInfo)
+            {
+                if(planeInfo->toDraw)
+                {
+                    planeInfo->DS.bind(commandBuffer, this->P, 0, currentImage);
 
+                    vkCmdDrawIndexed(commandBuffer,
+                                     static_cast<uint32_t>(this->baseEnemy.indices.size()), 1, 0, 0, 0);
+                }
+            }
+        }
+
+        if(bossInfo->toDraw)
+        {
+            this->Boss.bind(commandBuffer);
+            this->bossInfo->DS.bind(commandBuffer, this->P, 0, currentImage);
+            vkCmdDrawIndexed(commandBuffer,
+                             static_cast<uint32_t>(this->Boss.indices.size()), 1, 0, 0, 0);
+        }
+
+        this->player.bind(commandBuffer);
+        this->playerInfo->DS.bind(commandBuffer, this->P, 0, currentImage);
         vkCmdDrawIndexed(commandBuffer,
-                         static_cast<uint32_t>(this->M.indices.size()), 1, 0, 0, 0);
+                         static_cast<uint32_t>(this->player.indices.size()), 1, 0, 0, 0);
     }
 
     void cleanup(){
         this->T.cleanup();
-        this->M.cleanup();
+        this->baseEnemy.cleanup();
+        this->Boss.cleanup();
+        this->player.cleanup();
+        this->P.destroy();
+        this->DSL.cleanup();
     }
 
     void pipelineAndDSClenup(){
         this->P.cleanup();
-        this->DS.cleanup();
+        for(PlaneInfo* planeInfo : enemyInfo)
+            planeInfo->DS.cleanup();
+        playerInfo->DS.cleanup();
+        bossInfo->DS.cleanup();
     }
 
 

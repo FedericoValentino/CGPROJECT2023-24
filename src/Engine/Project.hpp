@@ -18,7 +18,7 @@ class Project : public BaseProject
 private:
 
     Partita* partita;
-    std::set<PlaneView*> Planes;
+    PlaneView* planes;
     TileView* tiles;
 
     int numObj = 100;
@@ -44,7 +44,7 @@ private:
 
     void spawnPlane();
 
-    void destroyPlane(PlaneView* p);
+    void destroyPlane();
 };
 
 void Project::localInit() {
@@ -64,29 +64,21 @@ void Project::localInit() {
     }
 
 
-    PlaneView* p = new PlaneView();
-    p->init(this);
-    p->ubo.model = glm::mat4(1);
-    p->ubo.model *= glm::translate(glm::mat4(1), glm::vec3(0.0, 8.40, 0.0));
-
-    Planes.insert(p);
+    //TODO Change pointers
+    this->planes = new PlaneView();
+    planes->init(this);
+    planes->newPlayer(partita->player);
+    planes->newBoss(nullptr);
 
 }
 
 void Project::pipelinesAndDescriptorSetsInit() {
     tiles->pipelineAndDSInit(this, sizeof(UniformBufferObject), sizeof(GlobalUniformBufferObject));
-
-    for(PlaneView* p : Planes)
-    {
-        p->pipelineAndDSInit(this, sizeof(UniformBufferObject), sizeof(GlobalUniformBufferObject));
-    }
+    planes->pipelineAndDSInit(this, sizeof(UniformBufferObject), sizeof(GlobalUniformBufferObject));
 }
 
 void Project::populateCommandBuffer(VkCommandBuffer commandBuffer, int i) {
-    for(PlaneView* p : Planes)
-    {
-        p->populateCommandBuffer(commandBuffer, i);
-    }
+    planes->populateCommandBuffer(commandBuffer, i);
     tiles->populateCommandBuffer(commandBuffer, i);
 }
 
@@ -175,37 +167,26 @@ void Project::updateUniformBuffer(uint32_t currentImage) {
     }
 
 
+    //TODO buffer update sequence for planes
+    planes->playerInfo->toDraw = true;
+    planes->playerInfo->ubo.model = glm::mat4(1);
+    planes->playerInfo->ubo.worldViewProj = S * planes->playerInfo->ubo.model;
+    planes->playerInfo->DS.map(currentImage, &planes->playerInfo->ubo, sizeof(planes->playerInfo->ubo), 0);
 
-    for(PlaneView* p : Planes)
-    {
-        p->ubo.model =  glm::rotate(p->ubo.model, deltaT *glm::radians(90.0f), glm::vec3(0.0f, 1.0f, 0.0f));
-        p->ubo.worldViewProj = S * p->ubo.model;
-        p->ubo.normal = glm::inverse(glm::transpose(p->ubo.model));
+    planes->playerInfo->DS.map(currentImage, &gubo, sizeof(gubo), 2);
 
-        p->DS.map(currentImage, &p->ubo, sizeof(p->ubo), 0);
-
-        p->DS.map(currentImage, &gubo, sizeof(gubo), 2);
-    }
-
+    planes->bossInfo->toDraw = false;
 }
 
 void Project::pipelinesAndDescriptorSetsCleanup() {
     tiles->pipelineAndDSCleanup();
-    for(PlaneView* p : Planes)
-    {
-        p->pipelineAndDSClenup();
-    }
+    planes->pipelineAndDSClenup();
 }
 
 void Project::localCleanup() {
 
     tiles->cleanup();
-    for(PlaneView* p : Planes)
-    {
-        p->cleanup();
-        p->P.destroy();
-        p->DSL.cleanup();
-    }
+    planes->cleanup();
 }
 
 void Project::onWindowResize(int w, int h)
@@ -215,29 +196,29 @@ void Project::onWindowResize(int w, int h)
 
 void Project::gameLogic()
 {
+    //CHECK COLLISION
+    partita->checkCollision();
+    //RIMUOVI ROBA
 
+    //SPAWN
+    partita->spawn();
+    //MUOVI PLAYER
+    //partita->player->changeDirection();
+    //MUOVI NEMICI
+    for(int i = 0; i < 4; i++)
+    {
+
+    }
 }
 
 void Project::spawnPlane()
 {
-    PlaneView* p = new PlaneView();
-
-    p->init(this);
-    p->ubo.model = glm::mat4(1);
-    p->pipelineAndDSInit(this, sizeof(UniformBufferObject), sizeof(GlobalUniformBufferObject));
-
-    Planes.insert(p);
+    //planes->newEnemy();
 }
 
-void Project::destroyPlane(PlaneView* p)
+void Project::destroyPlane()
 {
     vkDeviceWaitIdle(this->device);
-    Planes.erase(p);
-
-    p->pipelineAndDSClenup();
-    p->cleanup();
-    p->P.destroy();
-    p->DSL.cleanup();
 }
 
 #endif
