@@ -34,11 +34,11 @@ public:
 
     void clearBullet(Bullet* own);
 
-    virtual void shoot(Position3D position) = 0;
+    virtual void shoot(Position3D position, const float deltaT) = 0;
 
-    virtual void changePosition(Position3D position) = 0;
+    virtual void changePosition(Position3D position, const float deltaT) = 0;
 
-    virtual void changeDirection(Position3D position) = 0;
+    virtual void changeDirection(Position3D position, const float deltaT) = 0;
 
     Position3D getPosition();
     float getSpeed();

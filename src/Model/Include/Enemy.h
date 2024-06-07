@@ -25,11 +25,11 @@ public:
 
     Enemy(Position3D position);
 
-    void changePosition(Position3D position);
+    void changePosition(Position3D position, const float deltaT);
 
-    void changeDirection(Position3D position);
+    void changeDirection(Position3D position, const float deltaT);
 
-    void shoot(Position3D position);
+    void shoot(Position3D position, const float deltaT);
 
 };
 #endif //CGPROJECT2023_24_ENEMY_H

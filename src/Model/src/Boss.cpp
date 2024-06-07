@@ -13,13 +13,13 @@ Boss::Boss(Position3D position){
     dead = false;
 }
 
-void Boss::changePosition(Position3D position) {
+void Boss::changePosition(Position3D position, const float deltaT) {
 }
 
-void Boss::changeDirection(Position3D position) {
+void Boss::changeDirection(Position3D position, const float deltaT) {
 }
 
-void Boss::shoot(Position3D position) {
+void Boss::shoot(Position3D position, const float deltaT) {
 
 }
 

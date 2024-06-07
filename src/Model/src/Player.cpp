@@ -18,15 +18,15 @@ Player::Player() {
     dead = false;
 }
 
-void Player::changePosition(Position3D position) {
+void Player::changePosition(Position3D position, const float deltaT) {
 
 }
 
-void Player::changeDirection(Position3D position) {
+void Player::changeDirection(Position3D position, const float deltaT) {
 
 }
 
-void Player::shoot(Position3D position) {
+void Player::shoot(Position3D position, const float deltaT) {
 
 }
 

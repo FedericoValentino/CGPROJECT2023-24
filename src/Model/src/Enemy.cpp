@@ -13,15 +13,15 @@ Enemy::Enemy(Position3D position) {
     dead = false;
 }
 
-void Enemy::changePosition(Position3D position) {
+void Enemy::changePosition(Position3D position, const float deltaT) {
 
 }
 
-void Enemy::changeDirection(Position3D position) {
+void Enemy::changeDirection(Position3D position, const float deltaT) {
 
 }
 
-void Enemy::shoot(Position3D position) {
+void Enemy::shoot(Position3D position, const float deltaT) {
 
 }
 
