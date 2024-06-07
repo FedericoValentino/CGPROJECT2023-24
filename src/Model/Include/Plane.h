@@ -18,32 +18,34 @@ enum PLANETYPE{
 
 class Plane {
 
-private:
+protected:
     Position3D position;
     float speed;
-    std::set<Bullet*> bullets;
+    std::set<Bullet*>* bullets;
+    PLANETYPE type;
     int hp;
-    bool hit;
+    bool dead;
 
 public:
 
-    //Plane(float speed);
-
-    void shoot();
+    Plane();
 
     void planeHit(Bullet bullet);
 
     void clearBullet(Bullet* own);
 
-    void changePosition();
+    virtual void shoot(Position3D position) = 0;
 
-    void changeDirection();
+    virtual void changePosition(Position3D position) = 0;
+
+    virtual void changeDirection(Position3D position) = 0;
 
     Position3D getPosition();
-    const float getSpeed();
+    float getSpeed();
     std::set<Bullet*> getBullets();
     int getHP();
-    bool getHit();
+    bool getDead();
+    PLANETYPE getType();
 };
 
 

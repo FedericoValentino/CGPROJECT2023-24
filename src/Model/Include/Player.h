@@ -11,7 +11,17 @@
 #include "Plane.h"
 
 
-class Player : Plane {
+class Player : public Plane{
+
+public:
+
+    Player();
+
+    void changePosition(Position3D position);
+
+    void changeDirection(Position3D position);
+
+    void shoot(Position3D position);
 
 };
 

@@ -4,20 +4,30 @@
 
 #include "../Include/Enemy.h"
 
-Enemy::Enemy(const Position3D& position3D,const float speed, bool debug):
-        position3D_(position3D),speed_(speed),debug_(debug){};
+Enemy::Enemy(Position3D position) {
 
-void Enemy::eraseProjectile(unsigned  int id)
-{
-    projectiles_.erase(id);
-    if(debug_)
-        std::cout<<"I AM erasing projectile id:"<<id<<std::endl;
+    this->position = position;
+    speed = 1;
+    type = ENEMY;
+    hp = 1;
+    dead = false;
 }
-const Position3D& Enemy::getPosition() const
-{
-    return position3D_;
+
+void Enemy::changePosition(Position3D position) {
+
 }
-void Enemy::shoot(const float deltaT,float SCREEN_WIDTH, float SCREEN_HEIGHT)
+
+void Enemy::changeDirection(Position3D position) {
+
+}
+
+void Enemy::shoot(Position3D position) {
+
+}
+
+
+
+/*void Enemy::shoot(const float deltaT,float SCREEN_WIDTH, float SCREEN_HEIGHT)
 {
     Bullet bullet(position3D_, 50.0f, 3.0f, true); // velocita del proiettile da cambiare
     projectiles_.insert({bullet.getId(),bullet});
@@ -31,7 +41,7 @@ void Enemy::shoot(const float deltaT,float SCREEN_WIDTH, float SCREEN_HEIGHT)
                       << "is shooting bullet:" << bullet.getId() << std::endl;
     }
 }
-void Enemy::move(const Player& player,const float deltaT)
+/*void Enemy::move(const Player& player,const float deltaT)
 {
     const glm::vec3& direction = glm::normalize(player.origin_ - this->position3D_.origin);
     position3D_.origin += direction * speed_ * deltaT;
@@ -42,7 +52,7 @@ void Enemy::move(const Player& player,const float deltaT)
     }
 }
 
-void Enemy::moveProjectile(unsigned int projectileId, float deltaT,
+/*void Enemy::moveProjectile(unsigned int projectileId, float deltaT,
                            float SCREEN_WIDTH, float SCREEN_HEIGHT)
 {
     while (true) {
@@ -58,4 +68,4 @@ void Enemy::moveProjectile(unsigned int projectileId, float deltaT,
         }
         std::this_thread::sleep_for(std::chrono::milliseconds(50)); // Move every 50 milliseconds
     }
-}
+}*/

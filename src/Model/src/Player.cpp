@@ -9,6 +9,27 @@
 #include "glm/glm.hpp"
 #include "glm/gtc/matrix_transform.hpp"
 
+Player::Player() {
+    position.origin = glm::vec3(0.0f, 8.40f, 0.0f);
+    position.orientation = glm::vec3 (0.0f, 0.0f, 0.0f);
+    speed = 2;
+    hp = 5;
+    type = PLAYER;
+    dead = false;
+}
+
+void Player::changePosition(Position3D position) {
+
+}
+
+void Player::changeDirection(Position3D position) {
+
+}
+
+void Player::shoot(Position3D position) {
+
+}
+
 
 
 /**
@@ -24,6 +45,7 @@
     glm::mat4 R = Rx * Ry * Rz;
     direction = R * direction;
 }*/
+
 
 
 

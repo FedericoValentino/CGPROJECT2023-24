@@ -4,53 +4,51 @@
 
 #include "../Include/Plane.h"
 
-/*Plane::Plane(float speed)
-{
-    this->position = new Position3D();
-    this->speed = speed;
 
-}*/
 
-void Plane::shoot()
-{
-    bullets.insert(new Bullet(position, 1, 1.0f, false));
+Plane::Plane() {
+    this->bullets = new std::set<Bullet*>;
 }
 
 void Plane::planeHit(Bullet bullet)
 {
-    if (bullet.getPosition3D().origin == position.origin)
+    if (bullet.getPosition3D().origin == position.origin && hp>1)
         hp -= bullet.getSize();
+    else
+        dead = true;
 }
 
 void Plane::clearBullet(Bullet* own)
 {
-    bullets.erase(own);
+    bullets->erase(own);
 }
 
-void Plane::changePosition() {
-
-}
-
-void Plane::changeDirection() {
-
-}
 
 Position3D Plane::getPosition() {
     return position;
 }
 
-const float Plane::getSpeed() {
+float Plane::getSpeed(){
     return speed;
 }
 
 std::set<Bullet*> Plane::getBullets() {
-    return bullets;
+    return *bullets;
 }
 
-bool Plane::getHit() {
-    return hit;
+bool Plane::getDead() {
+    return dead;
 }
 
 int Plane::getHP() {
     return hp;
 }
+
+
+PLANETYPE Plane::getType() {
+    return type;
+}
+
+
+
+

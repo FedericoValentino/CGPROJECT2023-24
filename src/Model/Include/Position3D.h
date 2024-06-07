@@ -10,7 +10,5 @@ struct Position3D
 {
     glm::vec3 origin;
     glm::vec3 orientation;
-    Position3D(const glm::vec3& _origin,const glm::vec3& _orientation):origin(_origin),orientation(_orientation){};
-    Position3D(const Position3D& position):Position3D(position.origin,position.orientation){};
 };
 #endif //CGPRJ2023_24_POSITION3D_H
