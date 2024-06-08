@@ -8,8 +8,30 @@
 
 unsigned int Bullet::count_ = 0;
 
-Bullet::Bullet(const Position3D& position3D, float size, float speed, bool debug):
-        position3D_(position3D),size_(size),speed_(speed),id_(++count_),debug_(debug){};
+Bullet::Bullet(const Position3D& position3D, PLANETYPE type, bool debug)
+{
+    this->position3D_=position3D;
+    debug = false;
+    id_ = count_;
+    count_++;
+    switch (type){
+        case(PLAYER):
+            speed_ = 2.0f;
+            size_ = 1.0f;
+            break;
+        case(ENEMY):
+            speed_ = 1.0f;
+            size_ = 1.0f;
+            break;
+        case(BOSS):
+            speed_ = 3.0f;
+            size_ = 3.0f;
+            break;
+        default:
+            break;
+    }
+}
+
 
 const Position3D& Bullet::getPosition3D() const {
     return position3D_;

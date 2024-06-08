@@ -19,7 +19,8 @@ add_executable(Project src/main.cpp
         src/Model/src/Enemy.cpp
         src/Model/src/Boss.cpp
         src/Model/Include/Plane.h
-        src/Model/src/Plane.cpp)
+        src/Model/src/Plane.cpp
+        src/Model/Include/PlaneType.h)
 target_link_libraries(Project glfw)
 target_link_libraries(Project glm)
 target_link_libraries(Project Vulkan::Vulkan)
@@ -40,7 +41,8 @@ add_executable(NICCOTEST TestingDir/mainNicco.cpp
         src/Model/src/Bullet.cpp
         src/Model/Include/Boss.h
         src/Model/src/Enemy.cpp
-        src/Model/src/Boss.cpp)
+        src/Model/src/Boss.cpp
+        src/Model/Include/PlaneType.h)
 
 target_link_libraries(NICCOTEST glfw)
 target_link_libraries(NICCOTEST glm)
@@ -58,7 +60,8 @@ add_executable(PUDDUHTEST TestingDir/mainHenry.cpp
         src/Model/src/Enemy.cpp
         src/Model/src/Boss.cpp
         src/Model/Include/Plane.h
-        src/Model/src/Plane.cpp)
+        src/Model/src/Plane.cpp
+        src/Model/Include/PlaneType.h)
 target_link_libraries(PUDDUHTEST glfw)
 target_link_libraries(PUDDUHTEST glm)
 target_link_libraries(PUDDUHTEST Vulkan::Vulkan)
@@ -67,7 +70,8 @@ target_include_directories(PUDDUHTEST PRIVATE src/headers)
 add_executable(FEDERTEST TestingDir/mainFede.cpp
         src/Model/src/Plane.cpp
         src/Model/Include/Plane.h
-        src/Model/Include/PlaneBuilder.hpp)
+        src/Model/Include/PlaneBuilder.hpp
+        src/Model/Include/PlaneType.h)
 target_link_libraries(FEDERTEST glfw)
 target_link_libraries(FEDERTEST glm)
 target_link_libraries(FEDERTEST Vulkan::Vulkan)

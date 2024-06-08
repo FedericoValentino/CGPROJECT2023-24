@@ -8,12 +8,7 @@
 #include <set>
 #include "Position3D.h"
 #include "Bullet.h"
-
-enum PLANETYPE{
-    PLAYER,
-    ENEMY,
-    BOSS
-};
+#include "PlaneType.h"
 
 
 class Plane {

@@ -7,20 +7,22 @@
 
 #include "glm/glm.hpp"
 #include "Position3D.h"
+#include "PlaneType.h"
 #include <iostream>
 #include <glm/gtx/string_cast.hpp>
+
 
 class Bullet {
 
 private:
     unsigned int static count_;
     Position3D position3D_;
-    const float size_;
-    const float speed_;
-    const unsigned int id_;
+    float size_;
+    float speed_;
+    unsigned int id_;
     bool debug_;
 public:
-    Bullet(const Position3D& position3D, float size, float speed, bool debug=false);
+    Bullet(const Position3D& position3D, PLANETYPE type, bool debug=false);
 
     [[nodiscard]] const Position3D& getPosition3D() const ;
     [[nodiscard]] float getSize() const;

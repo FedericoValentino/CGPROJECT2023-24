@@ -36,7 +36,7 @@ void Player::changeDirection(Position3D inputPosition, const float deltaT) {
 }
 
 void Player::shoot(Position3D inputPosition, const float deltaT) {
-    auto* toShoot = new Bullet(position, 1.0f, 2.0f, false);
+    auto* toShoot = new Bullet(position, PLAYER, false);
     bullets->insert(toShoot);
 }
 
