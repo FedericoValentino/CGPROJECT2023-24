@@ -60,7 +60,7 @@ void Enemy::shoot(Position3D inputPosition, const float deltaT)
 }
 /*void Enemy::move(const Player& player,const float deltaT)
 {
-    const glm::vec3& direction = glm::normalize(player.origin_ - this->position3D_.origin);
+    const glm::vec3& direction = glm::normalize(this->position3D_.origin);
     position3D_.origin += direction * speed_ * deltaT;
     if (debug_)
     {

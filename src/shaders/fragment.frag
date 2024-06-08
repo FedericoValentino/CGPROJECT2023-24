@@ -18,17 +18,9 @@ layout(binding = 2) uniform GlobalUniformBufferObject {
 void main()
 {
     vec3 Norm = fragNorm;
-    vec3 color = vec3(1.0, 0.0, 0.0);
+    vec4 color = texture(tex1, fragUV);
 
     float intensity = dot(gubo.lightDir, normalize(Norm));
 
-    if(fragPos.z == 0)
-    {
-        outColor = vec4(1.0);
-    }
-    else
-    {
-        color = color*intensity;
-        outColor = vec4(color, 1.0);
-    }
+    outColor = color;
 }

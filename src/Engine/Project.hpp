@@ -169,8 +169,9 @@ void Project::updateUniformBuffer(uint32_t currentImage) {
 
     //TODO buffer update sequence for planes
     planes->playerInfo->toDraw = true;
-    planes->playerInfo->ubo.model = glm::mat4(1);
+    planes->playerInfo->ubo.model = planes->playerInfo->ubo.model =  glm::rotate(planes->playerInfo->ubo.model, deltaT *glm::radians(90.0f), glm::vec3(0.0f, 1.0f, 0.0f));
     planes->playerInfo->ubo.worldViewProj = S * planes->playerInfo->ubo.model;
+    planes->playerInfo->ubo.normal = glm::inverse(planes->playerInfo->ubo.model);
     planes->playerInfo->DS.map(currentImage, &planes->playerInfo->ubo, sizeof(planes->playerInfo->ubo), 0);
 
     planes->playerInfo->DS.map(currentImage, &gubo, sizeof(gubo), 2);

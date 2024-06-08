@@ -18,7 +18,7 @@ struct values{
 
 Partita::Partita() {
     this->stage = BIPLANI;
-    this->player = new Player();
+    //this->player = new Player();
     this->enemies.clear();
     state = GAMING;
     for(int i = 0; i < MAPDIM; i++)

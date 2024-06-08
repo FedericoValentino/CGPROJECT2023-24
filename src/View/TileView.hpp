@@ -24,7 +24,9 @@ public:
     Model house;
     Model skyscraper;
 
-    Texture T;
+    Texture House;
+    Texture Skyscraper;
+    Texture Floor;
 
     std::vector<TileInfo*> floorTiles;
     std::vector<TileInfo*> houseTiles;
@@ -41,8 +43,8 @@ public:
         newInfo->col_ = col;
 
         newInfo->ubo.model = glm::mat4(1);
-        newInfo->ubo.model = glm::translate(glm::mat4(1.0), glm::vec3((MAPDIM/2) * 2.80, 0.0, (MAPDIM/2) * 2.80));
-        newInfo->ubo.model *= glm::translate(glm::mat4(1.0), glm::vec3(newInfo->row_ * 5.60 - 5.60 * (MAPDIM), 0.0, newInfo->col_ * 5.60 - 5.60 * (MAPDIM)));
+        newInfo->ubo.model = glm::translate(newInfo->ubo.model, glm::vec3(2.8072f * (MAPDIM-1), 0.0f, 2.8072f * (MAPDIM-1)));
+        newInfo->ubo.model = glm::translate(newInfo->ubo.model, glm::vec3(-5.6144f * (float)row, 0.0f, -5.6144f * (float)col));
         newInfo->ubo.normal = glm::inverse(glm::transpose(newInfo->ubo.model));
 
         switch(type)
@@ -86,7 +88,9 @@ public:
 
         this->P.init(bp, &VD, "../src/shaders/vert.spv", "../src/shaders/frag.spv", {&this->DSL});
 
-        this->T.init(bp, "../src/textures/cube.png");
+        this->House.init(bp, "../src/textures/House.png");
+        this->Floor.init(bp, "../src/textures/Floor.png");
+        this->Skyscraper.init(bp, "../src/textures/Skyscraper.png");
 
         this->floor.init(bp, &VD, "../src/models/floor.obj", OBJ);
         this->house.init(bp, &VD, "../src/models/house.obj", OBJ);
@@ -98,7 +102,7 @@ public:
         for(TileInfo* info : floorTiles) {
             info->DS.init(bp, &this->DSL, {
                     {0, UNIFORM, ubosize,  nullptr},
-                    {1, TEXTURE, 0,        &this->T},
+                    {1, TEXTURE, 0,        &this->Floor},
                     {2, UNIFORM, gubosize, nullptr}
             });
         }
@@ -106,7 +110,7 @@ public:
         for(TileInfo* info : houseTiles) {
             info->DS.init(bp, &this->DSL, {
                     {0, UNIFORM, ubosize,  nullptr},
-                    {1, TEXTURE, 0,        &this->T},
+                    {1, TEXTURE, 0,        &this->House},
                     {2, UNIFORM, gubosize, nullptr}
             });
         }
@@ -114,7 +118,7 @@ public:
         for(TileInfo* info : skyscraperTiles) {
             info->DS.init(bp, &this->DSL, {
                     {0, UNIFORM, ubosize,  nullptr},
-                    {1, TEXTURE, 0,        &this->T},
+                    {1, TEXTURE, 0,        &this->Skyscraper},
                     {2, UNIFORM, gubosize, nullptr}
             });
         }
@@ -168,7 +172,9 @@ public:
     }
 
     void cleanup(){
-        this->T.cleanup();
+        this->Floor.cleanup();
+        this->House.cleanup();
+        this->Skyscraper.cleanup();
         this->floor.cleanup();
         this->house.cleanup();
         this->skyscraper.cleanup();
