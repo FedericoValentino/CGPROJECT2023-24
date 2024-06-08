@@ -14,7 +14,7 @@ Enemy::Enemy(Position3D position) {
     dead = false;
 }
 
-void Enemy::changePosition(Position3D inputPosition, const float deltaT)
+/*void Enemy::changePosition(Position3D inputPosition, const float deltaT)
 {
     float x =  glm::sin(glm::radians(position.orientation.y)) * speed * deltaT;
     float y =  0.0f;
@@ -32,12 +32,13 @@ void Enemy::changeDirection(Position3D inputPosition, const float deltaT)
     else if (cross.y < 0)
         position.orientation.y += speed * deltaT;
     //TODO If cross==0
-}
+}*/
 
 void Enemy::shoot(Position3D inputPosition, const float deltaT)
 {
     float distance;
-    if(glm::intersectRaySphere(position.origin, position.orientation, inputPosition.origin, pow(1.0f, 2.0f), distance))
+    if(glm::intersectRaySphere(position.origin, position.orientation, inputPosition.origin, pow(1.0f, 2.0f), distance)
+        && checkDistance3D(inputPosition.origin, position.origin, ENEMY))
         bullets->insert(new Bullet(position, ENEMY, false));
 }
 

@@ -31,9 +31,13 @@ public:
 
     virtual void shoot(Position3D inputPosition, float deltaT) = 0;
 
-    virtual void changePosition(Position3D inputPosition, float deltaT) = 0;
+    void moveTowardsPoint(Position3D point, float deltaT);
 
-    virtual void changeDirection(Position3D inputPosition, float deltaT) = 0;
+    void changePosition(Position3D inputPosition, float deltaT);
+
+    void changeDirection(Position3D inputPosition, float deltaT);
+
+    bool checkDistance3D(glm::vec4 center, glm::vec4 point, PLANETYPE plane);
 
     Position3D getPosition();
     float getSpeed();

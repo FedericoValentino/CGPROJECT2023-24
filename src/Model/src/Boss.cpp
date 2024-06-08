@@ -13,22 +13,32 @@ Boss::Boss(Position3D position){
     dead = false;
 }
 
-void Boss::changePosition(Position3D inputPosition, const float deltaT)
-{
-
-}
-
-void Boss::changeDirection(Position3D inputPosition, const float deltaT)
-{
-
-}
 
 void Boss::shoot(Position3D inputPosition, const float deltaT)
 {
     Position3D shootingVector;
     shootingVector.origin = position.origin;
     shootingVector.orientation = (position.origin - inputPosition.origin);
-    bullets->insert(new Bullet(shootingVector, BOSS, false));
+    if(checkDistance3D(inputPosition.origin, position.origin, BOSS))
+        bullets->insert(new Bullet(shootingVector, BOSS, false));
+}
+
+void Boss::bossMovement(Position3D playerPosition, float deltaT)
+{
+    if(!checkDistance3D(playerPosition.origin, position.origin, BOSS))
+        moveTowardsPoint(playerPosition, deltaT);
+    else
+    {
+        circularMovement(playerPosition, deltaT);
+    }
+}
+
+void Boss::circularMovement(Position3D center, float deltaT)
+{
+    float radius = 10.0f;
+    position.origin.x += center.origin.x + radius*glm::cos(deltaT);
+    position.origin.z += center.origin.z + radius*glm::sin(deltaT);
+    changeDirection(center, deltaT);
 }
 
 

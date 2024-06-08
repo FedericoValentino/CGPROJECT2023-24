@@ -12,9 +12,9 @@ class Boss: public Plane{
 public:
     Boss(Position3D position);
 
-    void changePosition(Position3D inputPosition, float deltaT);
+    void bossMovement(Position3D playerPosition, float deltaT);
 
-    void changeDirection(Position3D inputPosition, float deltaT);
+    void circularMovement(Position3D center, float deltaT);
 
     void shoot(Position3D inputPosition, float deltaT);
 
