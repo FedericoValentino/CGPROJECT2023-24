@@ -8,6 +8,12 @@
 
 unsigned int Bullet::count_ = 0;
 
+/**
+ * Bullet Constructor gives different characteristics to each bullet based on the entity spawning it.
+ * @param position3D the position of the entity generating the bullet
+ * @param type determines whether the entity generating the bullet is a Player, an Enemy or a Boss.
+ * @param debug
+ */
 Bullet::Bullet(const Position3D& position3D, PLANETYPE type, bool debug)
 {
     this->position3D_=position3D;

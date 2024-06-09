@@ -16,7 +16,7 @@ public:
 
     void circularMovement(Position3D center, float deltaT);
 
-    void shoot(Position3D inputPosition, float deltaT);
+    void shoot(Position3D inputPosition, float deltaT) override;
 
 
 };

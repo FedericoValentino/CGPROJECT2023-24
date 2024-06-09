@@ -4,11 +4,19 @@
 #include "Enemy.h"
 #include "Boss.h"
 
-
+/**
+ * A factory class
+ */
 class PlaneBuilder {
 
 public:
 
+    /**
+     * Factory method that calls the right constructor based on the PLANETYPE of the plane we want to create
+     * @param type the PLANETYPE
+     * @param position the position to assign to some of the planes
+     * @return the constructed plane
+     */
     Plane* getPlane(PLANETYPE type, const Position3D& position){
 
         Plane* plane;

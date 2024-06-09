@@ -21,7 +21,7 @@ public:
 
     void changeDirection(Position3D inputPosition, float deltaT);
 
-    void shoot(Position3D inputPosition, float deltaT);
+    void shoot(Position3D inputPosition, float deltaT) override;
 
 };
 
