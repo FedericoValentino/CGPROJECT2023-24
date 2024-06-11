@@ -18,6 +18,11 @@ Player::Player() {
     dead = false;
 }
 
+/**
+ * Modifies the Player's position according to the movement inputs
+ * @param inputPosition the movement input
+ * @param deltaT time
+ */
 void Player::changePosition(Position3D inputPosition, const float deltaT) {
     float x = inputPosition.origin.x * speed * deltaT;
     float y = inputPosition.origin.y * speed * deltaT;
@@ -27,6 +32,11 @@ void Player::changePosition(Position3D inputPosition, const float deltaT) {
 
 }
 
+/**
+ * Modifies the Player's orientation according to the movement inputs
+ * @param inputPosition the movement input
+ * @param deltaT time
+ */
 void Player::changeDirection(Position3D inputPosition, const float deltaT) {
     glm::mat4 Rx = glm::rotate(glm::mat4(1), glm::radians(inputPosition.orientation.x * deltaT), glm::vec3(1, 0, 0));
     glm::mat4 Ry = glm::rotate(glm::mat4(1), glm::radians(inputPosition.orientation.y * deltaT), glm::vec3(0, 1, 0));
@@ -35,8 +45,13 @@ void Player::changeDirection(Position3D inputPosition, const float deltaT) {
     position.orientation = position.orientation * R;
 }
 
+/**
+ * Adds the projectile to be shot in the Player's bullet set
+ * @param inputPosition the Player's position
+ * @param deltaT time
+ */
 void Player::shoot(Position3D inputPosition, const float deltaT) {
-    auto* toShoot = new Bullet(position, PLAYER, false);
+    auto* toShoot = new Bullet(inputPosition, PLAYER, false);
     bullets->insert(toShoot);
 }
 

@@ -34,6 +34,12 @@ void Enemy::changeDirection(Position3D inputPosition, const float deltaT)
     //TODO If cross==0
 }*/
 
+/**
+ * Enemy will shoot towards Player if he is sufficiently close and if his direction vector intersect a sphere centered
+ * in the Player's position.
+ * @param inputPosition the Player's position
+ * @param deltaT time
+ */
 void Enemy::shoot(Position3D inputPosition, const float deltaT)
 {
     float distance;

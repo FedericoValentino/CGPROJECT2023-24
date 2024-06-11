@@ -10,7 +10,9 @@
 #include "Bullet.h"
 #include "PlaneType.h"
 
-
+/**
+ * Superclass containing all the common parameters and methods needed by a plane object
+ */
 class Plane {
 
 protected:

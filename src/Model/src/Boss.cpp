@@ -13,7 +13,12 @@ Boss::Boss(Position3D position){
     dead = false;
 }
 
-
+/**
+ * Handles the shooting behaviour of the BOSS. If BOSS position is within a sphere centered in player with a certain radius,
+ * decided parametrically in method checkDistance3D, BOSS will shoot towards the player
+ * @param inputPosition the Player's position
+ * @param deltaT time
+ */
 void Boss::shoot(Position3D inputPosition, const float deltaT)
 {
     Position3D shootingVector;
@@ -23,6 +28,14 @@ void Boss::shoot(Position3D inputPosition, const float deltaT)
         bullets->insert(new Bullet(shootingVector, BOSS, false));
 }
 
+
+/**
+ * Disciplines how the BOSS should move given the circumstances; if BOSS is too far from the Player, it will fly
+ * towards the Player's position like a normal enemy. Otherwise, it will start flying in circle around the
+ * Player's position
+ * @param playerPosition the Player's position
+ * @param deltaT time
+ */
 void Boss::bossMovement(Position3D playerPosition, float deltaT)
 {
     if(!checkDistance3D(playerPosition.origin, position.origin, BOSS))
@@ -33,6 +46,13 @@ void Boss::bossMovement(Position3D playerPosition, float deltaT)
     }
 }
 
+
+/**
+ * Changes the Boss's position around a circumference centered in the Player's position.
+ *  The direction is changed normally, so BOSS will rotate towards the center.
+ * @param center the Player's position
+ * @param deltaT time
+ */
 void Boss::circularMovement(Position3D center, float deltaT)
 {
     float radius = 10.0f;
