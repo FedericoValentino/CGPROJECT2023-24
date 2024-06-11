@@ -116,10 +116,13 @@ public:
                              static_cast<uint32_t>(this->Boss.indices.size()), 1, 0, 0, 0);
         }
 
-        this->player.bind(commandBuffer);
-        this->playerInfo->DS.bind(commandBuffer, this->P, 0, currentImage);
-        vkCmdDrawIndexed(commandBuffer,
-                         static_cast<uint32_t>(this->player.indices.size()), 1, 0, 0, 0);
+        if(playerInfo->toDraw)
+        {
+            this->player.bind(commandBuffer);
+            this->playerInfo->DS.bind(commandBuffer, this->P, 0, currentImage);
+            vkCmdDrawIndexed(commandBuffer,
+                             static_cast<uint32_t>(this->player.indices.size()), 1, 0, 0, 0);
+        }
     }
 
     void cleanup(){

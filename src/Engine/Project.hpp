@@ -7,10 +7,11 @@
 #include "../View/TileView.hpp"
 #include "../Model/Include/Partita.h"
 
+
 struct GlobalUniformBufferObject {
-    alignas(16) glm::vec3 lightDir;
-    alignas(16) glm::vec4 lightColor;
-    alignas(16) glm::vec3 eyePos;
+    alignas(16) glm::vec3 PointlightPosition;
+    alignas(16) glm::vec4 pointLightColor;
+    alignas(16) glm::vec4 ambientLight;
 };
 
 class Project : public BaseProject
@@ -20,6 +21,7 @@ private:
     Partita* partita;
     PlaneView* planes;
     TileView* tiles;
+    GlobalUniformBufferObject gubo;
 
     int numObj = 100;
     float Ar;
@@ -63,6 +65,11 @@ void Project::localInit() {
         }
     }
 
+    //Light updates
+    gubo.pointLightColor = glm::vec4(1.0f, 0.0f, 0.0f, 4.0f);
+    gubo.PointlightPosition = glm::vec3(glm::vec4(1.0f, 5.00f, 1.0f, 1.0f));
+    gubo.ambientLight = glm::vec4(1.0f, 1.0f, 1.0f, 0.8f);
+
 
     //TODO Change pointers
     this->planes = new PlaneView();
@@ -87,7 +94,7 @@ void Project::setWindowParameters() {
     windowHeight = 720;
     windowTitle = "TIMEPILOT 0.1";
     windowResizable = GLFW_TRUE;
-    initialBackgroundColor = {0.0f, 0.0f, 0.0f, 1.0f};
+    initialBackgroundColor = {0.298f,0.804f,0.988f, 1.0f};
 
     uniformBlocksInPool = numObj*2;
     texturesInPool = numObj;
@@ -110,21 +117,18 @@ void Project::updateUniformBuffer(uint32_t currentImage) {
     float time;
     bool SpaceBar = false;
     bool BackSpace = false;
-    GlobalUniformBufferObject gubo;
     glm::vec3 m = glm::vec3(0.0f);
     glm::vec3 r = glm::vec3(0.0f);
     glm::vec4 frustumPlanes[6];
 
 
-    //Light updates
-    gubo.lightDir = glm::vec3(cos(glm::radians(30.0f)), sin(glm::radians(30.0f)), 0.0f);
-    gubo.lightColor = glm::vec4(1.0f, 1.0f, 1.0f, 1.0f);
-    gubo.eyePos = glm::vec3(100.0, 100.0, 100.0);
-
-
     //Camera Update
     getSixAxis(deltaT, time, m, r, SpaceBar, BackSpace);
     glm::mat4 S = updateCam(Ar, deltaT, m, r, false);
+
+    //light updates
+    auto rotate = glm::rotate(glm::mat4(1.0f), deltaT, glm::vec3(0.0f, 1.0f, 0.0f));
+    gubo.PointlightPosition = glm::vec3(rotate * glm::vec4(gubo.PointlightPosition, 1.0f));
 
 
     //for FrustumCulling
@@ -208,7 +212,6 @@ void Project::gameLogic()
     //MUOVI NEMICI
     for(int i = 0; i < 4; i++)
     {
-
     }
 }
 
