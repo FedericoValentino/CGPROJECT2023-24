@@ -5,12 +5,17 @@
 #include "../Engine/Starter.hpp"
 #include "../Model/Include/Partita.h"
 
+struct TileUniformBufferObject {
+    alignas(16) glm::mat4 worldViewProj[MAPDIM*MAPDIM];
+    alignas(16) glm::mat4 model[MAPDIM*MAPDIM];
+    alignas(16) glm::mat4 normal[MAPDIM*MAPDIM];
+};
+
 
 struct TileInfo{
     int row_;
     int col_;
     bool toDraw;
-    DescriptorSet DS;
     UniformBufferObject ubo;
 };
 
@@ -34,6 +39,12 @@ public:
 
     BaseProject* app;
 
+    TileUniformBufferObject tuboFloor;
+    DescriptorSet DSFloor;
+    TileUniformBufferObject tuboHouse;
+    DescriptorSet DSHouse;
+    TileUniformBufferObject tuboSkyscraper;
+    DescriptorSet DSSkyscraper;
 
     void newTile(int row, int col, int type)
     {
@@ -81,7 +92,7 @@ public:
                 // first  element : the binding number
                 // second element : the type of element (buffer or texture)
                 // third  element : the pipeline stage where it will be used
-                {0, VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, VK_SHADER_STAGE_VERTEX_BIT},
+                {0, VK_DESCRIPTOR_TYPE_STORAGE_BUFFER, VK_SHADER_STAGE_VERTEX_BIT},
                 {1, VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, VK_SHADER_STAGE_FRAGMENT_BIT},
                 {2, VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, VK_SHADER_STAGE_ALL_GRAPHICS}});
 
@@ -99,72 +110,57 @@ public:
 
     void pipelineAndDSInit(BaseProject* bp, int ubosize, int gubosize){
         this->P.create();
-        for(TileInfo* info : floorTiles) {
-            info->DS.init(bp, &this->DSL, {
-                    {0, UNIFORM, ubosize,  nullptr},
-                    {1, TEXTURE, 0,        &this->Floor},
-                    {2, UNIFORM, gubosize, nullptr}
-            });
-        }
 
-        for(TileInfo* info : houseTiles) {
-            info->DS.init(bp, &this->DSL, {
-                    {0, UNIFORM, ubosize,  nullptr},
-                    {1, TEXTURE, 0,        &this->House},
-                    {2, UNIFORM, gubosize, nullptr}
-            });
-        }
+        DSFloor.init(bp, &this->DSL, {
+                {0, STORAGE, ubosize,  nullptr},
+                {1, TEXTURE, 0,        &this->Floor},
+                {2, UNIFORM, gubosize, nullptr}
+        });
 
-        for(TileInfo* info : skyscraperTiles) {
-            info->DS.init(bp, &this->DSL, {
-                    {0, UNIFORM, ubosize,  nullptr},
-                    {1, TEXTURE, 0,        &this->Skyscraper},
-                    {2, UNIFORM, gubosize, nullptr}
-            });
-        }
+        DSHouse.init(bp, &this->DSL, {
+                {0, STORAGE, ubosize,  nullptr},
+                {1, TEXTURE, 0,        &this->House},
+                {2, UNIFORM, gubosize, nullptr}
+        });
+
+        DSSkyscraper.init(bp, &this->DSL, {
+                {0, STORAGE, ubosize,  nullptr},
+                {1, TEXTURE, 0,        &this->Skyscraper},
+                {2, UNIFORM, gubosize, nullptr}
+        });
     }
 
     void populateCommandBuffer(VkCommandBuffer commandBuffer, int currentImage){
         this->P.bind(commandBuffer);
 
+
+
         if(!floorTiles.empty())
         {
+            DSFloor.bind(commandBuffer, this->P, 0, currentImage);
             this->floor.bind(commandBuffer);
 
-            for (TileInfo* info: floorTiles) {
-                if(info->toDraw) {
-                    info->DS.bind(commandBuffer, this->P, 0, currentImage);
-                    vkCmdDrawIndexed(commandBuffer,
-                                     static_cast<uint32_t>(this->floor.indices.size()), 1, 0, 0, 0);
-                }
-            }
+            vkCmdDrawIndexed(commandBuffer,
+                             static_cast<uint32_t>(this->floor.indices.size()), floorTiles.size(), 0, 0, 0);
         }
 
         if(!houseTiles.empty())
         {
+            DSHouse.bind(commandBuffer, this->P, 0, currentImage);
             this->house.bind(commandBuffer);
 
-            for (TileInfo* info: houseTiles) {
-                if (info->toDraw) {
-                    info->DS.bind(commandBuffer, this->P, 0, currentImage);
-                    vkCmdDrawIndexed(commandBuffer,
-                                     static_cast<uint32_t>(this->house.indices.size()), 1, 0, 0, 0);
-                }
-            }
+            vkCmdDrawIndexed(commandBuffer,
+                             static_cast<uint32_t>(this->house.indices.size()), houseTiles.size(), 0, 0, 0);
         }
 
 
         if(!skyscraperTiles.empty())
         {
+            DSSkyscraper.bind(commandBuffer, this->P, 0, currentImage);
             this->skyscraper.bind(commandBuffer);
 
-            for (TileInfo* info: skyscraperTiles) {
-                if (info->toDraw) {
-                    info->DS.bind(commandBuffer, this->P, 0, currentImage);
-                    vkCmdDrawIndexed(commandBuffer,
-                                     static_cast<uint32_t>(this->skyscraper.indices.size()), 1, 0, 0, 0);
-                }
-            }
+            vkCmdDrawIndexed(commandBuffer,
+                             static_cast<uint32_t>(this->skyscraper.indices.size()), skyscraperTiles.size(), 0, 0, 0);
         }
 
 
@@ -184,18 +180,9 @@ public:
 
     void pipelineAndDSCleanup(){
         this->P.cleanup();
-        for(TileInfo* info : floorTiles)
-        {
-            info->DS.cleanup();
-        }
-        for(TileInfo* info : houseTiles)
-        {
-            info->DS.cleanup();
-        }
-        for(TileInfo* info : skyscraperTiles)
-        {
-            info->DS.cleanup();
-        }
+        DSHouse.cleanup();
+        DSFloor.cleanup();
+        DSSkyscraper.cleanup();
     }
 
 

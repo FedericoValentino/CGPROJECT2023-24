@@ -80,7 +80,7 @@ void Project::localInit() {
 }
 
 void Project::pipelinesAndDescriptorSetsInit() {
-    tiles->pipelineAndDSInit(this, sizeof(UniformBufferObject), sizeof(GlobalUniformBufferObject));
+    tiles->pipelineAndDSInit(this, sizeof(TileUniformBufferObject), sizeof(GlobalUniformBufferObject));
     planes->pipelineAndDSInit(this, sizeof(UniformBufferObject), sizeof(GlobalUniformBufferObject));
 }
 
@@ -137,38 +137,51 @@ void Project::updateUniformBuffer(uint32_t currentImage) {
 
 
     //Entities updates
-    for(TileInfo* info : tiles->floorTiles)
+    for(int i = 0; i < tiles->floorTiles.size(); i++)
     {
+        TileInfo* info = tiles->floorTiles[i];
         glm::vec3 tilePosition = glm::vec3(info->ubo.model[3][0], info->ubo.model[3][1], info->ubo.model[3][2]);
 
         info->toDraw = sphereInFrustum(frustumPlanes, tilePosition, 2.0f);
         info->ubo.worldViewProj = S * info->ubo.model;
-        info->DS.map(currentImage, &info->ubo, sizeof(info->ubo), 0);
 
-        info->DS.map(currentImage, &gubo, sizeof(gubo), 2);
+        tiles->tuboFloor.worldViewProj[i] = info->ubo.worldViewProj;
+        tiles->tuboFloor.model[i] = info->ubo.model;
+        tiles->tuboFloor.normal[i] = info->ubo.normal;
     }
 
-    for(TileInfo* info : tiles->houseTiles)
+    tiles->DSFloor.map(currentImage, &tiles->tuboFloor, sizeof(TileUniformBufferObject), 0);
+    tiles->DSFloor.map(currentImage, &gubo, sizeof(gubo), 2);
+
+    for(int i = 0; i < tiles->houseTiles.size(); i++)
     {
+        TileInfo* info = tiles->houseTiles[i];
         glm::vec3 tilePosition = glm::vec3(info->ubo.model[3][0], info->ubo.model[3][1], info->ubo.model[3][2]);
 
         info->toDraw = sphereInFrustum(frustumPlanes, tilePosition, 2.0f);
         info->ubo.worldViewProj = S * info->ubo.model;
-        info->DS.map(currentImage, &info->ubo, sizeof(info->ubo), 0);
-
-        info->DS.map(currentImage, &gubo, sizeof(gubo), 2);
+        tiles->tuboHouse.worldViewProj[i] = info->ubo.worldViewProj;
+        tiles->tuboHouse.model[i] = info->ubo.model;
+        tiles->tuboHouse.normal[i] = info->ubo.normal;
     }
 
-    for(TileInfo* info : tiles->skyscraperTiles)
+    tiles->DSHouse.map(currentImage, &tiles->tuboHouse, sizeof(TileUniformBufferObject), 0);
+    tiles->DSHouse.map(currentImage, &gubo, sizeof(gubo), 2);
+
+    for(int i = 0; i < tiles->skyscraperTiles.size(); i++)
     {
+        TileInfo* info = tiles->skyscraperTiles[i];
         glm::vec3 tilePosition = glm::vec3(info->ubo.model[3][0], info->ubo.model[3][1], info->ubo.model[3][2]);
 
         info->toDraw = sphereInFrustum(frustumPlanes, tilePosition, 2.0f);
         info->ubo.worldViewProj = S * info->ubo.model;
-        info->DS.map(currentImage, &info->ubo, sizeof(info->ubo), 0);
-
-        info->DS.map(currentImage, &gubo, sizeof(gubo), 2);
+        tiles->tuboSkyscraper.worldViewProj[i] = info->ubo.worldViewProj;
+        tiles->tuboSkyscraper.model[i] = info->ubo.model;
+        tiles->tuboSkyscraper.normal[i] = info->ubo.normal;
     }
+
+    tiles->DSSkyscraper.map(currentImage, &tiles->tuboSkyscraper, sizeof(TileUniformBufferObject), 0);
+    tiles->DSSkyscraper.map(currentImage, &gubo, sizeof(gubo), 2);
 
 
     //TODO buffer update sequence for planes

@@ -331,7 +331,7 @@ struct Pipeline {
 	void cleanup();
 };
 
-enum DescriptorSetElementType {UNIFORM, TEXTURE};
+enum DescriptorSetElementType {UNIFORM, TEXTURE, STORAGE};
 
 struct DescriptorSetElement {
 	int binding;
@@ -1540,13 +1540,16 @@ std::cout << "Starting createInstance()\n"  << std::flush;
 	void createDescriptorPool(int i) {
         VkDescriptorPool pool;
         descriptorPool.push_back(pool);
-		std::array<VkDescriptorPoolSize, 2> poolSizes{};
+		std::array<VkDescriptorPoolSize, 3> poolSizes{};
 		poolSizes[0].type = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
 		poolSizes[0].descriptorCount = static_cast<uint32_t>(uniformBlocksInPool *
 															 swapChainImages.size());
 		poolSizes[1].type = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
 		poolSizes[1].descriptorCount = static_cast<uint32_t>(texturesInPool *
 															 swapChainImages.size());
+        poolSizes[2].type = VK_DESCRIPTOR_TYPE_STORAGE_BUFFER;
+        poolSizes[2].descriptorCount = static_cast<uint32_t>(uniformBlocksInPool *
+                                                             swapChainImages.size());
 															 
 		VkDescriptorPoolCreateInfo poolInfo{};
 		poolInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_POOL_CREATE_INFO;
@@ -3323,7 +3326,19 @@ void DescriptorSet::init(BaseProject *bp, DescriptorSetLayout *DSL,
 									 	 uniformBuffers[j][i], uniformBuffersMemory[j][i]);
 			}
 			toFree[j] = true;
-		} else {
+		}
+        else if(E[j].type == STORAGE)
+        {
+            for (size_t i = 0; i < BP->swapChainImages.size(); i++) {
+                VkDeviceSize bufferSize = E[j].size;
+                BP->createBuffer(bufferSize, VK_BUFFER_USAGE_STORAGE_BUFFER_BIT,
+                                 VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT |
+                                 VK_MEMORY_PROPERTY_HOST_COHERENT_BIT,
+                                 uniformBuffers[j][i], uniformBuffersMemory[j][i]);
+            }
+            toFree[j] = true;
+        }
+        else {
 			toFree[j] = false;
 		}
 	}
@@ -3375,7 +3390,20 @@ void DescriptorSet::init(BaseProject *bp, DescriptorSetLayout *DSL,
 											VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
 				descriptorWrites[j].descriptorCount = 1;
 				descriptorWrites[j].pImageInfo = &imageInfo[j];
-			}
+			} else if(E[j].type == STORAGE)
+            {
+                bufferInfo[j].buffer = uniformBuffers[j][i];
+                bufferInfo[j].offset = 0;
+                bufferInfo[j].range = E[j].size;
+
+                descriptorWrites[j].sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
+                descriptorWrites[j].dstSet = descriptorSets[i];
+                descriptorWrites[j].dstBinding = E[j].binding;
+                descriptorWrites[j].dstArrayElement = 0;
+                descriptorWrites[j].descriptorType = VK_DESCRIPTOR_TYPE_STORAGE_BUFFER;
+                descriptorWrites[j].descriptorCount = 1;
+                descriptorWrites[j].pBufferInfo = &bufferInfo[j];
+            }
 		}		
 		vkUpdateDescriptorSets(BP->device,
 						static_cast<uint32_t>(descriptorWrites.size()),
