@@ -104,7 +104,7 @@ void Plane::changeDirection(Position3D inputPosition, float deltaT)
 }
 
 
-Position3D Plane::getPosition() {
+Position3D Plane::getPosition() const{
     return position;
 }
 

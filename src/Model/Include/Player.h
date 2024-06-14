@@ -17,9 +17,9 @@ public:
 
     Player();
 
-    void changePosition(Position3D inputPosition, float deltaT);
+    void setPosition(glm::vec4 newPosition);
 
-    void changeDirection(Position3D inputPosition, float deltaT);
+    void setOrientation(glm::vec4 newOrientation);
 
     void shoot(Position3D inputPosition, float deltaT) override;
 

@@ -50,7 +50,6 @@ private:
 };
 
 void Project::localInit() {
-
     this->partita = new Partita();
     partita->generateWorld();
 
@@ -124,7 +123,7 @@ void Project::updateUniformBuffer(uint32_t currentImage) {
 
     //Camera Update
     getSixAxis(deltaT, time, m, r, SpaceBar, BackSpace);
-    glm::mat4 S = updateCam(Ar, deltaT, m, r, false);
+    glm::mat4 S = updateCam(Ar, deltaT, m, r, true,planes,partita);
 
     //light updates
     auto rotate = glm::rotate(glm::mat4(1.0f), deltaT, glm::vec3(0.0f, 1.0f, 0.0f));
@@ -185,8 +184,31 @@ void Project::updateUniformBuffer(uint32_t currentImage) {
 
 
     //TODO buffer update sequence for planes
+    //TODO OTTIMIZARE E AGGIUSTAREE ORIENTAZIONE
     planes->playerInfo->toDraw = true;
-    planes->playerInfo->ubo.model = planes->playerInfo->ubo.model =  glm::rotate(planes->playerInfo->ubo.model, deltaT *glm::radians(90.0f), glm::vec3(0.0f, 1.0f, 0.0f));
+    glm::mat4& WorldMatrixPlane = planes->playerInfo->ubo.model;
+    const float ROT_SPEED = glm::radians(120.0f);
+    const float MOVE_SPEED = 4.0f;
+    WorldMatrixPlane = WorldMatrixPlane * glm::translate(glm::mat4(1.0f),
+                                                         glm::vec3(MOVE_SPEED*m.x*deltaT,
+                                                                   MOVE_SPEED*m.y*deltaT,
+                                                                    MOVE_SPEED*m.z*deltaT));
+    partita->getPlayer()->setPosition(glm::translate(glm::mat4(1.0f),
+                                                     glm::vec3(MOVE_SPEED*m.x*deltaT,
+                                                               MOVE_SPEED*m.y*deltaT,
+                                                               MOVE_SPEED*m.z*deltaT)) * partita->getPlayer()->getPosition().origin); // update origin position
+    // TODO update direction
+    WorldMatrixPlane = WorldMatrixPlane * glm::rotate(glm::mat4(1.0f),ROT_SPEED*r.x*deltaT,glm::vec3(1.0f,0.0f,0.0f));
+    WorldMatrixPlane = WorldMatrixPlane * glm::rotate(glm::mat4(1.0f),ROT_SPEED*r.y*deltaT,glm::vec3(0.0f,1.0f,0.0f));
+    WorldMatrixPlane = WorldMatrixPlane * glm::rotate(glm::mat4(1.0f),ROT_SPEED*r.z*deltaT,glm::vec3(0.0f,0.0f,1.0f));
+
+    partita->getPlayer()->setOrientation(glm::rotate(glm::mat4(1.0f),ROT_SPEED*r.x*deltaT,glm::vec3(1.0f,0.0f,0.0f)) *
+                                      glm::rotate(glm::mat4(1.0f),ROT_SPEED*r.y*deltaT,glm::vec3(0.0f,1.0f,0.0f)) *
+                                      glm::rotate(glm::mat4(1.0f),ROT_SPEED*r.z*deltaT,glm::vec3(0.0f,0.0f,1.0f)) *
+                                      partita->getPlayer()->getPosition().orientation);
+
+
+    //planes->playerInfo->ubo.model =  glm::rotate(planes->playerInfo->ubo.model, deltaT *glm::radians(90.0f), glm::vec3(0.0f, 1.0f, 0.0f));
     planes->playerInfo->ubo.worldViewProj = S * planes->playerInfo->ubo.model;
     planes->playerInfo->ubo.normal = glm::inverse(planes->playerInfo->ubo.model);
     planes->playerInfo->DS.map(currentImage, &planes->playerInfo->ubo, sizeof(planes->playerInfo->ubo), 0);

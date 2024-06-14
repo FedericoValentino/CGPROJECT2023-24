@@ -41,7 +41,7 @@ public:
 
     bool checkDistance3D(glm::vec4 center, glm::vec4 point, PLANETYPE plane);
 
-    Position3D getPosition();
+    Position3D getPosition() const;
     float getSpeed();
     std::set<Bullet*> getBullets();
     int getHP();

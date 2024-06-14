@@ -2,6 +2,8 @@
 #define CGPROJECT_2022_23_CONTROLWRAPER_H
 
 #include "Starter.hpp"
+#include "../../View/PlaneView.hpp"
+#include "../../Model/Include/Partita.h"
 
 enum DIR
 {
@@ -45,7 +47,8 @@ glm::mat4 generateXRotation(float degree)
  vector <pos> specifying the position of the camera, and angles <Alpha>, <Beta> and <Rho>
  defining its direction. In particular, <Alpha> defines the direction (Yaw), <Beta> the
  elevation (Pitch), and <Rho> the roll.*/
-glm::mat4 updateCam(float Ar, float deltaT, glm::vec3 m, glm::vec3 r, bool model){
+glm::mat4 updateCam(float Ar, float deltaT, glm::vec3 m, glm::vec3 r, bool model,PlaneView* planes,Partita* partita){
+
     const float FOVy = glm::radians(105.0f);
     const float nearPlane = 0.1f;
     const float farPlane = 150.f;
@@ -76,14 +79,14 @@ glm::mat4 updateCam(float Ar, float deltaT, glm::vec3 m, glm::vec3 r, bool model
     CamPos += MOVE_SPEED * m.y * glm::vec3(0,1,0) * deltaT;
     CamPos += MOVE_SPEED * m.z * uz * deltaT;
 
+
     if(model)
     {
+        glm::vec3 centerCam = planes->playerInfo->ubo.model * glm::vec4(0.0f,15.0f,-20.0f,1.0f);
+        glm::vec3 up = glm::normalize(planes->playerInfo->ubo.model * glm::vec4(0.0f,1.0f,0.0f,0.0f));
         return glm::scale(glm::mat4(1),glm::vec3(1,-1,1)) *
                 glm::frustum(-Ar*nearPlane*tan(FOVy/2),Ar*nearPlane*tan(FOVy/2),-nearPlane*tan(FOVy/2),nearPlane*tan(FOVy/2),nearPlane,farPlane) *
-                //generateXRotation(glm::radians(30.0f)) *
-                //generateYRotation(glm::radians(60.0f)) *
-                glm::rotate(glm::mat4(1.0), -CamRoll, glm::vec3(0,0,1)) *
-                glm::lookAt(CamPos, glm::vec3(0, 0, 0), glm::vec3(0, 1, 0));
+                glm::lookAt(centerCam,glm::vec3(partita->getPlayer()->getPosition().origin), up);
     }
     else
     {
@@ -95,6 +98,7 @@ glm::mat4 updateCam(float Ar, float deltaT, glm::vec3 m, glm::vec3 r, bool model
                glm::rotate(glm::mat4(1), -CamYaw, glm::vec3(0, 1, 0)) *
                glm::translate(glm::mat4(1),-CamPos) *
                glm::translate(glm::mat4(1),glm::vec3(0,-camHeight,-camDist));
+
     }
 }
 

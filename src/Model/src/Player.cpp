@@ -19,30 +19,19 @@ Player::Player() {
 }
 
 /**
- * Modifies the Player's position according to the movement inputs
- * @param inputPosition the movement input
- * @param deltaT time
+ * Modifies the Player's position according to the new position
+ * @param newPosition the new origin position
  */
-void Player::changePosition(Position3D inputPosition, const float deltaT) {
-    float x = inputPosition.origin.x * speed * deltaT;
-    float y = inputPosition.origin.y * speed * deltaT;
-    float z = inputPosition.origin.z * speed * deltaT;
-    glm::mat4 T = glm::translate(glm::mat4(1), glm::vec3(x, y, z));
-    position.origin= position.origin * T;
-
+void Player::setPosition(glm::vec4 newPosition) {
+    position.origin = newPosition;
 }
 
 /**
- * Modifies the Player's orientation according to the movement inputs
- * @param inputPosition the movement input
- * @param deltaT time
+ * Modifies the Player's orientation according to the new direction
+ * @param newDirection the new direction
  */
-void Player::changeDirection(Position3D inputPosition, const float deltaT) {
-    glm::mat4 Rx = glm::rotate(glm::mat4(1), glm::radians(inputPosition.orientation.x * deltaT), glm::vec3(1, 0, 0));
-    glm::mat4 Ry = glm::rotate(glm::mat4(1), glm::radians(inputPosition.orientation.y * deltaT), glm::vec3(0, 1, 0));
-    glm::mat4 Rz = glm::rotate(glm::mat4(1), glm::radians(inputPosition.orientation.z * deltaT), glm::vec3(0, 0, 1));
-    glm::mat4 R = Rx * Ry * Rz;
-    position.orientation = position.orientation * R;
+void Player::setOrientation(glm::vec4 newOrientation) {
+    position.orientation = newOrientation;
 }
 
 /**

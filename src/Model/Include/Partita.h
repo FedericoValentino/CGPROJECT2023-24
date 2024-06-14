@@ -50,6 +50,8 @@ public:
     Partita();
 
     [[nodiscard]] const Tiles* getMap(int x, int y) const;
+
+     Player *const getPlayer();
 };
 
 
