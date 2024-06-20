@@ -23,7 +23,7 @@ void Boss::shoot(Position3D inputPosition, const float deltaT)
 {
     Position3D shootingVector;
     shootingVector.origin = position.origin;
-    shootingVector.orientation = (position.origin - inputPosition.origin);
+    shootingVector.rotation = (position.origin - inputPosition.origin);
     if(checkDistance3D(inputPosition.origin, position.origin, BOSS))
         bullets->insert(new Bullet(shootingVector, BOSS, false));
 }

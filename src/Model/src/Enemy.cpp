@@ -43,7 +43,7 @@ void Enemy::changeDirection(Position3D inputPosition, const float deltaT)
 void Enemy::shoot(Position3D inputPosition, const float deltaT)
 {
     float distance;
-    if(glm::intersectRaySphere(position.origin, position.orientation, inputPosition.origin, pow(1.0f, 2.0f), distance)
+    if(glm::intersectRaySphere(position.origin, position.rotation, inputPosition.origin, pow(1.0f, 2.0f), distance)
         && checkDistance3D(inputPosition.origin, position.origin, ENEMY))
         bullets->insert(new Bullet(position, ENEMY, false));
 }

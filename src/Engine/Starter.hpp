@@ -63,6 +63,8 @@
 
 
 const int MAX_FRAMES_IN_FLIGHT = 2;
+constexpr float MOVE_SPEED = 10.0f;
+constexpr float ROT_SPEED = glm::radians(120.0f);
 
 struct UniformBufferObject {
     alignas(16) glm::mat4 worldViewProj;
@@ -1906,10 +1908,16 @@ std::cout << "Starting createInstance()\n"  << std::flush;
         }
 
         if(glfwGetKey(window, GLFW_KEY_Q)) {
-            r.y = -1.0f;
+            r.y = 1.0f;
         }
         if(glfwGetKey(window, GLFW_KEY_E)) {
-            r.y = 1.0f;
+            r.y = -1.0f;
+        }
+        if (glfwGetKey(window, GLFW_KEY_A)) {
+            r.z = -1.0f; // Negative roll
+        }
+        if (glfwGetKey(window, GLFW_KEY_D)) {
+            r.z = 1.0f; // Positive roll
         }
         if(glfwGetKey(window, GLFW_KEY_A)) {
             m.x = -1.0f;
@@ -1917,11 +1925,11 @@ std::cout << "Starting createInstance()\n"  << std::flush;
         if(glfwGetKey(window, GLFW_KEY_D)) {
             m.x = 1.0f;
         }
-        if(glfwGetKey(window, GLFW_KEY_S)) {
-            m.z = -1.0f;
-        }
         if(glfwGetKey(window, GLFW_KEY_W)) {
-            m.z = 1.0f;
+            r.x = -1.0f; // Pitch
+        }
+        if(glfwGetKey(window, GLFW_KEY_S)) {
+            r.x = 1.0f; // Pitch
         }
         if(glfwGetKey(window, GLFW_KEY_LEFT_SHIFT)) {
             m.y = 1.0f;

@@ -57,12 +57,12 @@ unsigned int Bullet::getId() const
 }
 
 void Bullet::move(const float deltaT) {
-    position3D_.origin += position3D_.orientation * speed_ * deltaT;
+    position3D_.origin += position3D_.rotation * speed_ * deltaT;
     if(debug_)
     {
         std::cout<<"I AM BULLET:"<<id_<<std::endl;
         std::cout<<"origin:"<<glm::to_string(position3D_.origin)<<std::endl;
-        std::cout<<"orientation:"<<glm::to_string(position3D_.orientation)<<std::endl;
+        std::cout<<"orientation:"<<glm::to_string(position3D_.rotation)<<std::endl;
     }
 
 }

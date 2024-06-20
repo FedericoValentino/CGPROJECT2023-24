@@ -16,7 +16,6 @@
 class Plane {
 
 protected:
-    Position3D position;
     float speed;
     std::set<Bullet*>* bullets;
     PLANETYPE type;
@@ -24,6 +23,8 @@ protected:
     bool dead;
 
 public:
+
+    Position3D position;
 
     Plane();
 
@@ -39,7 +40,7 @@ public:
 
     void changeDirection(Position3D inputPosition, float deltaT);
 
-    bool checkDistance3D(glm::vec4 center, glm::vec4 point, PLANETYPE plane);
+    bool checkDistance3D(glm::vec3 center, glm::vec3 point, PLANETYPE plane);
 
     Position3D getPosition() const;
     float getSpeed();
