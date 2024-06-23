@@ -95,14 +95,18 @@ void Partita::generateWorld() {
 }
 
 
-void Partita::spawn() {
-    //enemies.push_back(new Enemy());
+Plane* Partita::spawn() {
+    auto pos = glm::vec3(20.0f, 8.40f, 10.0f);
+    auto rot = glm::vec3(0.0f);
+    auto plane = PlaneBuilder::getPlane(ENEMY, {pos, rot});
+    enemies.push_back(plane);
+    return plane;
 }
 
 void Partita::checkCollision() {
     //Check Collision of player with other enemies
 
-    for(Enemy* enemy : enemies)
+    for(Plane* enemy : enemies)
     {
         if(/*player.pos == enemy.pos*/true)
         {
@@ -111,7 +115,7 @@ void Partita::checkCollision() {
     }
 
     //check Collision of player with enemy projectiles
-    for(Enemy* enemy : enemies)
+    for(Plane* enemy : enemies)
     {
         /*for(Bullet* p : enemy->projectiles)
         {

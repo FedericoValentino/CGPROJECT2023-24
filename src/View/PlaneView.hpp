@@ -6,7 +6,7 @@
 
 struct PlaneInfo
 {
-    void* pEnemy;
+    Plane* pEnemy;
     bool toDraw;
     DescriptorSet DS;
     UniformBufferObject ubo;
@@ -31,18 +31,25 @@ public:
     BaseProject* app;
 
 
-    void newPlayer(Player* enemy)
+    void newPlayer(Player* pPlayer)
     {
         playerInfo = new PlaneInfo();
-        playerInfo->pEnemy = enemy;
+        playerInfo->pEnemy = pPlayer;
         playerInfo->ubo.model = glm::translate(glm::mat4(1.0f), glm::vec3(0.0f, 8.40f, 0.0f));
     }
 
-    void newEnemy(Enemy* enemy)
+    void newEnemy(Plane* enemy, int ubosize, int gubosize)
     {
-        PlaneInfo* newenemyInfo = new PlaneInfo();
-        newenemyInfo->pEnemy = enemy;
-        enemyInfo.push_back(newenemyInfo);
+        PlaneInfo* newEnemyInfo = new PlaneInfo();
+        newEnemyInfo->pEnemy = enemy;
+        newEnemyInfo->ubo.model = glm::translate(glm::mat4(1.0f), enemy->getPosition().origin);
+        newEnemyInfo->DS.init(app, &DSL, {
+                {0, UNIFORM, ubosize, nullptr},
+                {1, TEXTURE, 0, &this->T},
+                {2, UNIFORM, gubosize, nullptr}
+        });
+        enemyInfo.push_back(newEnemyInfo);
+
     }
 
     void newBoss(Enemy* enemy)
@@ -89,6 +96,16 @@ public:
                 {1, TEXTURE, 0, &this->T},
                 {2, UNIFORM, gubosize, nullptr}
         });
+        if(!enemyInfo.empty())
+        {
+            for(PlaneInfo* info : enemyInfo)
+            {
+                info->DS.init(bp, &this->DSL, {
+                        {0, UNIFORM, ubosize, nullptr},
+                        {1, TEXTURE, 0, &this->T},
+                        {2, UNIFORM, gubosize, nullptr}});
+            }
+        }
     }
 
     void populateCommandBuffer(VkCommandBuffer commandBuffer, int currentImage){

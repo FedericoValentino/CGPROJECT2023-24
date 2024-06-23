@@ -1878,7 +1878,7 @@ std::cout << "Starting createInstance()\n"  << std::flush;
 		}
 	}
 
-    void getSixAxis(float &deltaT, float &time, glm::vec3 &m, glm::vec3 &r, bool &click, bool& backSpace)
+    void getSixAxis(float &deltaT, float &time, glm::vec3 &m, glm::vec3 &r)
     {
         static auto startTime = std::chrono::high_resolution_clock::now();
         static float lastTime = 0.0f;
@@ -1936,22 +1936,6 @@ std::cout << "Starting createInstance()\n"  << std::flush;
         }
         if(glfwGetKey(window, GLFW_KEY_LEFT_CONTROL)) {
             m.y = -1.0f;
-        }
-
-        static bool spacePress = false;
-        if(glfwGetKey(window, GLFW_KEY_SPACE) == GLFW_PRESS){
-            if(!spacePress) {
-                click = true;
-                spacePress = true;
-            }
-        }
-
-        if(glfwGetKey(window, GLFW_KEY_SPACE) == GLFW_RELEASE){
-            spacePress = false;
-        }
-
-        if(glfwGetKey(window, GLFW_KEY_BACKSPACE)){
-            backSpace=true;
         }
     }
 	

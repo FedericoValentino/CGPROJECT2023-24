@@ -8,7 +8,7 @@
 Enemy::Enemy(Position3D position) {
 
     this->position = position;
-    speed = 1;
+    speed = 20;
     type = ENEMY;
     hp = 1;
     dead = false;

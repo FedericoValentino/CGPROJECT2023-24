@@ -6,6 +6,7 @@
 #include "Player.h"
 #include "Enemy.h"
 #include "Tiles.h"
+#include "PlaneBuilder.hpp"
 
 
 #define MAPDIM 24
@@ -29,12 +30,12 @@ class Partita {
     int state;
     int stage;
     Player* player;
-    std::vector<Enemy*> enemies;
+    std::vector<Plane*> enemies;
     Tiles* map[MAPDIM][MAPDIM];
 
     void generateWorld();
 
-    void spawn();
+    Plane* spawn();
 
     void changeLevel();
 

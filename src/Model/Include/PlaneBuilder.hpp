@@ -17,7 +17,7 @@ public:
      * @param position the position to assign to some of the planes
      * @return the constructed plane
      */
-    Plane* getPlane(PLANETYPE type, const Position3D& position){
+    static Plane* getPlane(PLANETYPE type, const Position3D& position){
 
         Plane* plane;
         switch(type){

@@ -81,7 +81,7 @@ void Plane::changePosition(Position3D inputPosition, float deltaT)
     float y =  0.0f;
     float z =  glm::cos(glm::radians(position.rotation.y)) * speed * deltaT;
     glm::mat4 T = glm::translate(glm::mat4(1), glm::vec3(x, y, z));
-    position.origin= T * glm::vec4(position.origin,1.0f);
+    position.origin= glm::vec3(x + position.origin.x,  y + position.origin.y, z + position.origin.z);
 }
 
 /**
@@ -95,11 +95,21 @@ void Plane::changePosition(Position3D inputPosition, float deltaT)
 void Plane::changeDirection(Position3D inputPosition, float deltaT)
 {
     glm::vec3 pointingDirection = glm::vec4(glm::sin(glm::radians(position.rotation.y)), 0.0f, glm::cos(glm::radians(position.rotation.y)), 1.0f);
-    glm::vec3 cross  = glm::cross(pointingDirection, glm::vec3(inputPosition.origin));
+    glm::vec3 cross  = glm::cross(pointingDirection, glm::vec3(inputPosition.rotation));
     if(cross.y > 0)
+    {
         position.rotation.y -= speed * deltaT;
+        std::cout << "GIRO A DESTRA" << std::endl;
+    }
     else if (cross.y < 0)
+    {
         position.rotation.y += speed * deltaT;
+        std::cout << "GIRO A SINISTRA" << std::endl;
+    }
+    else
+    {
+        std::cout << "NON FACCIO UN CAZZO" << std::endl;
+    }
     //TODO If cross==0
 }
 

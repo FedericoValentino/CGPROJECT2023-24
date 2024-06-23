@@ -46,9 +46,9 @@ glm::mat4 generateXRotation(float degree)
 void updatePlaneMatrix(Position3D& pl_pos,float deltaT, float time, const glm::vec3 &m, const glm::vec3 &r)
 {
     // Update Euler angles
-    pl_pos.rotation.x += ROT_SPEED/2.0f * r.x * deltaT; // pitch
+    //pl_pos.rotation.x += ROT_SPEED/2.0f * r.x * deltaT; // pitch
     pl_pos.rotation.y += ROT_SPEED * r.y * deltaT; // yaw
-    pl_pos.rotation.z += ROT_SPEED/2.0f * r.z * deltaT; // roll
+    //pl_pos.rotation.z += ROT_SPEED/2.0f * r.z * deltaT; // roll
 
     // Ensure the rotations stay within the range 0 to 2π
     pl_pos.rotation.x = fmod(pl_pos.rotation.x, 2.0f * M_PI);
@@ -69,9 +69,9 @@ void updatePlaneMatrix(Position3D& pl_pos,float deltaT, float time, const glm::v
     glm::vec3 upDirection = glm::normalize(orientation * glm::vec3(0.0f, 1.0f, 0.0f));       // Up
 
 // Update position based on movement input
-    pl_pos.origin += forwardDirection * MOVE_SPEED * 2.0f * deltaT; // Forward/Backward
-    pl_pos.origin += upDirection * MOVE_SPEED * m.y * deltaT;      // Up/Down
-    pl_pos.origin += rightDirection * MOVE_SPEED * m.x * deltaT;   // Left/Right
+    pl_pos.origin += forwardDirection * MOVE_SPEED * m.z * deltaT; // Forward/Backward
+    //pl_pos.origin += upDirection * MOVE_SPEED * m.y * deltaT;      // Up/Down
+    //pl_pos.origin += rightDirection * MOVE_SPEED * m.x * deltaT;   // Left/Right
 }
 
 
@@ -91,7 +91,7 @@ void updatePlaneMatrix(glm::mat4& WorldMatrixPlane,const Position3D& pl_pos)
  vector <pos> specifying the position of the camera, and angles <Alpha>, <Beta> and <Rho>
  defining its direction. In particular, <Alpha> defines the direction (Yaw), <Beta> the
  elevation (Pitch), and <Rho> the roll.*/
-glm::mat4 updateCam(float Ar, float deltaT, glm::vec3 m, glm::vec3 r, bool model,Position3D pl_pos,glm::mat4 playerUbo){
+glm::mat4 updateCam(float Ar, Position3D pl_pos,glm::mat4 playerUbo){
 
     const float FOVy = glm::radians(105.0f);
     const float nearPlane = 0.1f;
