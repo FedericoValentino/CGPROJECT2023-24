@@ -69,7 +69,7 @@ void updatePlaneMatrix(Position3D& pl_pos,float deltaT, float time, const glm::v
     glm::vec3 upDirection = glm::normalize(orientation * glm::vec3(0.0f, 1.0f, 0.0f));       // Up
 
 // Update position based on movement input
-    pl_pos.origin += forwardDirection * MOVE_SPEED * m.z * deltaT; // Forward/Backward
+    pl_pos.origin += forwardDirection * MOVE_SPEED * 2.0f * deltaT; // Forward/Backward
     //pl_pos.origin += upDirection * MOVE_SPEED * m.y * deltaT;      // Up/Down
     //pl_pos.origin += rightDirection * MOVE_SPEED * m.x * deltaT;   // Left/Right
 }

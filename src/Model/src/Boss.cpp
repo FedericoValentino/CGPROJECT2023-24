@@ -7,7 +7,8 @@
 
 Boss::Boss(Position3D position){
     this->position = position;
-    speed = 1;
+    translationSpeed = 1;
+    rotationSpeed = glm::radians(120.0f);
     type = BOSS;
     hp = 10;
     dead = false;

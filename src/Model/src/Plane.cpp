@@ -67,7 +67,7 @@ bool Plane::checkDistance3D(glm::vec3 center, glm::vec3 point, PLANETYPE plane) 
 void Plane::moveTowardsPoint(Position3D point, float deltaT)
 {
     changeDirection(point, deltaT);
-    changePosition(position, deltaT);
+    //changePosition(position, deltaT);
 }
 
 /**
@@ -77,11 +77,11 @@ void Plane::moveTowardsPoint(Position3D point, float deltaT)
  */
 void Plane::changePosition(Position3D inputPosition, float deltaT)
 {
-    float x =  glm::sin(glm::radians(position.rotation.y)) * speed * deltaT;
+    float x =  glm::sin(position.rotation.y) * translationSpeed * deltaT;
     float y =  0.0f;
-    float z =  glm::cos(glm::radians(position.rotation.y)) * speed * deltaT;
+    float z =  glm::cos(position.rotation.y) * translationSpeed * deltaT;
     glm::mat4 T = glm::translate(glm::mat4(1), glm::vec3(x, y, z));
-    position.origin= glm::vec3(x + position.origin.x,  y + position.origin.y, z + position.origin.z);
+    position.origin= T * glm::vec4(position.origin,1.0f);
 }
 
 /**
@@ -94,32 +94,25 @@ void Plane::changePosition(Position3D inputPosition, float deltaT)
  */
 void Plane::changeDirection(Position3D inputPosition, float deltaT)
 {
-    glm::vec3 pointingDirection = glm::vec4(glm::sin(glm::radians(position.rotation.y)), 0.0f, glm::cos(glm::radians(position.rotation.y)), 1.0f);
-    glm::vec3 cross  = glm::cross(pointingDirection, glm::vec3(inputPosition.rotation));
-    if(cross.y > 0)
+    glm::vec3 diff = glm::normalize(inputPosition.origin - position.origin);
+    glm::vec3 pointingDirection = glm::normalize(glm::vec3(glm::sin(glm::radians(position.rotation.y)), 0.0f, glm::cos(glm::radians(position.rotation.y))));
+    float cross  = glm::length(glm::cross(pointingDirection, diff));
+
+    if(cross < 0)
     {
-        position.rotation.y -= speed * deltaT;
-        std::cout << "GIRO A DESTRA" << std::endl;
+        position.rotation.y -= rotationSpeed * deltaT;
     }
-    else if (cross.y < 0)
+    else if (cross > 0)
     {
-        position.rotation.y += speed * deltaT;
-        std::cout << "GIRO A SINISTRA" << std::endl;
+        position.rotation.y += rotationSpeed * deltaT;
     }
-    else
-    {
-        std::cout << "NON FACCIO UN CAZZO" << std::endl;
-    }
-    //TODO If cross==0
+    position.rotation.y = fmod(position.rotation.y, 2.0f * M_PI);
+    std::cout<<position.rotation.x<<" "<<position.rotation.y<<" "<<position.rotation.z<<std::endl;
 }
 
 
 Position3D Plane::getPosition() const{
     return position;
-}
-
-float Plane::getSpeed(){
-    return speed;
 }
 
 std::set<Bullet*> Plane::getBullets() {
@@ -137,6 +130,14 @@ int Plane::getHP() {
 
 PLANETYPE Plane::getType() {
     return type;
+}
+
+float Plane::getTranslationSpeed() const {
+    return translationSpeed;
+}
+
+float Plane::getRotationSpeed() const {
+    return rotationSpeed;
 }
 
 

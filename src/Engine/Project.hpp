@@ -197,8 +197,10 @@ void Project::updateUniformBuffer(uint32_t currentImage) {
         auto pos = info->pEnemy->getPosition();
         info->toDraw = true; //sphereInFrustum(frustumPlanes, pos.origin, 2.0f);
 
-        info->ubo.model = glm::rotate(glm::mat4(1), glm::radians(pos.rotation.y), glm::vec3(0, 1, 0));
-        info->ubo.model = glm::translate(info->ubo.model, pos.origin);
+        info->ubo.model = glm::rotate(glm::mat4(1), pos.rotation.y, glm::vec3(0, 1, 0));
+        info->ubo.model = glm::translate(info->ubo.model, glm::vec3(0.0f, 8.40f, 0.0f));
+
+        std::cout<<info->ubo.model[3][0]<<" "<<info->ubo.model[3][1]<<" "<<info->ubo.model[3][2]<<std::endl;
 
         info->ubo.worldViewProj = S * info->ubo.model;
         info->ubo.normal = glm::inverse(glm::transpose(info->ubo.model));

@@ -12,7 +12,8 @@
 Player::Player() {
     position.origin = glm::vec4(0.0f, 8.40f, 0.0f, 1.0f);
     position.rotation = glm::vec4 (0.0f, 0.0f, 0.0f, 1.0f);
-    speed = 2;
+    translationSpeed = 2;
+    rotationSpeed = glm::radians(120.0f);
     hp = 5;
     type = PLAYER;
     dead = false;

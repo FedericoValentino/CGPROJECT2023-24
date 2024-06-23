@@ -16,7 +16,14 @@
 class Plane {
 
 protected:
-    float speed;
+    float rotationSpeed;
+    float translationSpeed;
+public:
+    float getTranslationSpeed() const;
+
+    float getRotationSpeed() const;
+
+protected:
     std::set<Bullet*>* bullets;
     PLANETYPE type;
     int hp;
