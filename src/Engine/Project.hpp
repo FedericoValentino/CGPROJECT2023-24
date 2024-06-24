@@ -201,8 +201,6 @@ void Project::updateUniformBuffer(uint32_t currentImage) {
         info->ubo.model = glm::translate(info->ubo.model, pos.origin);
         info->ubo.model = glm::rotate(info->ubo.model, pos.rotation.y, glm::vec3(0, 1, 0));
 
-        std::cout<<info->ubo.model[3][0]<<" "<<info->ubo.model[3][1]<<" "<<info->ubo.model[3][2]<<std::endl;
-
         info->ubo.worldViewProj = S * info->ubo.model;
         info->ubo.normal = glm::inverse(glm::transpose(info->ubo.model));
 
