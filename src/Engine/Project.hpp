@@ -91,6 +91,9 @@ void Project::localInit() {
     this->planes = new PlaneView();
     planes->init(this);
     planes->newPlayer(partita->player);
+
+
+    bullets = new BulletView();
     bullets->init(this);
 }
 

@@ -77,8 +77,6 @@ public:
         this->bulletTexture.init(bp, "../src/textures/House.png");
 
         this->bullet.init(bp, &VD, "../src/models/floor.obj", OBJ);
-
-        this->bulletInfo.clear();
     }
 
     void pipelineAndDSInit(BaseProject* bp, int ubosize, int gubosize){
