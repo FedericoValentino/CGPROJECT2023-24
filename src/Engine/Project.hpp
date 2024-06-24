@@ -318,6 +318,9 @@ void Project::gameLogic()
     partita->checkCollision();
     //RIMUOVI ROBA
 
+
+    //MAKE ENEMIES SHOOT
+
     //SPAWN
     spawnPlane();
 

@@ -94,7 +94,7 @@ public:
         this->T.init(bp, "../src/textures/cube.png");
         this->player.init(bp, &VD, "../src/models/B2.gltf", GLTF);
         this->Boss.init(bp, &VD, "../src/models/plane.obj", OBJ);
-        this->baseEnemy.init(bp, &VD, "../src/models/plane.obj", OBJ);
+        this->baseEnemy.init(bp, &VD, "../src/models/Aereoaviatore.obj", OBJ);
     }
 
     void pipelineAndDSInit(BaseProject* bp, int ubosize, int gubosize){
