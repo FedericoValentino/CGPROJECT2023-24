@@ -3,12 +3,13 @@
 //
 
 #include "../Include/Boss.h"
+#include <glm/gtx/vector_angle.hpp>
 
 
 Boss::Boss(Position3D position){
     this->position = position;
-    translationSpeed = 1;
-    rotationSpeed = glm::radians(120.0f);
+    translationSpeed = 10;
+    rotationSpeed = glm::radians(45.0f);
     type = BOSS;
     hp = 10;
     dead = false;
@@ -39,8 +40,23 @@ void Boss::shoot(Position3D inputPosition, const float deltaT)
  */
 void Boss::bossMovement(Position3D playerPosition, float deltaT)
 {
+    Position3D tempPosForward{};
+    tempPosForward.origin = glm::vec3(playerPosition.origin.x + glm::sin(playerPosition.rotation.y) * 10.0f,
+                               playerPosition.origin.y,
+                               playerPosition.origin.z + glm::cos(playerPosition.rotation.y) * 10.0f);
+
+    Position3D tempPosBackward{};
+    tempPosBackward.origin = glm::vec3(playerPosition.origin.x - glm::sin(playerPosition.rotation.y) * 10.0f,
+                                      playerPosition.origin.y,
+                                      playerPosition.origin.z - glm::cos(playerPosition.rotation.y) * 10.0f);
+
+
+
     if(!checkDistance3D(playerPosition.origin, position.origin, BOSS))
-        moveTowardsPoint(playerPosition, deltaT);
+        if(glm::distance(position.origin, tempPosBackward.origin) > glm::distance(position.origin, tempPosForward.origin))
+            moveTowardsPoint(tempPosForward, deltaT);
+        else
+            moveTowardsPoint(tempPosBackward, deltaT);
     else
     {
         circularMovement(playerPosition, deltaT);
@@ -57,9 +73,31 @@ void Boss::bossMovement(Position3D playerPosition, float deltaT)
 void Boss::circularMovement(Position3D center, float deltaT)
 {
     float radius = 10.0f;
-    position.origin.x += center.origin.x + radius*glm::cos(deltaT);
-    position.origin.z += center.origin.z + radius*glm::sin(deltaT);
-    changeDirection(center, deltaT);
+
+    glm::vec3 toPlayer = glm::normalize(center.origin - position.origin);
+    glm::vec3 right = glm::normalize(glm::cross(toPlayer, glm::vec3(0.0f, 1.0f, 0.0f)));
+    float circlingDirection = (glm::dot(right, toPlayer) > 0.0f) ? 1.0f : -1.0f;
+
+    glm::vec3 offset = position.origin - center.origin;
+
+    float angle = rotationSpeed * deltaT * circlingDirection;
+    float sinAngle = glm::sin(angle);
+    float cosAngle = glm::cos(angle);
+
+    glm::vec3 newOffset;
+    newOffset.x = cosAngle * offset.x - sinAngle * offset.z;
+    newOffset.z = sinAngle * offset.x + cosAngle * offset.z;
+    newOffset.y = offset.y;
+
+    position.origin = center.origin + glm::normalize(newOffset) * radius;
+
+    Position3D pos{};
+
+    pos.origin.x = center.origin.x + radius*glm::cos(angle * 2);
+    pos.origin.y = center.origin.y;
+    pos.origin.z = center.origin.z + radius*glm::cos(angle * 2);
+
+    changeDirection(pos, deltaT);
 }
 
 

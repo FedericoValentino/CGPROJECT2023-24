@@ -6,7 +6,7 @@
 
 struct PlaneInfo
 {
-    Plane* pEnemy;
+    Plane* pEnemy = nullptr;
     bool toDraw;
     DescriptorSet DS;
     UniformBufferObject ubo;
@@ -25,6 +25,7 @@ public:
 
     std::vector<PlaneInfo*> enemyInfo;
     PlaneInfo* bossInfo;
+    bool bossSpawned;
     PlaneInfo* playerInfo;
 
 
@@ -52,10 +53,17 @@ public:
 
     }
 
-    void newBoss(Enemy* enemy)
+    void newBoss(Plane* enemy, int ubosize, int gubosize)
     {
+        bossSpawned = true;
         bossInfo = new PlaneInfo();
         bossInfo->pEnemy = enemy;
+        bossInfo->ubo.model = glm::translate(glm::mat4(1.0f), enemy->getPosition().origin);
+        bossInfo->DS.init(app, &DSL, {
+                {0, UNIFORM, ubosize, nullptr},
+                {1, TEXTURE, 0, &this->T},
+                {2, UNIFORM, gubosize, nullptr}
+        });
     }
 
     void init(BaseProject* bp)
@@ -85,7 +93,7 @@ public:
         this->P.init(bp, &VD, "../src/shaders/planeVert.spv", "../src/shaders/planeFrag.spv", {&this->DSL});
         this->T.init(bp, "../src/textures/cube.png");
         this->player.init(bp, &VD, "../src/models/B2.gltf", GLTF);
-        this->Boss.init(bp, &VD, "../src/models/cube.obj", OBJ);
+        this->Boss.init(bp, &VD, "../src/models/plane.obj", OBJ);
         this->baseEnemy.init(bp, &VD, "../src/models/plane.obj", OBJ);
     }
 
@@ -106,6 +114,15 @@ public:
                         {2, UNIFORM, gubosize, nullptr}});
             }
         }
+
+        if(bossSpawned)
+        {
+            bossInfo->DS.init(bp, &this->DSL, {
+                    {0, UNIFORM, ubosize, nullptr},
+                    {1, TEXTURE, 0, &this->T},
+                    {2, UNIFORM, gubosize, nullptr}});
+        }
+
     }
 
     void populateCommandBuffer(VkCommandBuffer commandBuffer, int currentImage){
@@ -125,12 +142,14 @@ public:
             }
         }
 
-        if(bossInfo->toDraw)
+        if(bossSpawned)
         {
-            this->Boss.bind(commandBuffer);
-            this->bossInfo->DS.bind(commandBuffer, this->P, 0, currentImage);
-            vkCmdDrawIndexed(commandBuffer,
-                             static_cast<uint32_t>(this->Boss.indices.size()), 1, 0, 0, 0);
+            if (bossInfo->toDraw) {
+                this->Boss.bind(commandBuffer);
+                this->bossInfo->DS.bind(commandBuffer, this->P, 0, currentImage);
+                vkCmdDrawIndexed(commandBuffer,
+                                 static_cast<uint32_t>(this->Boss.indices.size()), 1, 0, 0, 0);
+            }
         }
 
         if(playerInfo->toDraw)
@@ -156,7 +175,8 @@ public:
         for(PlaneInfo* planeInfo : enemyInfo)
             planeInfo->DS.cleanup();
         playerInfo->DS.cleanup();
-        bossInfo->DS.cleanup();
+        if(bossSpawned)
+            bossInfo->DS.cleanup();
     }
 
 

@@ -29,8 +29,12 @@ class Partita {
 
     int state;
     int stage;
+    int killCounter;
+    bool bossSpawned = false;
+
     Player* player;
     std::vector<Plane*> enemies;
+
     Tiles* map[MAPDIM][MAPDIM];
 
     void generateWorld();

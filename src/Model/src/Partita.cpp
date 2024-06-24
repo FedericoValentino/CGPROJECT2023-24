@@ -20,6 +20,7 @@ Partita::Partita() {
     this->stage = BIPLANI;
     this->player = new Player();
     this->enemies.clear();
+    this->killCounter = 20;
     state = GAMING;
     for(int i = 0; i < MAPDIM; i++)
     {
@@ -96,11 +97,25 @@ void Partita::generateWorld() {
 
 
 Plane* Partita::spawn() {
-    auto pos = glm::vec3(20.0f, 8.40f, 10.0f);
-    auto rot = glm::vec3(0.0f);
-    auto plane = PlaneBuilder::getPlane(ENEMY, {pos, rot});
-    enemies.push_back(plane);
-    return plane;
+    //TODO RANDOMIZE SPAWN LOGIC
+    if(!bossSpawned && killCounter > 10)
+    {
+        auto pos = glm::vec3(20.0f, 8.40f, 10.0f);
+        auto rot = glm::vec3(0.0f);
+        auto plane = PlaneBuilder::getPlane(BOSS, {pos, rot});
+        enemies.push_back(plane);
+        bossSpawned = true;
+        return plane;
+    }
+    else if(killCounter < 10)
+    {
+        auto pos = glm::vec3(20.0f, 8.40f, 10.0f);
+        auto rot = glm::vec3(0.0f);
+        auto plane = PlaneBuilder::getPlane(ENEMY, {pos, rot});
+        enemies.push_back(plane);
+        return plane;
+    }
+
 }
 
 void Partita::checkCollision() {

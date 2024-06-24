@@ -79,8 +79,6 @@ void Project::localInit() {
     this->planes = new PlaneView();
     planes->init(this);
     planes->newPlayer(partita->player);
-    planes->newBoss(nullptr);
-
 }
 
 void Project::pipelinesAndDescriptorSetsInit() {
@@ -116,6 +114,9 @@ void Project::setWindowParameters() {
  * @param currentImage
  */
 void Project::updateUniformBuffer(uint32_t currentImage) {
+
+
+    //TODO SPACCHETTIZZARE QUESTA FUNZIONE ASAP
     glm::vec4 frustumPlanes[6];
 
     //update Starship world matrix
@@ -179,7 +180,7 @@ void Project::updateUniformBuffer(uint32_t currentImage) {
     tiles->DSSkyscraper.map(currentImage, &gubo, sizeof(gubo), 2);
 
 
-    //TODO OTTIMIZARE E AGGIUSTAREE ORIENTAZIONE
+
     //Player Updates
     planes->playerInfo->toDraw = true;
     planes->playerInfo->ubo.worldViewProj = S * planes->playerInfo->ubo.model;
@@ -209,7 +210,23 @@ void Project::updateUniformBuffer(uint32_t currentImage) {
         info->DS.map(currentImage, &gubo, sizeof(gubo), 2);
     }
 
-    planes->bossInfo->toDraw = false;
+    if(partita->bossSpawned)
+    {
+        planes->bossInfo->toDraw = true;
+        auto pos = planes->bossInfo->pEnemy->getPosition();
+
+        planes->bossInfo->ubo.model = glm::mat4(1);
+        planes->bossInfo->ubo.model = glm::translate(planes->bossInfo->ubo.model, pos.origin);
+        planes->bossInfo->ubo.model = glm::rotate(planes->bossInfo->ubo.model, pos.rotation.y, glm::vec3(0, 1, 0));
+
+
+        planes->bossInfo->ubo.worldViewProj = S * planes->bossInfo->ubo.model;
+        planes->bossInfo->ubo.normal = glm::inverse(planes->bossInfo->ubo.model);
+
+        planes->bossInfo->DS.map(currentImage, &planes->bossInfo->ubo, sizeof(planes->bossInfo->ubo), 0);
+
+        planes->bossInfo->DS.map(currentImage, &gubo, sizeof(gubo), 2);
+    }
 }
 
 void Project::pipelinesAndDescriptorSetsCleanup() {
@@ -263,12 +280,33 @@ void Project::gameLogic()
         info->pEnemy->moveTowardsPoint(partita->player->getPosition(), deltaT);
     }
 
+    //MUOVI BOSS
+    if(partita->bossSpawned)
+    {
+        PlaneInfo* info = planes->bossInfo;
+
+        Boss* boss = dynamic_cast<Boss*>(info->pEnemy);
+
+        boss->bossMovement(partita->player->getPosition(), deltaT);
+    }
+
 }
 
 void Project::spawnPlane()
 {
     auto plane = partita->spawn();
-    planes->newEnemy(plane, sizeof(UniformBufferObject), sizeof(GlobalUniformBufferObject));
+    switch(plane->getType())
+    {
+        case ENEMY:
+            planes->newEnemy(plane, sizeof(UniformBufferObject), sizeof(GlobalUniformBufferObject));
+            break;
+        case BOSS:
+            planes->newBoss(plane, sizeof(UniformBufferObject), sizeof(GlobalUniformBufferObject));
+            break;
+    }
+
+
+
 }
 
 void Project::destroyPlane()
