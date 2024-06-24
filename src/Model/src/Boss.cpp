@@ -74,7 +74,7 @@ void Boss::circularMovement(Position3D center, float deltaT)
 {
     float radius = 10.0f;
 
-    glm::vec3 toPlayer = glm::normalize(center.origin - position.origin);
+    glm::vec3 toPlayer = glm::vec3(glm::sin(position.rotation.y), 8.40f, glm::cos(position.rotation.y));
     glm::vec3 right = glm::normalize(glm::cross(toPlayer, glm::vec3(0.0f, 1.0f, 0.0f)));
     float circlingDirection = (glm::dot(right, toPlayer) > 0.0f) ? 1.0f : -1.0f;
 

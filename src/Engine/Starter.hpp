@@ -1668,7 +1668,7 @@ std::cout << "Starting createInstance()\n"  << std::flush;
     void mainLoop() {
         while (!glfwWindowShouldClose(window)){
             glfwPollEvents();
-            showFPS(window);
+            //showFPS(window);
             gameLogic();
             drawFrame();
         }

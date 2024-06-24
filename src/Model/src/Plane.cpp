@@ -53,9 +53,6 @@ bool Plane::checkDistance3D(glm::vec3 center, glm::vec3 point, PLANETYPE plane) 
         default:
             break;
     }
-    printf("%f <= %f\n", pow((point.x - center.x), 2) +
-                       pow((point.y - center.y), 2) +
-                       pow((point.z - center.z), 2), pow(radius,2));
     return (pow((point.x - center.x), 2) +
             pow((point.y - center.y), 2) +
             pow((point.z - center.z), 2) <=

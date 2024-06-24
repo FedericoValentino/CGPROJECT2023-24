@@ -20,7 +20,7 @@ Partita::Partita() {
     this->stage = BIPLANI;
     this->player = new Player();
     this->enemies.clear();
-    this->killCounter = 20;
+    this->killCounter = 0;
     state = GAMING;
     for(int i = 0; i < MAPDIM; i++)
     {
@@ -95,6 +95,34 @@ void Partita::generateWorld() {
     }
 }
 
+glm::vec3 randomPos()
+{
+    float max_x = 2.8072f * (MAPDIM-1);
+    float max_z = 2.8072f * (MAPDIM-1);
+    float min_x = -2.8072f * (MAPDIM-1);
+    float min_z = -2.8072f * (MAPDIM-1);
+
+    float x = fmod(rand(),(max_x-min_x + 1)) + min_x;
+    float z = fmod(rand(),(max_z-min_z + 1)) + min_z;
+
+    int temp = rand()%4;
+
+    switch(temp)
+    {
+        case 0:
+            return glm::vec3(max_x, 8.40f, z);
+            break;
+        case 1:
+            return glm::vec3(min_x, 8.40f, z);
+            break;
+        case 2:
+            return glm::vec3(x, 8.40f, max_z);
+            break;
+        case 3:
+            return glm::vec3(x, 8.40f, min_z);
+            break;
+    }
+}
 
 Plane* Partita::spawn() {
     //TODO RANDOMIZE SPAWN LOGIC
@@ -107,9 +135,9 @@ Plane* Partita::spawn() {
         bossSpawned = true;
         return plane;
     }
-    else if(killCounter < 10)
+    else if(killCounter < 10 && enemies.size() < maxEnemies)
     {
-        auto pos = glm::vec3(20.0f, 8.40f, 10.0f);
+        auto pos = randomPos();
         auto rot = glm::vec3(0.0f);
         auto plane = PlaneBuilder::getPlane(ENEMY, {pos, rot});
         enemies.push_back(plane);

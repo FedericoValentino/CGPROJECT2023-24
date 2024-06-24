@@ -8,7 +8,7 @@
 Enemy::Enemy(Position3D position) {
 
     this->position = position;
-    translationSpeed = 2;
+    translationSpeed = 8;
     rotationSpeed = glm::radians(60.0f);
     type = ENEMY;
     hp = 1;

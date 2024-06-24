@@ -31,6 +31,8 @@ class Partita {
     int stage;
     int killCounter;
     bool bossSpawned = false;
+    const int maxEnemies = 10;
+    const int spawnRate = 5;
 
     Player* player;
     std::vector<Plane*> enemies;
