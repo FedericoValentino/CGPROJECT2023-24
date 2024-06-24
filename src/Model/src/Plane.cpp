@@ -67,7 +67,7 @@ bool Plane::checkDistance3D(glm::vec3 center, glm::vec3 point, PLANETYPE plane) 
 void Plane::moveTowardsPoint(Position3D point, float deltaT)
 {
     changeDirection(point, deltaT);
-    //changePosition(position, deltaT);
+    changePosition(position, deltaT);
 }
 
 /**
@@ -94,20 +94,23 @@ void Plane::changePosition(Position3D inputPosition, float deltaT)
  */
 void Plane::changeDirection(Position3D inputPosition, float deltaT)
 {
-    glm::vec3 diff = glm::normalize(inputPosition.origin - position.origin);
-    glm::vec3 pointingDirection = glm::normalize(glm::vec3(glm::sin(glm::radians(position.rotation.y)), 0.0f, glm::cos(glm::radians(position.rotation.y))));
-    float cross  = glm::length(glm::cross(pointingDirection, diff));
+    float target_x = inputPosition.origin.x;
+    float target_z = inputPosition.origin.z;
 
-    if(cross < 0)
-    {
+    float pos_x = position.origin.x;
+    float pos_z = position.origin.z;
+
+    float dir_x = glm::sin(position.rotation.y);
+    float dir_z = glm::cos(position.rotation.y);
+
+    if ((pos_x - target_x) * dir_z > (pos_z - target_z) * dir_x) {
         position.rotation.y -= rotationSpeed * deltaT;
-    }
-    else if (cross > 0)
-    {
+    } else {
         position.rotation.y += rotationSpeed * deltaT;
     }
+
     position.rotation.y = fmod(position.rotation.y, 2.0f * M_PI);
-    std::cout<<position.rotation.x<<" "<<position.rotation.y<<" "<<position.rotation.z<<std::endl;
+
 }
 
 

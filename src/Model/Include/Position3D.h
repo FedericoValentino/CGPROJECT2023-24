@@ -8,7 +8,9 @@
 
 struct Position3D
 {
+    //World Coordinates
     glm::vec3 origin;
+    //Radians
     glm::vec3 rotation;
 };
 #endif //CGPRJ2023_24_POSITION3D_H
