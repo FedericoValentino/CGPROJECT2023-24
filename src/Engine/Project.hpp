@@ -73,8 +73,8 @@ void Project::localInit() {
     this->partita = new Partita();
     partita->generateWorld();
 
-    //this->grid = new GridView();
-    //grid->init(this);
+    this->grid = new GridView();
+    grid->init(this);
 
     this->tiles = new TileView;
     tiles->init(this);
@@ -104,14 +104,14 @@ void Project::localInit() {
 }
 
 void Project::pipelinesAndDescriptorSetsInit() {
-    //grid->pipelineAndDSInit(this);
+    grid->pipelineAndDSInit(this);
     bullets->pipelineAndDSInit(this, sizeof(BulletUniformBufferObject), sizeof(GlobalUniformBufferObject));
     tiles->pipelineAndDSInit(this, sizeof(TileUniformBufferObject), sizeof(GlobalUniformBufferObject));
     planes->pipelineAndDSInit(this, sizeof(UniformBufferObject), sizeof(GlobalUniformBufferObject));
 }
 
 void Project::populateCommandBuffer(VkCommandBuffer commandBuffer, int i) {
-    //grid->populateCommandBuffer(commandBuffer, i);
+    grid->populateCommandBuffer(commandBuffer, i);
     planes->populateCommandBuffer(commandBuffer, i);
     tiles->populateCommandBuffer(commandBuffer, i);
     bullets->populateCommandBuffer(commandBuffer, i);
@@ -284,9 +284,22 @@ void Project::updateUniformBuffer(uint32_t currentImage) {
     gubo.PointlightPosition = glm::vec3(rotate * glm::vec4(gubo.PointlightPosition, 1.0f));
 
     //InfiniteGrid
-    //grid->ubo.ViewProj = S;
-    //grid->ubo.pos = glm::vec3(1.0f);
-    //grid->DS.map(currentImage, &grid->ubo, sizeof(gridUBO), 0);
+    const float FOVy = glm::radians(105.0f);
+    const float nearPlane = 0.1f;
+    const float farPlane = 150.f;
+    const float camHeight = 15.0f;
+    const float camDist = -20.0f;
+
+    glm::vec3 target = partita->player->getPosition().origin;
+    glm::vec3 cameraPosition = WorldMatrixPlane * glm::vec4(0.0f,camHeight,camDist,1.0f);
+    glm::vec3 up = glm::normalize(WorldMatrixPlane * glm::vec4(0.0f,1.0f,0.0f,0.0f));
+
+
+    grid->ubo.View = glm::lookAt(cameraPosition,target, up);
+    grid->ubo.Proj = glm::scale(glm::mat4(1),glm::vec3(1,-1,1)) * glm::frustum(-Ar*nearPlane*tan(FOVy/2),Ar*nearPlane*tan(FOVy/2),-nearPlane*tan(FOVy/2),nearPlane*tan(FOVy/2),nearPlane,farPlane);
+    grid->ubo.pos = glm::vec3(1.0f);
+    grid->ubo.time += deltaT;
+    grid->DS.map(currentImage, &grid->ubo, sizeof(gridUBO), 0);
 
     //for FrustumCulling
     extractFrustumPlanes(frustumPlanes, S);
@@ -303,7 +316,7 @@ void Project::updateUniformBuffer(uint32_t currentImage) {
 }
 
 void Project::pipelinesAndDescriptorSetsCleanup() {
-    //grid->pipelineAndDSClenup();
+    grid->pipelineAndDSClenup();
     tiles->pipelineAndDSCleanup();
     planes->pipelineAndDSClenup();
     bullets->pipelineAndDSCleanup();
@@ -311,7 +324,7 @@ void Project::pipelinesAndDescriptorSetsCleanup() {
 
 void Project::localCleanup() {
     bullets->cleanup();
-    //grid->cleanup();
+    grid->cleanup();
     tiles->cleanup();
     planes->cleanup();
 }

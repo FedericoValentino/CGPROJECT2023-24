@@ -5,8 +5,10 @@
 
 struct gridUBO
 {
-    alignas(16) glm::mat4 ViewProj;
+    alignas(16) glm::mat4 View;
+    alignas(16) glm::mat4 Proj;
     alignas(16) glm::vec3 pos;
+    alignas(16) float time;
 };
 
 class GridView{
@@ -26,11 +28,13 @@ public:
         this->app = bp;
 
         this->DSL.init(bp, {
-                {0, VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, VK_SHADER_STAGE_VERTEX_BIT}});
+                {0, VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, VK_SHADER_STAGE_VERTEX_BIT | VK_SHADER_STAGE_FRAGMENT_BIT}});
 
         this->VD.init(bp, {}, {});
 
         this->P.init(bp, &VD, "../src/shaders/gridVert.spv", "../src/shaders/gridFrag.spv", {&this->DSL});
+
+        ubo.time = 0;
     }
 
     void pipelineAndDSInit(BaseProject* bp){
