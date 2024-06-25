@@ -7,7 +7,7 @@
 #include <cstdio>
 #include "../Include/Partita.h"
 
-#define SKYSCRAPER_RADIUS 4
+#define SKYSCRAPER_RADIUS 6
 
 struct values{
     bool zero;

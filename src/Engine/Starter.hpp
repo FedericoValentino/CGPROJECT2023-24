@@ -2418,7 +2418,7 @@ void VertexDescriptor::init(BaseProject *bp, std::vector<VertexBindingDescriptor
 	UV.hasIt = false; UV.offset = 0;
 	Color.hasIt = false; Color.offset = 0;
 	Tangent.hasIt = false; Tangent.offset = 0;
-	
+
 	if(B.size() == 1) {	// for now, read models only with every vertex information in a single binding
 		for(int i = 0; i < E.size(); i++) {
 			switch(E[i].usage) {
@@ -2487,7 +2487,7 @@ void VertexDescriptor::init(BaseProject *bp, std::vector<VertexBindingDescriptor
 			}
 		}
 	} else {
-		throw std::runtime_error("Vertex format with more than one binding is not supported yet\n");
+		std::cout<<"Not using any Vertex Descriptor\n";
 	}
 }
 

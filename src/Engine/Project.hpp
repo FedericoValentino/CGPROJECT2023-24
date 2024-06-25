@@ -5,6 +5,7 @@
 #include "Starter.hpp"
 #include "../View/PlaneView.hpp"
 #include "../View/TileView.hpp"
+#include "../View/InfiniteGrid.hpp"
 #include "../View/BulletView.hpp"
 #include "../Model/Include/Partita.h"
 
@@ -23,6 +24,7 @@ private:
     PlaneView* planes;
     TileView* tiles;
     BulletView* bullets;
+    GridView* grid;
     GlobalUniformBufferObject gubo;
 
     int numObj = 100;
@@ -67,8 +69,12 @@ private:
 };
 
 void Project::localInit() {
+
     this->partita = new Partita();
     partita->generateWorld();
+
+    //this->grid = new GridView();
+    //grid->init(this);
 
     this->tiles = new TileView;
     tiles->init(this);
@@ -98,12 +104,14 @@ void Project::localInit() {
 }
 
 void Project::pipelinesAndDescriptorSetsInit() {
+    //grid->pipelineAndDSInit(this);
     bullets->pipelineAndDSInit(this, sizeof(BulletUniformBufferObject), sizeof(GlobalUniformBufferObject));
     tiles->pipelineAndDSInit(this, sizeof(TileUniformBufferObject), sizeof(GlobalUniformBufferObject));
     planes->pipelineAndDSInit(this, sizeof(UniformBufferObject), sizeof(GlobalUniformBufferObject));
 }
 
 void Project::populateCommandBuffer(VkCommandBuffer commandBuffer, int i) {
+    //grid->populateCommandBuffer(commandBuffer, i);
     planes->populateCommandBuffer(commandBuffer, i);
     tiles->populateCommandBuffer(commandBuffer, i);
     bullets->populateCommandBuffer(commandBuffer, i);
@@ -275,6 +283,11 @@ void Project::updateUniformBuffer(uint32_t currentImage) {
     auto rotate = glm::rotate(glm::mat4(1.0f), deltaT, glm::vec3(0.0f, 1.0f, 0.0f));
     gubo.PointlightPosition = glm::vec3(rotate * glm::vec4(gubo.PointlightPosition, 1.0f));
 
+    //InfiniteGrid
+    //grid->ubo.ViewProj = S;
+    //grid->ubo.pos = glm::vec3(1.0f);
+    //grid->DS.map(currentImage, &grid->ubo, sizeof(gridUBO), 0);
+
     //for FrustumCulling
     extractFrustumPlanes(frustumPlanes, S);
 
@@ -290,6 +303,7 @@ void Project::updateUniformBuffer(uint32_t currentImage) {
 }
 
 void Project::pipelinesAndDescriptorSetsCleanup() {
+    //grid->pipelineAndDSClenup();
     tiles->pipelineAndDSCleanup();
     planes->pipelineAndDSClenup();
     bullets->pipelineAndDSCleanup();
@@ -297,6 +311,7 @@ void Project::pipelinesAndDescriptorSetsCleanup() {
 
 void Project::localCleanup() {
     bullets->cleanup();
+    //grid->cleanup();
     tiles->cleanup();
     planes->cleanup();
 }

@@ -92,7 +92,7 @@ public:
 
         this->P.init(bp, &VD, "../src/shaders/planeVert.spv", "../src/shaders/planeFrag.spv", {&this->DSL});
         this->T.init(bp, "../src/textures/cube.png");
-        this->player.init(bp, &VD, "../src/models/B2.gltf", GLTF);
+        this->player.init(bp, &VD, "../src/models/plane.obj", OBJ);
         this->Boss.init(bp, &VD, "../src/models/plane.obj", OBJ);
         this->baseEnemy.init(bp, &VD, "../src/models/Aereoaviatore.obj", OBJ);
     }

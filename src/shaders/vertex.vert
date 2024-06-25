@@ -1,11 +1,11 @@
 #version 450
 
-#define MAPDIM 24
+#define MAPDIM 40
 
 layout(binding = 0) buffer UniformBufferObject {
-    mat4 mvpMat[24*24];
-    mat4 mMat[24*24];
-    mat4 nMat[24*24];
+    mat4 mvpMat[MAPDIM*MAPDIM];
+    mat4 mMat[MAPDIM*MAPDIM];
+    mat4 nMat[MAPDIM*MAPDIM];
 } ubo;
 
 

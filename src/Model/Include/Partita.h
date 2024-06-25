@@ -9,7 +9,7 @@
 #include "PlaneBuilder.hpp"
 
 
-#define MAPDIM 24
+#define MAPDIM 40
 
 enum GAMESTATE{
     GAMING,
