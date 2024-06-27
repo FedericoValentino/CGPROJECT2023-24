@@ -96,17 +96,37 @@ glm::mat4 updateCam(float Ar, Position3D pl_pos,glm::mat4 playerUbo){
     const float FOVy = glm::radians(105.0f);
     const float nearPlane = 0.1f;
     const float farPlane = 150.f;
-    const float camHeight = 15.0f;
-    const float camDist = -20.0f;
+    const float camHeight = 20.0f;
+    const float camDistZ = -10.0f;
+    const float camDistX = -10.0f;
+
+    bool model = true;
+
+    if(model) {
+        glm::vec3 target = pl_pos.origin;
+        glm::vec3 cameraPosition = glm::vec3(pl_pos.origin.x + camDistX, pl_pos.origin.y + camHeight,pl_pos.origin.z + camDistZ);
+        glm::vec3 up = glm::vec3(0.0f, 1.0f, 0.0f);
 
 
-    glm::vec3 target = pl_pos.origin;
-    glm::vec3 cameraPosition = playerUbo * glm::vec4(0.0f,camHeight,camDist,1.0f);
-    glm::vec3 up = glm::normalize(playerUbo * glm::vec4(0.0f,1.0f,0.0f,0.0f));
+        auto ortho = glm::ortho(-40.0f / 2, 40.0f, -30.0f / 2, 30.0f / 2, nearPlane, farPlane);
+        ortho[1][1] *= -1;
 
-    return glm::scale(glm::mat4(1),glm::vec3(1,-1,1)) *
-            glm::frustum(-Ar*nearPlane*tan(FOVy/2),Ar*nearPlane*tan(FOVy/2),-nearPlane*tan(FOVy/2),nearPlane*tan(FOVy/2),nearPlane,farPlane) *
-            glm::lookAt(cameraPosition,target,up);
+        auto P = ortho;
+        P = P * glm::rotate(glm::mat4(1), glm::radians(-23.0f), glm::vec3(1.0f, 0.0f, 0.0f));
+
+        return P * glm::lookAt(cameraPosition, target, up);
+    }
+    else
+    {
+        glm::vec3 target = pl_pos.origin;
+        glm::vec3 cameraPosition = playerUbo * glm::vec4(0.0f,camHeight,camDistZ,1.0f);
+        glm::vec3 up = glm::normalize(playerUbo * glm::vec4(0.0f,1.0f,0.0f,0.0f));
+
+        return glm::scale(glm::mat4(1),glm::vec3(1,-1,1)) *
+               glm::frustum(-Ar*nearPlane*tan(FOVy/2),Ar*nearPlane*tan(FOVy/2),-nearPlane*tan(FOVy/2),nearPlane*tan(FOVy/2),nearPlane,farPlane) *
+               glm::lookAt(cameraPosition,target,up);
+    }
+
 
 
 }
