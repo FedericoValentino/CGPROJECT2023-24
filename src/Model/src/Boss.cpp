@@ -42,8 +42,8 @@ void Boss::bossMovement(Position3D playerPosition, float deltaT)
 {
     Position3D tempPosForward{};
     tempPosForward.origin = glm::vec3(playerPosition.origin.x + glm::sin(playerPosition.rotation.y) * 10.0f,
-                               playerPosition.origin.y,
-                               playerPosition.origin.z + glm::cos(playerPosition.rotation.y) * 10.0f);
+                                      playerPosition.origin.y,
+                                      playerPosition.origin.z + glm::cos(playerPosition.rotation.y) * 10.0f);
 
     Position3D tempPosBackward{};
     tempPosBackward.origin = glm::vec3(playerPosition.origin.x - glm::sin(playerPosition.rotation.y) * 10.0f,
@@ -51,16 +51,13 @@ void Boss::bossMovement(Position3D playerPosition, float deltaT)
                                       playerPosition.origin.z - glm::cos(playerPosition.rotation.y) * 10.0f);
 
 
-
+    // if boss is far from playre
     if(!checkDistance3D(playerPosition.origin, position.origin, BOSS))
         if(glm::distance(position.origin, tempPosBackward.origin) > glm::distance(position.origin, tempPosForward.origin))
             moveTowardsPoint(tempPosForward, deltaT);
         else
             moveTowardsPoint(tempPosBackward, deltaT);
-    else
-    {
-        circularMovement(playerPosition, deltaT);
-    }
+
 }
 
 

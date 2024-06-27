@@ -63,7 +63,7 @@
 
 
 const int MAX_FRAMES_IN_FLIGHT = 2;
-constexpr float MOVE_SPEED = 10.0f;
+constexpr float MOVE_SPEED = 5.0f;
 constexpr float ROT_SPEED = glm::radians(120.0f);
 
 struct UniformBufferObject {

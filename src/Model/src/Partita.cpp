@@ -20,7 +20,7 @@ Partita::Partita() {
     this->stage = BIPLANI;
     this->player = new Player();
     this->enemies.clear();
-    this->killCounter = 0;
+    this->killCounter = 1;
     state = GAMING;
     for(int i = 0; i < MAPDIM; i++)
     {
@@ -126,7 +126,7 @@ glm::vec3 randomPos()
 
 Plane* Partita::spawn() {
     //TODO RANDOMIZE SPAWN LOGIC
-    if(!bossSpawned && killCounter > 10)
+    if(!bossSpawned && killCounter > MAX_PLANE)
     {
         auto pos = glm::vec3(20.0f, 8.40f, 10.0f);
         auto rot = glm::vec3(0.0f);
@@ -135,7 +135,7 @@ Plane* Partita::spawn() {
         bossSpawned = true;
         return plane;
     }
-    else if(killCounter < 10 && enemies.size() < maxEnemies)
+    else if(killCounter < MAX_PLANE && enemies.size() < maxEnemies)
     {
         auto pos = randomPos();
         auto rot = glm::vec3(0.0f);

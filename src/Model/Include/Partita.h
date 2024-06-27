@@ -26,6 +26,7 @@ enum STAGE{
 class Partita {
 
     friend class Project;
+    static constexpr int MAX_PLANE = 0; // maximum number of planes before boss
 
     int state;
     int stage;
