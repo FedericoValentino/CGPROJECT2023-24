@@ -21,7 +21,7 @@ public:
 
     void setOrientation(glm::vec3 newOrientation);
 
-    void shoot(Position3D inputPosition, float deltaT) override;
+    Bullet* shoot(Position3D inputPosition, float deltaT) override;
 
 };
 

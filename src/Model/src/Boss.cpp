@@ -21,7 +21,7 @@ Boss::Boss(Position3D position){
  * @param inputPosition the Player's position
  * @param deltaT time
  */
-void Boss::shoot(Position3D inputPosition, const float deltaT)
+Bullet* Boss::shoot(Position3D inputPosition, const float deltaT)
 {
     Position3D shootingVector;
     shootingVector.origin = position.origin;

@@ -25,7 +25,7 @@ public:
 
     Enemy(Position3D position);
 
-    void shoot(Position3D inputPosition, float deltaT) override;
+    Bullet* shoot(Position3D inputPosition, float deltaT) override;
 
 };
 #endif //CGPROJECT2023_24_ENEMY_H

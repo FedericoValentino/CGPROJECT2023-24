@@ -22,15 +22,15 @@ Bullet::Bullet(const Position3D& position3D, PLANETYPE type, bool debug)
     count_++;
     switch (type){
         case(PLAYER):
-            speed_ = 2.0f;
+            speed_ = 30.0f;
             size_ = 1.0f;
             break;
         case(ENEMY):
-            speed_ = 1.0f;
+            speed_ = 15.0f;
             size_ = 1.0f;
             break;
         case(BOSS):
-            speed_ = 3.0f;
+            speed_ = 20.0f;
             size_ = 3.0f;
             break;
         default:
@@ -57,14 +57,8 @@ unsigned int Bullet::getId() const
 }
 
 void Bullet::move(const float deltaT) {
-    position3D_.origin += position3D_.rotation * speed_ * deltaT;
-    if(debug_)
-    {
-        std::cout<<"I AM BULLET:"<<id_<<std::endl;
-        std::cout<<"origin:"<<glm::to_string(position3D_.origin)<<std::endl;
-        std::cout<<"orientation:"<<glm::to_string(position3D_.rotation)<<std::endl;
-    }
-
+    auto direction = glm::vec3(glm::sin(position3D_.rotation.y), 0.0f, glm::cos(position3D_.rotation.y));
+    position3D_.origin += direction * speed_ * deltaT;
 }
 
 bool Bullet::isPositionInsideScreen(const float SCREEN_WIDTH,

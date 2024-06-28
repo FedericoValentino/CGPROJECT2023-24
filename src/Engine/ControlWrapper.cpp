@@ -100,7 +100,7 @@ glm::mat4 updateCam(float Ar, Position3D pl_pos,glm::mat4 playerUbo){
     const float camDistZ = -10.0f;
     const float camDistX = -10.0f;
 
-    bool model = true;
+    bool model = false;
 
     if(model) {
         glm::vec3 target = pl_pos.origin;

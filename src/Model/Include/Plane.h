@@ -15,19 +15,19 @@
  */
 class Plane {
 
-protected:
-    float rotationSpeed;
-    float translationSpeed;
 public:
     float getTranslationSpeed() const;
 
     float getRotationSpeed() const;
 
 protected:
+    float rotationSpeed;
+    float translationSpeed;
     std::set<Bullet*>* bullets;
     PLANETYPE type;
     int hp;
     bool dead;
+    float elapsedTime;
 
 public:
 
@@ -39,7 +39,7 @@ public:
 
     void clearBullet(Bullet* own);
 
-    virtual void shoot(Position3D inputPosition, float deltaT) = 0;
+    virtual Bullet* shoot(Position3D inputPosition, float deltaT) = 0;
 
     void moveTowardsPoint(Position3D point, float deltaT);
 
@@ -55,6 +55,7 @@ public:
     int getHP();
     bool getDead();
     PLANETYPE getType();
+    void timePasses(const float deltaT);
 };
 
 

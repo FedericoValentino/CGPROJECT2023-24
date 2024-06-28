@@ -37,12 +37,18 @@ void Player::setOrientation(glm::vec3 newOrientation) {
 
 /**
  * Adds the projectile to be shot in the Player's bullet set
- * @param inputPosition the Player's position
+ * @param inputPosition not used
  * @param deltaT time
  */
-void Player::shoot(Position3D inputPosition, const float deltaT) {
-    auto* toShoot = new Bullet(inputPosition, PLAYER, false);
-    bullets->insert(toShoot);
+Bullet* Player::shoot(Position3D inputPosition, const float deltaT) {
+    Bullet* toShoot = nullptr;
+    if(elapsedTime > 1 || bullets->empty())
+    {
+        toShoot = new Bullet(position, PLAYER, false);
+        bullets->insert(toShoot);
+        elapsedTime = 0;
+    }
+    return toShoot;
 }
 
 

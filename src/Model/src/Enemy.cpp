@@ -41,55 +41,19 @@ void Enemy::changeDirection(Position3D inputPosition, const float deltaT)
  * @param inputPosition the Player's position
  * @param deltaT time
  */
-void Enemy::shoot(Position3D inputPosition, const float deltaT)
+Bullet* Enemy::shoot(Position3D inputPosition, const float deltaT)
 {
     float distance;
-    if(glm::intersectRaySphere(position.origin, position.rotation, inputPosition.origin, pow(1.0f, 2.0f), distance)
-        && checkDistance3D(inputPosition.origin, position.origin, ENEMY))
-        bullets->insert(new Bullet(position, ENEMY, false));
-}
-
-
-
-/*void Enemy::shoot(const float deltaT,float SCREEN_WIDTH, float SCREEN_HEIGHT)
-{
-    Bullet bullet(position3D_, 50.0f, 3.0f, true); // velocita del proiettile da cambiare
-    projectiles_.insert({bullet.getId(),bullet});
-
-    std::thread(&Enemy::moveProjectile, this, bullet.getId(),deltaT,
-                SCREEN_WIDTH, SCREEN_HEIGHT).detach();
-    if (debug_)
+    Bullet* b = nullptr;
+    glm::vec3 dir = glm::vec3(glm::sin(position.rotation.y), 0.0f, glm::cos(position.rotation.y));
+    if(glm::intersectRaySphere(position.origin, dir, inputPosition.origin, pow(1.0f, 2.0f), distance)
+        && checkDistance3D(inputPosition.origin, position.origin, ENEMY)
+        && (elapsedTime > 1.0f || bullets->empty()))
     {
-        std::lock_guard<std::mutex> lock(projectiles_mutex_);
-            std::cout << "Enemy in position:" << glm::to_string(position3D_.origin)
-                      << "is shooting bullet:" << bullet.getId() << std::endl;
+        b = new Bullet(position, ENEMY, false);
+        bullets->insert(b);
+        elapsedTime = 0;
     }
-}
-/*void Enemy::move(const Player& player,const float deltaT)
-{
-    const glm::vec3& direction = glm::normalize(this->position3D_.origin);
-    position3D_.origin += direction * speed_ * deltaT;
-    if (debug_)
-    {
-        std::lock_guard<std::mutex> lock(projectiles_mutex_);
-        std::cout<< "Enemy position is:"<<glm::to_string(position3D_.origin)<<std::endl;
-    }
-}
+    return b;
 
-/*void Enemy::moveProjectile(unsigned int projectileId, float deltaT,
-                           float SCREEN_WIDTH, float SCREEN_HEIGHT)
-{
-    while (true) {
-        {
-            std::lock_guard<std::mutex> lock(projectiles_mutex_);
-            auto it = projectiles_.find(projectileId);
-            it->second.move(deltaT);
-            if(!it->second.isPositionInsideScreen(SCREEN_WIDTH, SCREEN_HEIGHT)) {
-                projectiles_.erase(it);
-                std::cout << "Bullet " << projectileId << " is out of bounds and removed.\n";
-                break;
-            }
-        }
-        std::this_thread::sleep_for(std::chrono::milliseconds(50)); // Move every 50 milliseconds
-    }
-}*/
+}

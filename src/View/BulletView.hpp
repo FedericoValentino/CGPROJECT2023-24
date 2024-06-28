@@ -74,9 +74,9 @@ public:
 
         this->P.init(bp, &VD, "../src/shaders/bulletVert.spv", "../src/shaders/bulletFrag.spv", {&this->DSL});
 
-        this->bulletTexture.init(bp, "../src/textures/House.png");
+        this->bulletTexture.init(bp, "../src/textures/cube.png");
 
-        this->bullet.init(bp, &VD, "../src/models/floor.obj", OBJ);
+        this->bullet.init(bp, &VD, "../src/models/cube.obj", OBJ);
     }
 
     void pipelineAndDSInit(BaseProject* bp, int ubosize, int gubosize){

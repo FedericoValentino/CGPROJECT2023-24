@@ -45,10 +45,10 @@ bool Plane::checkDistance3D(glm::vec3 center, glm::vec3 point, PLANETYPE plane) 
     float radius = 0.0f;
     switch (plane) {
         case(ENEMY):
-            radius = 5.0f;
+            radius = 20.0f;
             break;
         case(BOSS):
-            radius = 10.0f;
+            radius = 30.0f;
             break;
         default:
             break;
@@ -113,6 +113,10 @@ void Plane::changeDirection(Position3D inputPosition, float deltaT)
 
 }
 
+void Plane::timePasses(const float deltaT) {
+    elapsedTime += deltaT;
+}
+
 
 Position3D Plane::getPosition() const{
     return position;
@@ -142,6 +146,8 @@ float Plane::getTranslationSpeed() const {
 float Plane::getRotationSpeed() const {
     return rotationSpeed;
 }
+
+
 
 
 

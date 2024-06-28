@@ -481,7 +481,7 @@ protected:
 
     void initVulkan() {
 		createInstance();				
-		setupDebugMessenger();			
+		setupDebugMessenger();
 		createSurface();				
 		pickPhysicalDevice();			
 		createLogicalDevice();			
@@ -1878,7 +1878,7 @@ std::cout << "Starting createInstance()\n"  << std::flush;
 		}
 	}
 
-    void getSixAxis(float &deltaT, float &time, glm::vec3 &m, glm::vec3 &r)
+    void getSixAxis(float &deltaT, float &time, glm::vec3 &m, glm::vec3 &r, bool& shoot)
     {
         static auto startTime = std::chrono::high_resolution_clock::now();
         static float lastTime = 0.0f;
@@ -1937,6 +1937,11 @@ std::cout << "Starting createInstance()\n"  << std::flush;
         if(glfwGetKey(window, GLFW_KEY_LEFT_CONTROL)) {
             m.y = -1.0f;
         }
+
+        if(glfwGetKey(window, GLFW_KEY_SPACE)) {
+            shoot = true;
+        }
+
     }
 	
 	// Public part of the base class

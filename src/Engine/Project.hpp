@@ -203,6 +203,7 @@ void Project::updateEnemyUniform(glm::mat4 S, int currentImage)
 
         info->ubo.model = glm::mat4(1);
         info->ubo.model = glm::translate(info->ubo.model, pos.origin);
+        info->ubo.model = glm::scale(info->ubo.model, glm::vec3(0.1f, 0.1f, 0.1f));
         info->ubo.model = glm::rotate(info->ubo.model, pos.rotation.y, glm::vec3(0, 1, 0));
 
         info->ubo.worldViewProj = S * info->ubo.model;
@@ -339,8 +340,18 @@ void Project::gameLogic()
     m = glm::vec3(0.0f);
     r = glm::vec3(0.0f);
 
-    getSixAxis(deltaT, time, m, r);
 
+    bool shoot = false;
+    getSixAxis(deltaT, time, m, r, shoot);
+
+    //INCREMENT INTERNAL CLOCK
+    for(PlaneInfo* info : planes->enemyInfo)
+    {
+        info->pEnemy->timePasses(deltaT);
+    }
+    partita->player->timePasses(deltaT);
+    if(partita->bossSpawned)
+        planes->bossInfo->pEnemy->timePasses(deltaT);
 
     //CHECK COLLISION
     partita->checkCollision();
@@ -348,6 +359,33 @@ void Project::gameLogic()
 
 
     //MAKE ENEMIES SHOOT
+    for(PlaneInfo* info : planes->enemyInfo)
+    {
+        auto b = info->pEnemy->shoot(partita->player->getPosition(), deltaT);
+        if(b)
+            bullets->newBullet(b);
+    }
+    if(shoot)
+    {
+        auto b = partita->player->shoot({}, deltaT);
+        if(b)
+            bullets->newBullet(b);
+    }
+
+    //MAKE BULLETS MOVE
+    for(PlaneInfo* info : planes->enemyInfo)
+    {
+        for(Bullet* bullet : info->pEnemy->getBullets())
+        {
+            bullet->move(deltaT);
+        }
+    }
+
+    for(Bullet* bullet : partita->player->getBullets())
+    {
+        bullet->move(deltaT);
+    }
+
 
     //SPAWN
     spawnPlane();
