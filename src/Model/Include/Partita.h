@@ -26,13 +26,12 @@ enum STAGE{
 class Partita {
 
     friend class Project;
-    static constexpr int MAX_PLANE = 10; // maximum number of planes before boss
+    static constexpr int MAX_PLANE = 3; // maximum number of planes before boss
 
     int state;
     int stage;
     int killCounter;
     bool bossSpawned = false;
-    const int maxEnemies = 10;
     const int spawnRate = 5;
 
     Player* player;

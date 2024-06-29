@@ -178,8 +178,6 @@ public:
         playerInfo->DS.cleanup();
         if(bossSpawned)
             bossInfo->DS.cleanup();
-        for(DescriptorSet* ds : toClean)
-            ds->cleanup();
     }
 
 

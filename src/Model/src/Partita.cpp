@@ -125,16 +125,16 @@ glm::vec3 randomPos()
 }
 
 Plane* Partita::spawn() {
-    if(!bossSpawned && killCounter > MAX_PLANE)
+    if(!bossSpawned && killCounter >= MAX_PLANE)
     {
-        auto pos = glm::vec3(20.0f, 8.40f, 10.0f);
+        auto pos = randomPos();
         auto rot = glm::vec3(0.0f);
         auto plane = PlaneBuilder::getPlane(BOSS, {pos, rot});
         enemies.insert(plane);
         bossSpawned = true;
         return plane;
     }
-    else if(killCounter < MAX_PLANE && enemies.size() < maxEnemies)
+    else if(killCounter < MAX_PLANE)
     {
         auto pos = randomPos();
         auto rot = glm::vec3(0.0f);
@@ -146,29 +146,30 @@ Plane* Partita::spawn() {
 }
 
 void Partita::checkCollision() {
-    //Check Collision of player with other enemies
+    //Check Collision of player with other enemies and bosses
 
     for(Plane* enemy : enemies)
     {
-        if(player->checkDistance3D(enemy->getPosition().origin, player->getPosition().origin, PLAYER))
+        if(player->checkDistance3D(enemy->getPosition().origin, player->getPosition().origin, PLAYER) && !enemy->getDead())
         {
             state = END;
         }
     }
 
+
     //check Collision of player with enemy projectiles
     for(Plane* enemy : enemies)
     {
-        for(Bullet* bullet : enemy->getBullets())
+        if(!enemy->getDead())
         {
-            if(player->checkDistance3D( player->getPosition().origin, bullet->getPosition3D().origin, PLAYER))
-            {
-                std::cout<<player->getHP()<<std::endl;
-                player->planeHit(*bullet);
-                enemy->clearBullet(bullet);
-                if(player->getDead())
-                {
-                    state = END;
+            for (Bullet *bullet: enemy->getBullets()) {
+                if (player->checkDistance3D(player->getPosition().origin, bullet->getPosition3D().origin, PLAYER)) {
+                    std::cout << player->getHP() << std::endl;
+                    player->planeHit(*bullet);
+                    enemy->clearBullet(bullet);
+                    if (player->getDead()) {
+                        state = END;
+                    }
                 }
             }
         }
@@ -181,11 +182,15 @@ void Partita::checkCollision() {
     {
         for(Plane* enemy: enemies)
         {
-            if(enemy->checkDistance3D( enemy->getPosition().origin, p->getPosition3D().origin, PLAYER))
+            if(enemy->checkDistance3D( enemy->getPosition().origin, p->getPosition3D().origin, PLAYER) && !enemy->getDead())
             {
                 enemy->planeHit(*p);
-                std::cout<<"Enemy HIT!!!"<<std::endl;
-                toDelete.push_back(enemy);
+                std::cout<<"Enemy HIT!!! "<< enemy->getType() <<std::endl;
+                player->clearBullet(p);
+                if(enemy->getDead()) {
+                    toDelete.push_back(enemy);
+                    killCounter++;
+                }
             }
         }
     }

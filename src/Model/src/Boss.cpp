@@ -25,9 +25,16 @@ Bullet* Boss::shoot(Position3D inputPosition, const float deltaT)
 {
     Position3D shootingVector;
     shootingVector.origin = position.origin;
-    shootingVector.rotation = (position.origin - inputPosition.origin);
-    if(checkDistance3D(inputPosition.origin, position.origin, BOSS))
-        bullets->insert(new Bullet(shootingVector, BOSS, false));
+    shootingVector.rotation = glm::normalize((inputPosition.origin - position.origin));
+    shootingVector.rotation = glm::vec3(0.0f, atan2(shootingVector.rotation.x, shootingVector.rotation.z), 0.0f);
+    Bullet* bullet = nullptr;
+    if(checkDistance3D(inputPosition.origin, position.origin, BOSS)
+        && (elapsedTime > 1.0f || bullets->empty())) {
+        bullet = new Bullet(shootingVector, BOSS, false);
+        bullets->insert(bullet);
+        elapsedTime = 0;
+    }
+    return bullet;
 }
 
 

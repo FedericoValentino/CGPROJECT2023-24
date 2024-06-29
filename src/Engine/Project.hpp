@@ -197,7 +197,7 @@ void Project::updateEnemyUniform(glm::mat4 S, int currentImage)
     for(PlaneInfo* info : planes->enemyInfo)
     {
         auto pos = info->pEnemy->getPosition();
-        info->toDraw = true; //sphereInFrustum(frustumPlanes, pos.origin, 2.0f);
+        info->toDraw = !info->pEnemy->getDead();
 
         info->ubo.model = glm::mat4(1);
         info->ubo.model = glm::translate(info->ubo.model, pos.origin);
@@ -218,7 +218,7 @@ void Project::updateBossUniform(glm::mat4 S, int currentImage)
 {
     if(partita->bossSpawned)
     {
-        planes->bossInfo->toDraw = true;
+        planes->bossInfo->toDraw = !planes->bossInfo->pEnemy->getDead();
         auto pos = planes->bossInfo->pEnemy->getPosition();
 
         planes->bossInfo->ubo.model = glm::mat4(1);
@@ -376,37 +376,38 @@ void Project::gameLogic()
         bullets->bulletInfo.push_back(tmp[i]);
     }
 
-    std::vector<PlaneInfo*> toDelete;
-    for(PlaneInfo* info : planes->enemyInfo)
-    {
-        if(info->pEnemy->getDead())
-        {
-            toDelete.push_back(info);
-        }
-    }
-
-    for(PlaneInfo* info : toDelete)
-    {
-        delete info->pEnemy;
-        delete info;
-        planes->toClean.push_back(&info->DS);
-        planes->enemyInfo.erase(info);
-    }
-
 
     //MAKE ENEMIES SHOOT
     for(PlaneInfo* info : planes->enemyInfo)
     {
-        auto b = info->pEnemy->shoot(partita->player->getPosition(), deltaT);
-        if(b)
-            bullets->newBullet(b);
+        if(!info->pEnemy->getDead())
+        {
+            auto b = info->pEnemy->shoot(partita->player->getPosition(), deltaT);
+            if (b)
+                bullets->newBullet(b);
+        }
     }
+    //MAKE PLAYER SHOOT
     if(shoot)
     {
         auto b = partita->player->shoot({}, deltaT);
         if(b)
             bullets->newBullet(b);
     }
+
+
+    //MAKE BOSS SHOOT
+    if(partita->bossSpawned)
+    {
+        if(!planes->bossInfo->pEnemy->getDead())
+        {
+            auto b = planes->bossInfo->pEnemy->shoot(planes->playerInfo->pEnemy->getPosition(), deltaT);
+            if (b)
+                bullets->newBullet(b);
+        }
+    }
+
+
 
     //MAKE BULLETS MOVE
     for(PlaneInfo* info : planes->enemyInfo)
@@ -422,6 +423,13 @@ void Project::gameLogic()
         bullet->move(deltaT);
     }
 
+    if(partita->bossSpawned)
+    {
+        for(Bullet* bullet : planes->bossInfo->pEnemy->getBullets())
+        {
+            bullet->move(deltaT);
+        }
+    }
 
     //SPAWN
     spawnPlane();
@@ -458,7 +466,7 @@ void Project::spawnPlane()
 
     time += deltaT;
 
-    if(time > partita->spawnRate)
+    if(time > partita->spawnRate && !partita->bossSpawned)
     {
         auto plane = partita->spawn();
         if(plane)

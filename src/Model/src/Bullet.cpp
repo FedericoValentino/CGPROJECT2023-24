@@ -23,7 +23,7 @@ Bullet::Bullet(const Position3D& position3D, PLANETYPE type, bool debug)
     switch (type){
         case(PLAYER):
             speed_ = 30.0f;
-            size_ = 1.0f;
+            size_ = 5.0f;
             break;
         case(ENEMY):
             speed_ = 15.0f;
@@ -31,7 +31,7 @@ Bullet::Bullet(const Position3D& position3D, PLANETYPE type, bool debug)
             break;
         case(BOSS):
             speed_ = 20.0f;
-            size_ = 3.0f;
+            size_ = 0.1f;
             break;
         default:
             break;
