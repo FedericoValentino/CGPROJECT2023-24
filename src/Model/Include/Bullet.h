@@ -22,6 +22,7 @@ private:
     unsigned int id_;
     bool debug_;
 public:
+    bool toClear;
     Bullet(const Position3D& position3D, PLANETYPE type, bool debug=false);
 
     [[nodiscard]] const Position3D& getPosition3D() const ;

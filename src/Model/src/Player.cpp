@@ -14,7 +14,7 @@ Player::Player() {
     position.rotation = glm::vec4 (0.0f, 0.0f, 0.0f, 1.0f);
     translationSpeed = 2;
     rotationSpeed = glm::radians(120.0f);
-    hp = 5;
+    hp = 3;
     type = PLAYER;
     dead = false;
 }

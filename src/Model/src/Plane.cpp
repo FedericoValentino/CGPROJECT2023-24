@@ -18,9 +18,9 @@ Plane::Plane() {
  */
 void Plane::planeHit(Bullet bullet)
 {
-    if (bullet.getPosition3D().origin == position.origin && hp>1)
+    if (hp>=1)
         hp -= bullet.getSize();
-    else
+    if (hp <= 0)
         dead = true;
 }
 
@@ -30,6 +30,7 @@ void Plane::planeHit(Bullet bullet)
  */
 void Plane::clearBullet(Bullet* own)
 {
+    own->toClear = true;
     bullets->erase(own);
 }
 
@@ -49,6 +50,9 @@ bool Plane::checkDistance3D(glm::vec3 center, glm::vec3 point, PLANETYPE plane) 
             break;
         case(BOSS):
             radius = 30.0f;
+            break;
+        case PLAYER:
+            radius = 2.0f;
             break;
         default:
             break;

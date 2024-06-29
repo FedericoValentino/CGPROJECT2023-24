@@ -23,11 +23,12 @@ public:
     Model Boss;
     Texture T;
 
-    std::vector<PlaneInfo*> enemyInfo;
+    std::set<PlaneInfo*> enemyInfo;
     PlaneInfo* bossInfo;
     bool bossSpawned;
     PlaneInfo* playerInfo;
 
+    std::vector<DescriptorSet*> toClean;
 
     BaseProject* app;
 
@@ -49,7 +50,7 @@ public:
                 {1, TEXTURE, 0, &this->T},
                 {2, UNIFORM, gubosize, nullptr}
         });
-        enemyInfo.push_back(newEnemyInfo);
+        enemyInfo.insert(newEnemyInfo);
 
     }
 
@@ -170,13 +171,15 @@ public:
         this->DSL.cleanup();
     }
 
-    void pipelineAndDSClenup(){
+    void pipelineAndDSCleanup(){
         this->P.cleanup();
         for(PlaneInfo* planeInfo : enemyInfo)
             planeInfo->DS.cleanup();
         playerInfo->DS.cleanup();
         if(bossSpawned)
             bossInfo->DS.cleanup();
+        for(DescriptorSet* ds : toClean)
+            ds->cleanup();
     }
 
 

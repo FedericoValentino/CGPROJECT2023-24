@@ -194,10 +194,8 @@ void Project::updatePlayerUniform(glm::mat4 S, int currentImage)
 void Project::updateEnemyUniform(glm::mat4 S, int currentImage)
 {
     //buffer update sequence for planes
-    for(int i = 0; i < planes->enemyInfo.size(); i++)
+    for(PlaneInfo* info : planes->enemyInfo)
     {
-        PlaneInfo* info = planes->enemyInfo[i];
-
         auto pos = info->pEnemy->getPosition();
         info->toDraw = true; //sphereInFrustum(frustumPlanes, pos.origin, 2.0f);
 
@@ -317,9 +315,9 @@ void Project::updateUniformBuffer(uint32_t currentImage) {
 }
 
 void Project::pipelinesAndDescriptorSetsCleanup() {
-    //grid->pipelineAndDSClenup();
+    //grid->pipelineAndDSCleanup();
     tiles->pipelineAndDSCleanup();
-    planes->pipelineAndDSClenup();
+    planes->pipelineAndDSCleanup();
     bullets->pipelineAndDSCleanup();
 }
 
@@ -355,7 +353,45 @@ void Project::gameLogic()
 
     //CHECK COLLISION
     partita->checkCollision();
+    if(partita->state == END)
+    {
+        glfwSetWindowShouldClose(window, GL_TRUE);
+    }
+
     //RIMUOVI ROBA
+
+    //TODO ORRENDO CAMBIARE IN QUALCOSA PIU' BELLO
+    std::vector<BulletInfo*> tmp;
+    for(int i = 0; i < bullets->bulletInfo.size(); i++)
+    {
+        BulletInfo* info = bullets->bulletInfo[i];
+        if(!info->pBullet->toClear)
+        {
+            tmp.push_back(info);
+        }
+    }
+    bullets->bulletInfo.clear();
+    for(int i = 0; i < tmp.size(); i++)
+    {
+        bullets->bulletInfo.push_back(tmp[i]);
+    }
+
+    std::vector<PlaneInfo*> toDelete;
+    for(PlaneInfo* info : planes->enemyInfo)
+    {
+        if(info->pEnemy->getDead())
+        {
+            toDelete.push_back(info);
+        }
+    }
+
+    for(PlaneInfo* info : toDelete)
+    {
+        delete info->pEnemy;
+        delete info;
+        planes->toClean.push_back(&info->DS);
+        planes->enemyInfo.erase(info);
+    }
 
 
     //MAKE ENEMIES SHOOT
@@ -399,9 +435,8 @@ void Project::gameLogic()
     partita->player->setPosition(pl_pos.origin);
 
     //MUOVI NEMICI
-    for(int i = 0; i < planes->enemyInfo.size(); i++)
+    for(PlaneInfo* info : planes->enemyInfo)
     {
-        PlaneInfo* info = planes->enemyInfo[i];
         info->pEnemy->moveTowardsPoint(partita->player->getPosition(), deltaT);
     }
 

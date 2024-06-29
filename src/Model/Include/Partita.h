@@ -36,7 +36,7 @@ class Partita {
     const int spawnRate = 5;
 
     Player* player;
-    std::vector<Plane*> enemies;
+    std::set<Plane*> enemies;
 
     Tiles* map[MAPDIM][MAPDIM];
 
