@@ -164,12 +164,16 @@ void Partita::checkCollision() {
         {
             for (Bullet *bullet: enemy->getBullets()) {
                 if (player->checkDistance3D(player->getPosition().origin, bullet->getPosition3D().origin, PLAYER)) {
-                    std::cout << player->getHP() << std::endl;
                     player->planeHit(*bullet);
                     enemy->clearBullet(bullet);
                     if (player->getDead()) {
                         state = END;
                     }
+                }
+                float dist = glm::distance(glm::vec3(0.0f, 0.0f, 0.0f), bullet->getPosition3D().origin);
+                if(dist > 200.0f)
+                {
+                    enemy->clearBullet(bullet);
                 }
             }
         }
@@ -185,12 +189,16 @@ void Partita::checkCollision() {
             if(enemy->checkDistance3D( enemy->getPosition().origin, p->getPosition3D().origin, PLAYER) && !enemy->getDead())
             {
                 enemy->planeHit(*p);
-                std::cout<<"Enemy HIT!!! "<< enemy->getType() <<std::endl;
                 player->clearBullet(p);
                 if(enemy->getDead()) {
                     toDelete.push_back(enemy);
                     killCounter++;
                 }
+            }
+            float dist = glm::distance(glm::vec3(0.0f, 0.0f, 0.0f), p->getPosition3D().origin);
+            if(dist > 200.0f)
+            {
+                player->clearBullet(p);
             }
         }
     }
