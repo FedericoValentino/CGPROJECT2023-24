@@ -48,7 +48,28 @@ void updatePlaneMatrix(Position3D& pl_pos,float deltaT, float time, const glm::v
     // Update Euler angles
     //pl_pos.rotation.x += ROT_SPEED/2.0f * r.x * deltaT; // pitch
     pl_pos.rotation.y += ROT_SPEED * r.y * deltaT; // yaw
-    //pl_pos.rotation.z += ROT_SPEED/2.0f * r.z * deltaT; // roll
+    if(pl_pos.rotation.z + ROT_SPEED/2.0f * -r.y * deltaT <= M_PI/4 && pl_pos.rotation.z + ROT_SPEED/2.0f * -r.y * deltaT >= -M_PI/4)
+        pl_pos.rotation.z += ROT_SPEED/2.0f * -r.y * deltaT; // roll
+    if (pl_pos.rotation.z < -M_PI/4)
+    {
+        pl_pos.rotation.z = -M_PI/4;
+    }
+    else if (pl_pos.rotation.z > M_PI/4)
+    {
+        pl_pos.rotation.z = M_PI/4;
+    }
+
+    if(r.y == 0)
+    {
+        if(pl_pos.rotation.z < 0)
+        {
+            pl_pos.rotation.z += ROT_SPEED/2.0f * deltaT;
+        }
+        else if(pl_pos.rotation.z > 0)
+        {
+            pl_pos.rotation.z -= ROT_SPEED/2.0f * deltaT;
+        }
+    }
 
     // Ensure the rotations stay within the range 0 to 2π
     pl_pos.rotation.x = fmod(pl_pos.rotation.x, 2.0f * M_PI);
@@ -82,7 +103,7 @@ void updatePlaneMatrix(glm::mat4& WorldMatrixPlane,const Position3D& pl_pos)
 
     WorldMatrixPlane = glm::rotate(WorldMatrixPlane, pl_pos.rotation.y, glm::vec3(0, 1, 0)); // pitch
     WorldMatrixPlane = glm::rotate(WorldMatrixPlane, pl_pos.rotation.x, glm::vec3(1, 0, 0)); // yaw
-    WorldMatrixPlane = glm::rotate(WorldMatrixPlane, pl_pos.rotation.z, glm::vec3(0, 0, 1)); // roll
+    //WorldMatrixPlane = glm::rotate(WorldMatrixPlane, pl_pos.rotation.z, glm::vec3(0, 0, 1)); // roll
 }
 
 

@@ -211,6 +211,7 @@ void Project::updateEnemyUniform(glm::mat4 S, int currentImage)
         info->ubo.model = glm::translate(info->ubo.model, pos.origin);
         info->ubo.model = glm::scale(info->ubo.model, glm::vec3(0.1f, 0.1f, 0.1f));
         info->ubo.model = glm::rotate(info->ubo.model, pos.rotation.y, glm::vec3(0, 1, 0));
+        info->ubo.model = glm::rotate(info->ubo.model, pos.rotation.z, glm::vec3(0, 0, 1));
 
         info->ubo.worldViewProj = S * info->ubo.model;
         info->ubo.normal = glm::inverse(glm::transpose(info->ubo.model));
@@ -307,6 +308,7 @@ void Project::updateUniformBuffer(uint32_t currentImage) {
     //Camera Update
     glm::mat4 S = updateCam(Ar, partita->player->getPosition(),WorldMatrixPlane);
 
+    WorldMatrixPlane = glm::rotate(WorldMatrixPlane, partita->player->getPosition().rotation.z, glm::vec3(0, 0, 1));
     //light updates
     auto rotate = glm::rotate(glm::mat4(1.0f), deltaT, glm::vec3(0.0f, 1.0f, 0.0f));
 
