@@ -10,10 +10,17 @@
 #include "../Model/Include/Partita.h"
 
 
+struct pointLightObject{
+    glm::vec4 pointLightColor;
+    glm::vec4 PointlightPosition;
+    float time;
+    float size;
+    float pad[2];
+};
+
 struct GlobalUniformBufferObject {
-    glm::vec4 pointLightColor[MAXBULLETS];
+    pointLightObject pointLights[MAXBULLETS];
     glm::vec4 ambientLight;
-    glm::vec4 PointlightPosition[MAXBULLETS];
     alignas(4)int lightCounter;
 };
 
@@ -272,24 +279,12 @@ void Project::updateLights()
 
         bullets->fo.flick[i].color = bullets->bulletInfo[i]->color;
 
-        gubo.PointlightPosition[i] = glm::vec4(bullets->bulletInfo[i]->pBullet->getPosition3D().origin, 1.0f);
-        switch (bullets->bulletInfo[i]->pBullet->getType())
-        {
-            case ENEMY :
-                gubo.pointLightColor[i] = glm::vec4(1.0f, 0.0f, 0.0f, 3.0f);
-                gubo.lightCounter++;
-                break;
-            case PLAYER :
-                gubo.pointLightColor[i] = glm::vec4(0.0f, 1.0f, 0.0f, 3.0f);
-                gubo.lightCounter++;
-                break;
-            case BOSS :
-                gubo.pointLightColor[i] = glm::vec4(1.0f, 0.0f, 1.0f, 3.0f);
-                gubo.lightCounter++;
-                break;
-            default :
-                break;
-        }
+        gubo.pointLights[i].time = bullets->bulletInfo[i]->time;
+        gubo.pointLights[i].size = bullets->bulletInfo[i]->pBullet->getSize();
+
+        gubo.pointLights[i].PointlightPosition = glm::vec4(bullets->bulletInfo[i]->pBullet->getPosition3D().origin, 1.0f);
+        gubo.pointLights[i].pointLightColor = bullets->bulletInfo[i]->color;
+        gubo.lightCounter++;
     }
 }
 

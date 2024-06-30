@@ -25,7 +25,7 @@ bulletFlicker flick[MAXBULLETS];
 
 void main()
 {
-    float frequency = 5.0f;
+    float frequency = fo.flick[instanceID].size;
     float intensity = 1;
     if(fo.flick[instanceID].time > 0.3f)
     {

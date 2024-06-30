@@ -28,11 +28,11 @@ Bullet::Bullet(const Position3D& position3D, PLANETYPE type, bool debug)
             break;
         case(ENEMY):
             speed_ = 15.0f;
-            size_ = 1.0f;
+            size_ = 3.0f;
             break;
         case(BOSS):
             speed_ = 20.0f;
-            size_ = 0.1f;
+            size_ = 10.0f;
             break;
         default:
             break;
