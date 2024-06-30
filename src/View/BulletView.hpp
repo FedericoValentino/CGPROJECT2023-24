@@ -12,10 +12,23 @@ struct BulletUniformBufferObject {
     alignas(16) glm::mat4 normal[MAXBULLETS];
 };
 
+struct bulletFlicker
+{
+    glm::vec4 color;
+    float time;
+    float size;
+    float pad[2];
+};
+
+struct FlickeringObject{
+    bulletFlicker flick[MAXBULLETS];
+};
 
 struct BulletInfo{
     Bullet* pBullet;
     UniformBufferObject ubo;
+    glm::vec4 color;
+    float time;
 };
 
 class BulletView {
@@ -35,6 +48,8 @@ public:
     BulletUniformBufferObject buboBullet;
     DescriptorSet DSBullet;
 
+    FlickeringObject fo;
+
     void newBullet(Bullet* bullet)
     {
         BulletInfo* newInfo = new BulletInfo();
@@ -43,6 +58,21 @@ public:
         newInfo->ubo.model = glm::mat4(1);
         newInfo->ubo.normal = glm::inverse(glm::transpose(newInfo->ubo.model));
 
+        switch (bullet->getType())
+        {
+            case ENEMY :
+                newInfo->color = glm::vec4(1.0f, 0.0f, 0.0f, 3.0f);
+                break;
+            case PLAYER :
+                newInfo->color = glm::vec4(0.0f, 1.0f, 0.0f, 3.0f);
+                break;
+            case BOSS :
+                newInfo->color = glm::vec4(1.0f, 0.0f, 1.0f, 3.0f);
+                break;
+            default :
+                break;
+        }
+        newInfo->time = 0;
         bulletInfo.push_back(newInfo);
 
     }
@@ -71,21 +101,24 @@ public:
                 {1, VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, VK_SHADER_STAGE_FRAGMENT_BIT},
                 {2, VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, VK_SHADER_STAGE_ALL_GRAPHICS}});
 
+        for(int i=0; i<MAXBULLETS; i++)
+            this->fo.flick[i].time = 0.0f;
+
 
         this->P.init(bp, &VD, "../src/shaders/bulletVert.spv", "../src/shaders/bulletFrag.spv", {&this->DSL});
 
         this->bulletTexture.init(bp, "../src/textures/cube.png");
 
-        this->bullet.init(bp, &VD, "../src/models/cube.obj", OBJ);
+        this->bullet.init(bp, &VD, "../src/models/stdbullet.obj", OBJ);
     }
 
-    void pipelineAndDSInit(BaseProject* bp, int ubosize, int gubosize){
+    void pipelineAndDSInit(BaseProject* bp, int ubosize, int foSize){
         this->P.create();
 
         DSBullet.init(bp, &this->DSL, {
                 {0, STORAGE, ubosize,  nullptr},
                 {1, TEXTURE, 0,        &this->bulletTexture},
-                {2, UNIFORM, gubosize, nullptr}
+                {2, UNIFORM, foSize, nullptr}
         });
     }
 

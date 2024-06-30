@@ -1,3 +1,5 @@
+cd /home/feder34/git/CGPROJECT2023-24/src/shaders
+
 glslc plane.vert -o planeVert.spv
 glslc plane.frag -o planeFrag.spv
 glslc vertex.vert -o vert.spv

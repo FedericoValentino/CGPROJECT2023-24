@@ -147,7 +147,7 @@ Plane* Partita::spawn() {
 
 void Partita::checkCollision() {
     //Check Collision of player with other enemies and bosses
-
+    float radius = 4 * (MAPDIM);
     for(Plane* enemy : enemies)
     {
         if(player->checkDistance3D(enemy->getPosition().origin, player->getPosition().origin, PLAYER) && !enemy->getDead())
@@ -163,6 +163,7 @@ void Partita::checkCollision() {
         if(!enemy->getDead())
         {
             for (Bullet *bullet: enemy->getBullets()) {
+                float dist = glm::distance(glm::vec3(0.0f, 0.0f, 0.0f), bullet->getPosition3D().origin);
                 if (player->checkDistance3D(player->getPosition().origin, bullet->getPosition3D().origin, PLAYER)) {
                     player->planeHit(*bullet);
                     enemy->clearBullet(bullet);
@@ -170,8 +171,7 @@ void Partita::checkCollision() {
                         state = END;
                     }
                 }
-                float dist = glm::distance(glm::vec3(0.0f, 0.0f, 0.0f), bullet->getPosition3D().origin);
-                if(dist > 200.0f)
+                else if(dist > radius)
                 {
                     enemy->clearBullet(bullet);
                 }
@@ -186,6 +186,7 @@ void Partita::checkCollision() {
     {
         for(Plane* enemy: enemies)
         {
+            float dist = glm::distance(glm::vec3(0.0f, 0.0f, 0.0f), p->getPosition3D().origin);
             if(enemy->checkDistance3D( enemy->getPosition().origin, p->getPosition3D().origin, PLAYER) && !enemy->getDead())
             {
                 enemy->planeHit(*p);
@@ -195,8 +196,7 @@ void Partita::checkCollision() {
                     killCounter++;
                 }
             }
-            float dist = glm::distance(glm::vec3(0.0f, 0.0f, 0.0f), p->getPosition3D().origin);
-            if(dist > 200.0f)
+            else if(dist > radius)
             {
                 player->clearBullet(p);
             }

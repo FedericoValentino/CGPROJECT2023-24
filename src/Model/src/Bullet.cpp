@@ -20,6 +20,7 @@ Bullet::Bullet(const Position3D& position3D, PLANETYPE type, bool debug)
     debug = false;
     id_ = count_;
     count_++;
+    this->owner = type;
     switch (type){
         case(PLAYER):
             speed_ = 30.0f;
@@ -66,4 +67,8 @@ bool Bullet::isPositionInsideScreen(const float SCREEN_WIDTH,
 {
     return (position3D_.origin.x >= 0 && position3D_.origin.x < SCREEN_WIDTH &&
             position3D_.origin.y >= 0 && position3D_.origin.y < SCREEN_HEIGHT);
+}
+
+PLANETYPE Bullet::getType() {
+    return owner;
 }

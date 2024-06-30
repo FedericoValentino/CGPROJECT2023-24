@@ -11,9 +11,10 @@
 
 
 struct GlobalUniformBufferObject {
-    alignas(16) glm::vec3 PointlightPosition;
-    alignas(16) glm::vec4 pointLightColor;
-    alignas(16) glm::vec4 ambientLight;
+    glm::vec4 pointLightColor[MAXBULLETS];
+    glm::vec4 ambientLight;
+    glm::vec4 PointlightPosition[MAXBULLETS];
+    alignas(4)int lightCounter;
 };
 
 class Project : public BaseProject
@@ -65,6 +66,8 @@ private:
 
     void updateBulletsUniform(glm::mat4 S, int currentImage);
 
+    void updateLights();
+
     void destroyPlane();
 };
 
@@ -88,9 +91,7 @@ void Project::localInit() {
     }
 
     //Light updates
-    gubo.pointLightColor = glm::vec4(1.0f, 0.0f, 0.0f, 4.0f);
-    gubo.PointlightPosition = glm::vec3(glm::vec4(1.0f, 5.00f, 1.0f, 1.0f));
-    gubo.ambientLight = glm::vec4(1.0f, 1.0f, 1.0f, 0.8f);
+    gubo.ambientLight = glm::vec4(1.0f, 1.0f, 1.0f, 0.02f);
 
 
     //TODO Change pointers
@@ -105,7 +106,7 @@ void Project::localInit() {
 
 void Project::pipelinesAndDescriptorSetsInit() {
     //grid->pipelineAndDSInit(this);
-    bullets->pipelineAndDSInit(this, sizeof(BulletUniformBufferObject), sizeof(GlobalUniformBufferObject));
+    bullets->pipelineAndDSInit(this, sizeof(BulletUniformBufferObject), sizeof(FlickeringObject));
     tiles->pipelineAndDSInit(this, sizeof(TileUniformBufferObject), sizeof(GlobalUniformBufferObject));
     planes->pipelineAndDSInit(this, sizeof(UniformBufferObject), sizeof(GlobalUniformBufferObject));
 }
@@ -122,7 +123,7 @@ void Project::setWindowParameters() {
     windowHeight = 720;
     windowTitle = "TIMEPILOT 0.1";
     windowResizable = GLFW_TRUE;
-    initialBackgroundColor = {0.298f,0.804f,0.988f, 1.0f};
+    initialBackgroundColor = {0.012f,0.031f,0.11f, 1.0f};
 
     uniformBlocksInPool = numObj*2;
     texturesInPool = numObj;
@@ -147,7 +148,7 @@ void Project::updateMapUniform(glm::mat4 S, int currentImage)
     }
 
     tiles->DSFloor.map(currentImage, &tiles->tuboFloor, sizeof(TileUniformBufferObject), 0);
-    tiles->DSFloor.map(currentImage, &gubo, sizeof(gubo), 2);
+    tiles->DSFloor.map(currentImage, &gubo, sizeof(GlobalUniformBufferObject), 2);
 
     for(int i = 0; i < tiles->houseTiles.size(); i++)
     {
@@ -161,7 +162,7 @@ void Project::updateMapUniform(glm::mat4 S, int currentImage)
     }
 
     tiles->DSHouse.map(currentImage, &tiles->tuboHouse, sizeof(TileUniformBufferObject), 0);
-    tiles->DSHouse.map(currentImage, &gubo, sizeof(gubo), 2);
+    tiles->DSHouse.map(currentImage, &gubo, sizeof(GlobalUniformBufferObject), 2);
 
     for(int i = 0; i < tiles->skyscraperTiles.size(); i++)
     {
@@ -175,7 +176,7 @@ void Project::updateMapUniform(glm::mat4 S, int currentImage)
     }
 
     tiles->DSSkyscraper.map(currentImage, &tiles->tuboSkyscraper, sizeof(TileUniformBufferObject), 0);
-    tiles->DSSkyscraper.map(currentImage, &gubo, sizeof(gubo), 2);
+    tiles->DSSkyscraper.map(currentImage, &gubo, sizeof(GlobalUniformBufferObject), 2);
 }
 
 
@@ -188,7 +189,7 @@ void Project::updatePlayerUniform(glm::mat4 S, int currentImage)
 
     planes->playerInfo->DS.map(currentImage, &planes->playerInfo->ubo, sizeof(planes->playerInfo->ubo), 0);
 
-    planes->playerInfo->DS.map(currentImage, &gubo, sizeof(gubo), 2);
+    planes->playerInfo->DS.map(currentImage, &gubo, sizeof(GlobalUniformBufferObject), 2);
 }
 
 void Project::updateEnemyUniform(glm::mat4 S, int currentImage)
@@ -209,7 +210,7 @@ void Project::updateEnemyUniform(glm::mat4 S, int currentImage)
 
 
         info->DS.map(currentImage, &info->ubo, sizeof(UniformBufferObject), 0);
-        info->DS.map(currentImage, &gubo, sizeof(gubo), 2);
+        info->DS.map(currentImage, &gubo, sizeof(GlobalUniformBufferObject), 2);
     }
 }
 
@@ -231,7 +232,7 @@ void Project::updateBossUniform(glm::mat4 S, int currentImage)
 
         planes->bossInfo->DS.map(currentImage, &planes->bossInfo->ubo, sizeof(planes->bossInfo->ubo), 0);
 
-        planes->bossInfo->DS.map(currentImage, &gubo, sizeof(gubo), 2);
+        planes->bossInfo->DS.map(currentImage, &gubo, sizeof(GlobalUniformBufferObject), 2);
     }
 }
 
@@ -245,6 +246,8 @@ void Project::updateBulletsUniform(glm::mat4 S, int currentImage)
 
 
             info->ubo.model = glm::translate(glm::mat4(1), info->pBullet->getPosition3D().origin);
+            info->ubo.model = glm::scale(info->ubo.model, glm::vec3(0.3f));
+            info->ubo.model = glm::rotate(info->ubo.model, info->pBullet->getPosition3D().rotation.y, glm::vec3(0.0f, 1.0f, 0.0f));
             info->ubo.worldViewProj = S * info->ubo.model;
             info->ubo.normal = glm::inverse(info->ubo.model);
 
@@ -252,10 +255,41 @@ void Project::updateBulletsUniform(glm::mat4 S, int currentImage)
             bullets->buboBullet.worldViewProj[i] = info->ubo.worldViewProj;
             bullets->buboBullet.model[i] = info->ubo.model;
             bullets->buboBullet.normal[i] = info->ubo.normal;
-        }
 
+            bullets->fo.flick[i].time = bullets->bulletInfo[i]->time;
+            std::cout<<bullets->bulletInfo[i]->time<<std::endl;
+            bullets->fo.flick[i].size = bullets->bulletInfo[i]->pBullet->getSize();
+        }
         bullets->DSBullet.map(currentImage, &bullets->buboBullet, sizeof(BulletUniformBufferObject), 0);
-        bullets->DSBullet.map(currentImage, &gubo, sizeof(gubo), 2);
+        bullets->DSBullet.map(currentImage, &bullets->fo, sizeof(FlickeringObject), 2);
+    }
+}
+
+void Project::updateLights()
+{
+    gubo.lightCounter = 0;
+    for (int i = 0; i < bullets->bulletInfo.size(); i++) {
+
+        bullets->fo.flick[i].color = bullets->bulletInfo[i]->color;
+
+        gubo.PointlightPosition[i] = glm::vec4(bullets->bulletInfo[i]->pBullet->getPosition3D().origin, 1.0f);
+        switch (bullets->bulletInfo[i]->pBullet->getType())
+        {
+            case ENEMY :
+                gubo.pointLightColor[i] = glm::vec4(1.0f, 0.0f, 0.0f, 3.0f);
+                gubo.lightCounter++;
+                break;
+            case PLAYER :
+                gubo.pointLightColor[i] = glm::vec4(0.0f, 1.0f, 0.0f, 3.0f);
+                gubo.lightCounter++;
+                break;
+            case BOSS :
+                gubo.pointLightColor[i] = glm::vec4(1.0f, 0.0f, 1.0f, 3.0f);
+                gubo.lightCounter++;
+                break;
+            default :
+                break;
+        }
     }
 }
 
@@ -280,7 +314,6 @@ void Project::updateUniformBuffer(uint32_t currentImage) {
 
     //light updates
     auto rotate = glm::rotate(glm::mat4(1.0f), deltaT, glm::vec3(0.0f, 1.0f, 0.0f));
-    gubo.PointlightPosition = glm::vec3(rotate * glm::vec4(gubo.PointlightPosition, 1.0f));
 
     //InfiniteGrid
     const float FOVy = glm::radians(105.0f);
@@ -302,6 +335,8 @@ void Project::updateUniformBuffer(uint32_t currentImage) {
 
     //for FrustumCulling
     extractFrustumPlanes(frustumPlanes, S);
+
+    updateLights();
 
     updateMapUniform(S, currentImage);
 
@@ -365,6 +400,7 @@ void Project::gameLogic()
     for(int i = 0; i < bullets->bulletInfo.size(); i++)
     {
         BulletInfo* info = bullets->bulletInfo[i];
+        info->time += deltaT;
         if(!info->pBullet->toClear)
         {
             tmp.push_back(info);

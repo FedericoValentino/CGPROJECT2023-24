@@ -48,7 +48,7 @@ Bullet* Enemy::shoot(Position3D inputPosition, const float deltaT)
     glm::vec3 dir = glm::vec3(glm::sin(position.rotation.y), 0.0f, glm::cos(position.rotation.y));
     if(glm::intersectRaySphere(position.origin, dir, inputPosition.origin, pow(1.0f, 2.0f), distance)
         && checkDistance3D(inputPosition.origin, position.origin, ENEMY)
-        && (elapsedTime > 1.0f || bullets->empty()))
+        && (elapsedTime > 2.0f || bullets->empty()))
     {
         b = new Bullet(position, ENEMY, false);
         bullets->insert(b);
