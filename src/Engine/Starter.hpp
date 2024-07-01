@@ -405,7 +405,13 @@ protected:
     std::vector<VkImage> swapChainImages;
 	VkFormat swapChainImageFormat;
 	VkExtent2D swapChainExtent;
-	std::vector<VkImageView> swapChainImageViews;
+public:
+    const VkExtent2D &getSwapChainExtent() const {
+        return swapChainExtent;
+    }
+
+protected:
+    std::vector<VkImageView> swapChainImageViews;
 	
 	VkRenderPass renderPass;
 

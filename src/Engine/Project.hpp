@@ -8,6 +8,7 @@
 #include "../View/InfiniteGrid.hpp"
 #include "../View/BulletView.hpp"
 #include "../Model/Include/Partita.h"
+#include "ShadowMapInfo.hpp"
 
 
 struct pointLightObject{
@@ -43,6 +44,8 @@ private:
     glm::vec3 m = glm::vec3(0.0f);
     glm::vec3 r = glm::vec3(0.0f);
 
+    void createShadowMap();
+
     void localInit() final;
 
     void pipelinesAndDescriptorSetsInit() final;
@@ -74,8 +77,6 @@ private:
     void updateBulletsUniform(glm::mat4 S, int currentImage);
 
     void updateLights();
-
-    void destroyPlane();
 };
 
 void Project::localInit() {
@@ -517,14 +518,6 @@ void Project::spawnPlane()
         time = 0;
     }
 
-
-
-
-}
-
-void Project::destroyPlane()
-{
-    vkDeviceWaitIdle(this->device);
 }
 
 #endif
