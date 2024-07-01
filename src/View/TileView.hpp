@@ -7,6 +7,8 @@
 
 struct TileUniformBufferObject {
     alignas(16) glm::mat4 worldViewProj[MAPDIM*MAPDIM];
+    alignas(16) glm::mat4 proj;
+    alignas(16) glm::mat4 view;
     alignas(16) glm::mat4 model[MAPDIM*MAPDIM];
     alignas(16) glm::mat4 normal[MAPDIM*MAPDIM];
 };

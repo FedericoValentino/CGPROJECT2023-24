@@ -5,6 +5,7 @@
 layout(location = 0) in vec3 fragPos;
 layout(location = 1) in vec3 fragNorm;
 layout(location = 2) in vec2 fragUV;
+layout(location = 3) in float visibility;
 
 layout(location = 0) out vec4 outColor;
 
@@ -28,6 +29,8 @@ layout(binding = 2) uniform GlobalUniformBufferObject {
     directLight moon;
     int lightCounter;
 } gubo;
+
+vec4 skycolor = vec4(0.012f,0.031f,0.11f, 1.0f);
 
 void main()
 {
@@ -60,4 +63,5 @@ void main()
 
     vec4 color = vec4(1.0f, 1.0f, 1.0f, 1.0f);
     outColor = vec4(diffuseLight * color.xyz, 1.0);
+    outColor = mix(skycolor, outColor, visibility);
 }

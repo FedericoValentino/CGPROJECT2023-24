@@ -328,15 +328,40 @@ void Project::updateUniformBuffer(uint32_t currentImage) {
     const float camDist = -20.0f;
 
     glm::vec3 target = partita->player->getPosition().origin;
-    glm::vec3 cameraPosition = WorldMatrixPlane * glm::vec4(0.0f,camHeight,camDist,1.0f);
+    glm::vec3 cameraPosition = WorldMatrixPlane * glm::vec4(0.0f,camHeight,1.0f,1.0f);
     glm::vec3 up = glm::normalize(WorldMatrixPlane * glm::vec4(0.0f,1.0f,0.0f,0.0f));
 
 
-    //grid->ubo.View = glm::lookAt(cameraPosition,target, up);
-    //grid->ubo.Proj = glm::scale(glm::mat4(1),glm::vec3(1,-1,1)) * glm::frustum(-Ar*nearPlane*tan(FOVy/2),Ar*nearPlane*tan(FOVy/2),-nearPlane*tan(FOVy/2),nearPlane*tan(FOVy/2),nearPlane,farPlane);
-    //grid->ubo.pos = glm::vec3(1.0f);
-    //grid->ubo.time += deltaT;
-    //grid->DS.map(currentImage, &grid->ubo, sizeof(gridUBO), 0);
+    glm::mat4 view = glm::lookAt(cameraPosition,target, up);
+    glm::mat4 proj = glm::scale(glm::mat4(1),glm::vec3(1,-1,1)) * glm::frustum(-Ar*nearPlane*tan(FOVy/2),Ar*nearPlane*tan(FOVy/2),-nearPlane*tan(FOVy/2),nearPlane*tan(FOVy/2),nearPlane,farPlane);
+
+    //View - Proj for bullets
+    bullets->buboBullet.proj = proj;
+    bullets->buboBullet.view = view;
+
+    //View - Proj for the map
+    tiles->tuboFloor.proj = proj;
+    tiles->tuboFloor.view = view;
+
+    tiles->tuboHouse.proj = proj;
+    tiles->tuboHouse.view = view;
+
+    tiles->tuboSkyscraper.proj = proj;
+    tiles->tuboSkyscraper.view = view;
+
+    //View - Proj for planes
+    for(PlaneInfo* info : planes->enemyInfo) {
+        info->ubo.proj = proj;
+        info->ubo.view = view;
+    }
+
+    planes->playerInfo->ubo.proj = proj;
+    planes->playerInfo->ubo.view = view;
+
+    if(partita->bossSpawned) {
+        planes->bossInfo->ubo.proj = proj;
+        planes->bossInfo->ubo.view = view;
+    }
 
     //for FrustumCulling
     extractFrustumPlanes(frustumPlanes, S);

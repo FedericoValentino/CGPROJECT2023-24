@@ -29,6 +29,7 @@ Partita::Partita() {
             map[i][j] = new Tiles();
         }
     }
+    srand(time(nullptr));
 }
 
 /**

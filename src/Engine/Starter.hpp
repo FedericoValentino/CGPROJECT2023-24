@@ -68,6 +68,8 @@ constexpr float ROT_SPEED = glm::radians(120.0f);
 
 struct UniformBufferObject {
     alignas(16) glm::mat4 worldViewProj;
+    alignas(16) glm::mat4 proj;
+    alignas(16) glm::mat4 view;
     alignas(16) glm::mat4 model;
     alignas(16) glm::mat4 normal;
 };

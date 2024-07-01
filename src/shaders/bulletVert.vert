@@ -4,6 +4,8 @@
 
 layout(binding = 0) buffer UniformBufferObject {
     mat4 mvpMat[MAXSIZE];
+    mat4 proj;
+    mat4 view;
     mat4 mMat[MAXSIZE];
     mat4 nMat[MAXSIZE];
 } ubo;
