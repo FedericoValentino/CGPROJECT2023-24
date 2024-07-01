@@ -18,6 +18,8 @@ public:
 
     Bullet* shoot(Position3D inputPosition, float deltaT) override;
 
+    void changeDirection(Position3D playerPosition, float deltaT) override;
+
 
 };
 

@@ -10,6 +10,11 @@
 #include "../Model/Include/Partita.h"
 
 
+struct directLightObject{
+    glm::vec4 color;
+    glm::vec4 direction;
+};
+
 struct pointLightObject{
     glm::vec4 pointLightColor;
     glm::vec4 PointlightPosition;
@@ -21,6 +26,7 @@ struct pointLightObject{
 struct GlobalUniformBufferObject {
     pointLightObject pointLights[MAXBULLETS];
     glm::vec4 ambientLight;
+    directLightObject moon;
     alignas(4)int lightCounter;
 };
 
@@ -99,6 +105,8 @@ void Project::localInit() {
 
     //Light updates
     gubo.ambientLight = glm::vec4(1.0f, 1.0f, 1.0f, 0.02f);
+    gubo.moon.direction = glm::vec4(glm::vec3(0.0f) - glm::vec3(40.0f), 1.0f);
+    gubo.moon.color = glm::vec4(0.965f,0.945f,0.835f, 0.02f);
 
 
     //TODO Change pointers
@@ -232,7 +240,7 @@ void Project::updateBossUniform(glm::mat4 S, int currentImage)
 
         planes->bossInfo->ubo.model = glm::mat4(1);
         planes->bossInfo->ubo.model = glm::translate(planes->bossInfo->ubo.model, pos.origin);
-        planes->bossInfo->ubo.model = glm::rotate(planes->bossInfo->ubo.model, pos.rotation.y, glm::vec3(0, 1, 0));
+        planes->bossInfo->ubo.model = glm::rotate(planes->bossInfo->ubo.model, pos.rotation.y + 3.14f, glm::vec3(0, 1, 0));
 
 
         planes->bossInfo->ubo.worldViewProj = S * planes->bossInfo->ubo.model;

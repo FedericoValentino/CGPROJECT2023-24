@@ -45,9 +45,11 @@ public:
 
     void changePosition(Position3D inputPosition, float deltaT);
 
-    void changeDirection(Position3D inputPosition, float deltaT);
+    virtual void changeDirection(Position3D inputPosition, float deltaT);
 
     bool checkDistance3D(glm::vec3 center, glm::vec3 point, PLANETYPE plane);
+
+    void roll(int direction, float deltaT);
 
     Position3D getPosition() const;
     float getSpeed();

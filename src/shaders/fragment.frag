@@ -10,6 +10,11 @@ layout(location = 0) out vec4 outColor;
 
 layout(binding = 1) uniform sampler2D tex1;
 
+struct directLight{
+    vec4 color;
+    vec4 direction;
+};
+
 struct pointLight{
     vec4 color;
     vec4 position;
@@ -20,15 +25,22 @@ struct pointLight{
 layout(binding = 2) uniform GlobalUniformBufferObject {
         pointLight lights[MAXBULLETS];
         vec4 ambientLight;
+        directLight moon;
         int lightCounter;
 } gubo;
 
 void main()
 {
+    //ambient light
     vec3 diffuseLight = gubo.ambientLight.xyz * gubo.ambientLight.w;
     vec3 surfaceNormal = normalize(fragNorm);
 
+    //Directional Light
+    float direction_diffuse = max(dot(surfaceNormal, normalize(-gubo.moon.direction.xyz)), 0);
+    diffuseLight += gubo.moon.color.xyz * gubo.moon.color.w * direction_diffuse;
 
+
+    //Point Lights
     for(int i=0; i<gubo.lightCounter; i++)
     {
         float frequency = gubo.lights[i].size;

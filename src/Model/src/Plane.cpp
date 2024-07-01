@@ -3,6 +3,7 @@
 //
 
 #include "../Include/Plane.h"
+#include <glm/gtx/intersect.hpp>
 
 
 /**
@@ -88,6 +89,21 @@ void Plane::changePosition(Position3D inputPosition, float deltaT)
     position.origin= T * glm::vec4(position.origin,1.0f);
 }
 
+void Plane::roll(int direction, float deltaT) {
+    if(position.rotation.z + rotationSpeed/2.0f *  deltaT <= M_PI/4 && position.rotation.z + rotationSpeed/2.0f *  deltaT >= -M_PI/4)
+        position.rotation.z += rotationSpeed/2.0f * direction * deltaT; // roll
+    if (position.rotation.z < -M_PI/4)
+    {
+        position.rotation.z = -M_PI/4;
+    }
+    else if (position.rotation.z > M_PI/4)
+    {
+        position.rotation.z = M_PI/4;
+    }
+}
+
+
+
 /**
  * Changes direction of a point to then move it alongside the new direction. It does this through checking the result of
  * a cross product between:
@@ -107,14 +123,33 @@ void Plane::changeDirection(Position3D inputPosition, float deltaT)
     float dir_x = glm::sin(position.rotation.y);
     float dir_z = glm::cos(position.rotation.y);
 
-    if ((pos_x - target_x) * dir_z > (pos_z - target_z) * dir_x) {
-        position.rotation.y -= rotationSpeed * deltaT;
-    } else {
-        position.rotation.y += rotationSpeed * deltaT;
+    glm::vec3 direction = glm::normalize(glm::vec3(dir_x, 0.0f, dir_z));
+    float distanceToIntersect;
+
+    bool intersecting = false;
+
+    if(glm::intersectRaySphere(position.origin, direction, inputPosition.origin, 10.0f, distanceToIntersect))
+    {
+        intersecting = true;
+        if(position.rotation.z < 0.0f)
+            position.rotation.z += rotationSpeed/2.0f * deltaT;
+        else if(position.rotation.z > 0.0f)
+            position.rotation.z -= rotationSpeed/2.0f * deltaT;
     }
+    else if ((pos_x - target_x) * dir_z > (pos_z - target_z) * dir_x)
+        roll(1, deltaT);
+    else if((pos_x - target_x) * dir_z < (pos_z - target_z) * dir_x)
+        roll(-1, deltaT);
 
-    position.rotation.y = fmod(position.rotation.y, 2.0f * M_PI);
 
+    if(!intersecting) {
+        if (position.rotation.z < 0.0f)
+            position.rotation.y += rotationSpeed * deltaT;
+        else
+            position.rotation.y -= rotationSpeed * deltaT;
+
+        position.rotation.y = fmod(position.rotation.y, 2.0f * M_PI);
+    }
 }
 
 void Plane::timePasses(const float deltaT) {
@@ -150,6 +185,7 @@ float Plane::getTranslationSpeed() const {
 float Plane::getRotationSpeed() const {
     return rotationSpeed;
 }
+
 
 
 

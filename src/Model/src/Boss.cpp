@@ -104,5 +104,25 @@ void Boss::circularMovement(Position3D center, float deltaT)
     changeDirection(pos, deltaT);
 }
 
+void Boss::changeDirection(Position3D playerPosition, float deltaT)
+{
+    float target_x = playerPosition.origin.x;
+    float target_z = playerPosition.origin.z;
+
+    float pos_x = position.origin.x;
+    float pos_z = position.origin.z;
+
+    float dir_x = glm::sin(position.rotation.y);
+    float dir_z = glm::cos(position.rotation.y);
+
+    if ((pos_x - target_x) * dir_z > (pos_z - target_z) * dir_x)
+        position.rotation.y -= rotationSpeed * deltaT;
+    else if((pos_x - target_x) * dir_z < (pos_z - target_z) * dir_x)
+        position.rotation.y += rotationSpeed * deltaT;
+
+    position.rotation.y = fmod(position.rotation.y, 2.0f * M_PI);
+
+}
+
 
 
