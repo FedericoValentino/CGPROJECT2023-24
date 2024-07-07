@@ -147,6 +147,12 @@ Plane* Partita::spawn() {
 }
 
 void Partita::checkCollision() {
+    //RIEMPIO ALBERO O(N)
+
+    //SCORRO L'ALBERO
+
+
+
     //Check Collision of player with other enemies and bosses
     float radius = 4 * (MAPDIM);
     for(Plane* enemy : enemies)

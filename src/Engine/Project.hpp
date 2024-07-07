@@ -5,7 +5,7 @@
 #include "Starter.hpp"
 #include "../View/PlaneView.hpp"
 #include "../View/TileView.hpp"
-#include "../View/InfiniteGrid.hpp"
+#include "../View/ParticleSystem.hpp"
 #include "../View/BulletView.hpp"
 #include "../Model/Include/Partita.h"
 
@@ -38,7 +38,7 @@ private:
     PlaneView* planes;
     TileView* tiles;
     BulletView* bullets;
-    //GridView* grid;
+    ParticleSystem* particles;
     GlobalUniformBufferObject gubo;
 
     int numObj = 100;
@@ -79,9 +79,9 @@ private:
 
     void updateBulletsUniform(glm::mat4 S, int currentImage);
 
-    void updateLights();
+    void updateParticlesUniforms(glm::mat4 S, int currentImage);
 
-    void destroyPlane();
+    void updateLights();
 };
 
 void Project::localInit() {
@@ -89,8 +89,8 @@ void Project::localInit() {
     this->partita = new Partita();
     partita->generateWorld();
 
-    //this->grid = new GridView();
-    //grid->init(this);
+    this->particles = new ParticleSystem();
+    particles->init(this);
 
     this->tiles = new TileView;
     tiles->init(this);
@@ -120,14 +120,14 @@ void Project::localInit() {
 }
 
 void Project::pipelinesAndDescriptorSetsInit() {
-    //grid->pipelineAndDSInit(this);
+    particles->pipelineAndDSInit(this);
     bullets->pipelineAndDSInit(this, sizeof(BulletUniformBufferObject), sizeof(FlickeringObject));
     tiles->pipelineAndDSInit(this, sizeof(TileUniformBufferObject), sizeof(GlobalUniformBufferObject));
     planes->pipelineAndDSInit(this, sizeof(UniformBufferObject), sizeof(GlobalUniformBufferObject));
 }
 
 void Project::populateCommandBuffer(VkCommandBuffer commandBuffer, int i) {
-    //grid->populateCommandBuffer(commandBuffer, i);
+    particles->populateCommandBuffer(commandBuffer, i);
     planes->populateCommandBuffer(commandBuffer, i);
     tiles->populateCommandBuffer(commandBuffer, i);
     bullets->populateCommandBuffer(commandBuffer, i);
@@ -281,6 +281,16 @@ void Project::updateBulletsUniform(glm::mat4 S, int currentImage)
     }
 }
 
+
+void Project::updateParticlesUniforms(glm::mat4 S, int currentImage)
+{
+    for(auto& p : particles->particles)
+    {
+        p.pubo.ViewProj = S;
+        p.DS.map(currentImage, &p.pubo, sizeof(particleUniformBufferObject), 0);
+    }
+}
+
 void Project::updateLights()
 {
     gubo.lightCounter = 0;
@@ -377,10 +387,12 @@ void Project::updateUniformBuffer(uint32_t currentImage) {
     updateBossUniform(S, currentImage);
 
     updateBulletsUniform(S, currentImage);
+
+    updateParticlesUniforms(S, currentImage);
 }
 
 void Project::pipelinesAndDescriptorSetsCleanup() {
-    //grid->pipelineAndDSCleanup();
+    particles->pipelineAndDSCleanup();
     tiles->pipelineAndDSCleanup();
     planes->pipelineAndDSCleanup();
     bullets->pipelineAndDSCleanup();
@@ -388,7 +400,7 @@ void Project::pipelinesAndDescriptorSetsCleanup() {
 
 void Project::localCleanup() {
     bullets->cleanup();
-    //grid->cleanup();
+    particles->cleanup();
     tiles->cleanup();
     planes->cleanup();
 }
@@ -416,6 +428,9 @@ void Project::gameLogic()
     if(partita->bossSpawned)
         planes->bossInfo->pEnemy->timePasses(deltaT);
 
+    for(auto& p : particles->particles)
+        p.pubo.time += deltaT;
+
     //CHECK COLLISION
     partita->checkCollision();
     if(partita->state == END)
@@ -425,6 +440,7 @@ void Project::gameLogic()
 
     //RIMUOVI ROBA
 
+    //DELETE BULLETS
     //TODO ORRENDO CAMBIARE IN QUALCOSA PIU' BELLO
     std::vector<BulletInfo*> tmp;
     for(int i = 0; i < bullets->bulletInfo.size(); i++)
@@ -435,12 +451,20 @@ void Project::gameLogic()
         {
             tmp.push_back(info);
         }
+        else
+        {
+            info->ubo.model = glm::scale(info->ubo.model, glm::vec3(10.0f));
+            particles->newParticle(info->ubo.model);
+        }
     }
+
     bullets->bulletInfo.clear();
     for(int i = 0; i < tmp.size(); i++)
     {
         bullets->bulletInfo.push_back(tmp[i]);
     }
+
+    //DELETE PARTICLES
 
 
     //MAKE ENEMIES SHOOT
@@ -549,15 +573,8 @@ void Project::spawnPlane()
         }
         time = 0;
     }
-
-
-
-
 }
 
-void Project::destroyPlane()
-{
-    vkDeviceWaitIdle(this->device);
-}
+
 
 #endif
