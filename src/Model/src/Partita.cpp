@@ -26,7 +26,7 @@ Partita::Partita() {
     {
         for(int j = 0; j < MAPDIM; j++)
         {
-            map[i][j] = new Tiles();
+            map[i][j] = new Tiles(i,j);
         }
     }
     srand(time(nullptr));
@@ -147,21 +147,23 @@ Plane* Partita::spawn() {
 }
 
 void Partita::checkCollision() {
+
     //RIEMPIO ALBERO O(N)
 
     //SCORRO L'ALBERO
 
-
+    static constexpr float RADIUS_COLLISION = 5.5f;
+    //Check collision player with skyscrapers.
+    for(int i = 0;i<MAPDIM;++i)
+        for(int j = 0;j<MAPDIM;++j)
+            if(map[i][j]->height == HEIGHT::SKYSCRAPER && map[i][j]->checkCollision(player->getPosition().origin.x,player->getPosition().origin.z,RADIUS_COLLISION))
+                state=END;
 
     //Check Collision of player with other enemies and bosses
     float radius = 4 * (MAPDIM);
     for(Plane* enemy : enemies)
-    {
         if(player->checkDistance3D(enemy->getPosition().origin, player->getPosition().origin, PLAYER) && !enemy->getDead())
-        {
             state = END;
-        }
-    }
 
 
     //check Collision of player with enemy projectiles
