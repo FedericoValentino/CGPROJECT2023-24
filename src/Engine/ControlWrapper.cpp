@@ -50,14 +50,8 @@ void updatePlaneMatrix(Position3D& pl_pos,float deltaT, float time, const glm::v
     pl_pos.rotation.y += ROT_SPEED * r.y * deltaT; // yaw
     if(pl_pos.rotation.z + ROT_SPEED/2.0f * -r.y * deltaT <= M_PI/4 && pl_pos.rotation.z + ROT_SPEED/2.0f * -r.y * deltaT >= -M_PI/4)
         pl_pos.rotation.z += ROT_SPEED/2.0f * -r.y * deltaT; // roll
-    if (pl_pos.rotation.z < -M_PI/4)
-    {
-        pl_pos.rotation.z = -M_PI/4;
-    }
-    else if (pl_pos.rotation.z > M_PI/4)
-    {
-        pl_pos.rotation.z = M_PI/4;
-    }
+
+    pl_pos.rotation.z = glm::clamp<float>(pl_pos.rotation.z,-M_PI/4,M_PI/4);
 
     if(r.y == 0)
     {

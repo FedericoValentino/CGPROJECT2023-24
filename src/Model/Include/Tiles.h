@@ -1,5 +1,8 @@
 #ifndef CGPRJ2023_24_TILES_H
 #define CGPRJ2023_24_TILES_H
+#include "Position3D.h"
+#include "glm/glm.hpp"
+#include <glm/gtc/matrix_transform.hpp>
 
 enum HEIGHT{
     FLOOR,
@@ -10,7 +13,9 @@ enum HEIGHT{
 
 struct Tiles {
     int height;
-    Tiles();
+    Position3D pos;
+    Tiles(int row, int col);
+    bool checkCollision(float x,float z,float radius) const;
 };
 
 
