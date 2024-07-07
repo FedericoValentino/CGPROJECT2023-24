@@ -40,9 +40,9 @@ public:
         particle.pubo.time = 0.0f;
         for(int i = 0; i < MAXPARTICLES; i++)
         {
-            particle.pubo.directions[i].x = (float)rand()/(float)RAND_MAX;
-            particle.pubo.directions[i].y = (float)rand()/(float)RAND_MAX;
-            particle.pubo.directions[i].z = (float)rand()/(float)RAND_MAX;
+            particle.pubo.directions[i].x = -1 + 2*(float)rand()/(float)RAND_MAX;
+            particle.pubo.directions[i].y = -1 + 2*(float)rand()/(float)RAND_MAX;
+            particle.pubo.directions[i].z = -1 + 2*(float)rand()/(float)RAND_MAX;
             particle.pubo.directions[i].w = 1.0f;
 
             glm::normalize(particle.pubo.directions[i]);
