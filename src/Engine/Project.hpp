@@ -464,7 +464,7 @@ void Project::gameLogic()
         bullets->bulletInfo.push_back(tmp[i]);
     }
 
-    //DELETE PARTICLES
+    //TODO DELETE PARTICLES
 
 
     //MAKE ENEMIES SHOOT

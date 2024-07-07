@@ -3,7 +3,7 @@
 
 #include "../Engine/Starter.hpp"
 
-#define MAXPARTICLES 1
+#define MAXPARTICLES 20
 
 struct particleUniformBufferObject
 {
@@ -25,6 +25,7 @@ public:
     VertexDescriptor VD;
 
     std::vector<Particle> particles;
+    std::vector<Particle> noLongerDrawn;
 
     BaseProject* app;
 
@@ -59,11 +60,13 @@ public:
         this->app = bp;
 
         this->DSL.init(bp, {
-                {0, VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, VK_SHADER_STAGE_VERTEX_BIT}});
+                {0, VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, VK_SHADER_STAGE_VERTEX_BIT | VK_SHADER_STAGE_FRAGMENT_BIT}});
 
         this->VD.init(bp, {}, {});
 
         this->P.init(bp, &VD, "../src/shaders/particleShaderVert.spv", "../src/shaders/particleShaderFrag.spv", {&this->DSL});
+
+        this->P.setAdvancedFeatures(VK_COMPARE_OP_LESS, VK_POLYGON_MODE_FILL, VK_CULL_MODE_NONE, false);
 
     }
 
@@ -77,7 +80,7 @@ public:
         for(Particle p : particles)
         {
             p.DS.bind(commandBuffer, this->P, 0, currentImage);
-            vkCmdDraw(commandBuffer, 3, MAXPARTICLES, 0, 0);
+            vkCmdDraw(commandBuffer, 6, MAXPARTICLES, 0, 0);
         }
 
     }
