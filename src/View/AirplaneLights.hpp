@@ -14,11 +14,8 @@ struct AirplaneVertex {
 
 struct PlaneLightUniformBufferObject
 {
-    glm::mat4 translation[2];
-    glm::mat4 model;
-    glm::mat4 View;
-    glm::mat4 Proj;
-    glm::mat4 WVP;
+    glm::mat4 WVP[10 * Partita::MAX_PLANE];
+    alignas(4) int counter;
 };
 
 // flickering of the lights on the wings of the airplane
@@ -82,11 +79,12 @@ public:
     BaseProject* app;
     PlaneLight planeLights;
     Model M;
+    int& numberOfEnemies;
 
+    AirplaneLights(int& nOEnemies):numberOfEnemies(nOEnemies){};
 
     void init(BaseProject* bp) {
         this->app = bp;
-
         this->DSL.init(bp, {
                 // this array contains the binding:
                 // first  element : the binding number
@@ -109,7 +107,7 @@ public:
         this->P.setAdvancedFeatures(VK_COMPARE_OP_LESS, VK_POLYGON_MODE_FILL, VK_CULL_MODE_NONE, false);
 
         std::vector<std::array<float, 6>> vertices_pos;
-        MakeSphere(0.2f, 24, 48, vertices_pos, M.indices);
+        MakeSphere(1.5f, 24, 48, vertices_pos, M.indices);//0.2
         int mainStride = VD.Bindings[0].stride;
         M.vertices = std::vector<unsigned char>(vertices_pos.size() * sizeof(AirplaneVertex), 0);
         for (int i = 0; i < vertices_pos.size(); i++) {
@@ -139,7 +137,7 @@ public:
         this->M.bind(commandBuffer);
         planeLights.DS.bind(commandBuffer, this->P, 0, currentImage);
 
-        vkCmdDrawIndexed(commandBuffer,static_cast<uint32_t>(M.indices.size()),2,0, 0,0);
+        vkCmdDrawIndexed(commandBuffer,static_cast<uint32_t>(M.indices.size()),2*numberOfEnemies,0, 0,0);
         }
 
     void cleanup(){
