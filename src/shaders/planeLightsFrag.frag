@@ -22,11 +22,11 @@ void main()
     float intensity = abs(cos(frequency * fo.flick.time));
 
     // Define colors
-    vec3 color = fo.flick.color.xyz; // Green color
-    vec3 whiteColor = vec3(1.0, 1.0, 1.0); // White color
+    vec3 color = fo.flick.color.xyz;
+    vec3 blackColor = vec3(0.0, 0.0, 0.0); // White color
 
     // Use the intensity to interpolate between green and white
-    vec3 finalColor = mix(whiteColor, color, intensity);
+    vec3 finalColor = mix(blackColor, color, intensity);
 
     // Output the final color, keeping the original alpha from fo.flick.color
     outColor = vec4(finalColor, fo.flick.color.a);

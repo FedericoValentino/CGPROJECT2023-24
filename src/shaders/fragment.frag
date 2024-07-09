@@ -1,6 +1,7 @@
 #version 450
 #extension GL_ARB_separate_shader_objects : enable
 #define MAXBULLETS 400
+#define MAX_PLANE 3
 
 layout(location = 0) in vec3 fragPos;
 layout(location = 1) in vec3 fragNorm;
@@ -25,10 +26,12 @@ struct pointLight{
 };
 
 layout(binding = 2) uniform GlobalUniformBufferObject {
-        pointLight lights[MAXBULLETS+2];
+        pointLight lights[MAXBULLETS];
+        pointLight pointLightsAirplane[10 * MAX_PLANE];
         vec4 ambientLight;
         directLight moon;
         int lightCounter;
+        int pointLightsAirplaneCounter;
 } gubo;
 
 vec4 skycolor = vec4(0.012f,0.031f,0.11f, 1.0f);
@@ -57,6 +60,22 @@ void main()
         if(gubo.lights[i].time > 0.3f)
         {
             intensity *= abs(cos(frequency * gubo.lights[i].time));
+        }
+
+        diffuseLight += intensity * cosAngIncidence;
+    }
+    for(int i = 0;i < gubo.pointLightsAirplaneCounter;++i)
+    {
+        float frequency = gubo.pointLightsAirplane[i].size;
+        vec3 directionToLight = gubo.pointLightsAirplane[i].position.xyz - fragPos;
+        float attenuation = 1.0 / dot(directionToLight, directionToLight);
+        float cosAngIncidence = max(dot(surfaceNormal, normalize(directionToLight)), 0);
+        vec3 intensity = 5.0f * gubo.pointLightsAirplane[i].color.xyz *
+        gubo.pointLightsAirplane[i].color.w *
+        attenuation;
+        if(gubo.pointLightsAirplane[i].time > 0.3f)
+        {
+            intensity *= abs(cos(frequency * gubo.pointLightsAirplane[i].time));
         }
 
         diffuseLight += intensity * cosAngIncidence;

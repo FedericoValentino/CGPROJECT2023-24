@@ -4,17 +4,16 @@
 layout(location = 0) in vec3 inPos;    // vertex position
 layout(location = 1) in vec3 inNorm; // vertex normal
 
+#define MAX_PLANE 50
+
 layout(binding = 0) uniform PlaneLightUniformBufferObject
 {
-    mat4 translation[2];
-    mat4 model;
-    mat4 View;
-    mat4 Proj;
-    mat4 WVP;
+    mat4 WVP[10 * MAX_PLANE];
+    int counter;
 }plubo;
 
 void main()
 {
     // Calculate the final position of the vertex in clip space
-    gl_Position = plubo.Proj * plubo.View * plubo.model * plubo.translation[gl_InstanceIndex] * vec4(inPos, 1.0);
+    gl_Position = plubo.WVP[gl_InstanceIndex] * vec4(inPos, 1.0);
 }

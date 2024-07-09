@@ -143,7 +143,7 @@ Plane* Partita::spawn() {
         enemies.insert(plane);
         return plane;
     }
-
+    return nullptr;
 }
 
 void Partita::checkCollision() {

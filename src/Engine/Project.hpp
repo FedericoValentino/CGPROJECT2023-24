@@ -25,10 +25,12 @@ struct pointLightObject{
 };
 
 struct GlobalUniformBufferObject {
-    pointLightObject pointLights[MAXBULLETS + 2]; // plus two lights on the airplane
+    pointLightObject pointLights[MAXBULLETS];
+    pointLightObject pointLightsAirplane[10 * Partita::MAX_PLANE]; // Enemy lights;
     glm::vec4 ambientLight;
     directLightObject moon;
-    alignas(4)int lightCounter;
+    alignas(4) int lightCounter;
+    alignas(4) int pointLightsAirplaneCounter; // number of enemies
 };
 
 class Project : public BaseProject
@@ -48,6 +50,7 @@ private:
 
     float deltaT;
     float time;
+    int numberOfEnemies = 0;
     glm::vec3 m = glm::vec3(0.0f);
     glm::vec3 r = glm::vec3(0.0f);
 
@@ -69,7 +72,7 @@ private:
 
     void gameLogic() final;
 
-    void spawnPlane();
+    void spawnPlane(int& numberOfEnemies);
 
     void updateMapUniform(glm::mat4 S, int currentImage);
 
@@ -86,6 +89,8 @@ private:
     void updateParticlesUniforms(glm::mat4 S, int currentImage);
 
     void updateLights();
+
+    void updateEnemyLights();
 };
 
 void Project::localInit() {
@@ -96,7 +101,7 @@ void Project::localInit() {
     this->particles = new ParticleSystem();
     particles->init(this);
 
-    this->planeLights = new AirplaneLights();
+    this->planeLights = new AirplaneLights(numberOfEnemies);
     planeLights->init(this);
 
     this->tiles = new TileView;
@@ -301,24 +306,48 @@ void Project::updateParticlesUniforms(glm::mat4 S, int currentImage)
 
 void Project::updatePlaneLightsUniform(int currentImage)
 {
-
-    planeLights->planeLights.plubo.View = planes->playerInfo->ubo.view;
-    planeLights->planeLights.plubo.Proj = planes->playerInfo->ubo.proj;
-    planeLights->planeLights.plubo.model = planes->playerInfo->ubo.model;
-    planeLights->planeLights.plubo.WVP = planes->playerInfo->ubo.worldViewProj;
-    planeLights->planeLights.plubo.translation[0] = glm::translate(glm::mat4(1.0f),glm::vec3(2.5f,0.0f,-1.45f));
-    planeLights->planeLights.plubo.translation[1] = glm::translate(glm::mat4(1.0f),glm::vec3(-2.5f,0.0f,-1.45f));
-
-    planeLights->planeLights.fo.flick.color = glm::vec4(0.0f,1.0f,0.0f,1.0f); // green
-    planeLights->planeLights.fo.flick.size = 1;
+    int i = 0;
+    for(auto info:  planes->enemyInfo)
+    {
+        if(info->pEnemy->getType() == ENEMY &&  info->toDraw)
+        {
+            planeLights->planeLights.plubo.WVP[2*i] = info->ubo.worldViewProj * glm::translate(glm::mat4(1.0f),glm::vec3(25.0f,9.0f,-7.0f));
+            planeLights->planeLights.plubo.WVP[2*i+1] = info->ubo.worldViewProj  * glm::translate(glm::mat4(1.0f),glm::vec3(-25.0f,9.0f,-7.0f));
+            ++i;
+        }
+    }
+    planeLights->planeLights.fo.flick.color = glm::vec4(1.0f,0.0f,0.0f,1.0f); // green
+    planeLights->planeLights.fo.flick.size = 0.1;
+    planeLights->planeLights.plubo.counter = 2*i;
 
     planeLights->planeLights.DS.map(currentImage,&planeLights->planeLights.plubo,sizeof(PlaneLightUniformBufferObject),0);
     planeLights->planeLights.DS.map(currentImage,&planeLights->planeLights.fo,sizeof(FlickeringSphere),1);
 }
 
+void Project::updateEnemyLights(){
+
+    int i = 0;
+    for(PlaneInfo* info : planes->enemyInfo)
+    {
+        if(info->pEnemy->getType() == ENEMY && info->toDraw)
+        {
+            gubo.pointLightsAirplane[2*i].PointlightPosition = glm::translate(glm::mat4(1.0f),glm::vec3(2.5f,0.0f,-1.45f)) *
+                                                               glm::vec4(info->pEnemy->getPosition().origin,1.0f);
+            gubo.pointLightsAirplane[2*i+1].PointlightPosition = glm::translate(glm::mat4(1.0f),glm::vec3(-2.5f,0.0f,-1.45f)) *
+                                                                 glm::vec4(info->pEnemy->getPosition().origin,1.0f);
+            gubo.pointLightsAirplane[2*i].pointLightColor = glm::vec4(1.0f,0.0f,0.0f,1.0f);
+            gubo.pointLightsAirplane[2*i+1].pointLightColor = glm::vec4(1.0f,0.0f,0.0f,1.0f);
+            gubo.pointLightsAirplane[2*i].size = 1.0;
+            gubo.pointLightsAirplane[2*i+1].size = 1.0;
+            ++i;
+        }
+    }
+    gubo.pointLightsAirplaneCounter = 2*i;
+}
+
 void Project::updateLights()
 {
-    gubo.lightCounter = 2;
+    gubo.lightCounter = 0;
     for (int i = 0; i < bullets->bulletInfo.size(); i++) {
 
         bullets->fo.flick[i].color = bullets->bulletInfo[i]->color;
@@ -330,15 +359,6 @@ void Project::updateLights()
         gubo.pointLights[i].pointLightColor = bullets->bulletInfo[i]->color;
         gubo.lightCounter++;
     }
-    gubo.pointLights[MAXBULLETS].PointlightPosition  = glm::translate(glm::mat4(1.0f),glm::vec3(2.5f,0.0f,-1.45f)) *
-                                                       glm::vec4(partita->player->getPosition().origin,1.0f);
-    gubo.pointLights[MAXBULLETS + 1].PointlightPosition  = glm::translate(glm::mat4(1.0f),glm::vec3(-2.5f,0.0f,-1.45f)) *
-                                                           glm::vec4(partita->player->getPosition().origin,1.0f);
-    gubo.pointLights[MAXBULLETS + 1].PointlightPosition  = glm::vec4(0.0f,8.4f,0.0f,1.0f); // REMOVE
-    gubo.pointLights[MAXBULLETS].pointLightColor = glm::vec4(1.0f,1.0f,1.0f,1.0f);
-    gubo.pointLights[MAXBULLETS + 1].pointLightColor = glm::vec4(1.0f,1.0f,1.0f,1.0f);
-    gubo.pointLights[MAXBULLETS].size = 10;
-    gubo.pointLights[MAXBULLETS + 1].size = 10;
 }
 
 /**
@@ -397,6 +417,8 @@ void Project::updateUniformBuffer(uint32_t currentImage) {
     extractFrustumPlanes(frustumPlanes, S);
 
     updateLights();
+
+    updateEnemyLights();
 
     updateMapUniform(S, currentImage);
 
@@ -462,31 +484,21 @@ void Project::gameLogic()
         glfwSetWindowShouldClose(window, GL_TRUE);
     }
 
-    //RIMUOVI ROBA
+    //RIMUOVI ROBA(DA AGGIORNARE ANCHE IL COUNTER ENEMIES SU CUI SI BASANO LE LUCI DEGLI AEREI)
 
     //DELETE BULLETS
-    //TODO ORRENDO CAMBIARE IN QUALCOSA PIU' BELLO
-    std::vector<BulletInfo*> tmp;
-    for(int i = 0; i < bullets->bulletInfo.size(); i++)
-    {
-        BulletInfo* info = bullets->bulletInfo[i];
+    auto it = std::remove_if(bullets->bulletInfo.begin(), bullets->bulletInfo.end(), [&](BulletInfo* info) {
         info->time += deltaT;
-        if(!info->pBullet->toClear)
-        {
-            tmp.push_back(info);
-        }
-        else
-        {
+        if (info->pBullet->toClear) {
             info->ubo.model = glm::scale(info->ubo.model, glm::vec3(10.0f));
             particles->newParticle(info->ubo.model);
+            return true;
         }
-    }
+        return false;
+    });
 
-    bullets->bulletInfo.clear();
-    for(int i = 0; i < tmp.size(); i++)
-    {
-        bullets->bulletInfo.push_back(tmp[i]);
-    }
+    // Erase the "toClear" elements from the vector
+    bullets->bulletInfo.erase(it, bullets->bulletInfo.end());
 
     //TODO DELETE PARTICLES
 
@@ -546,7 +558,7 @@ void Project::gameLogic()
     }
 
     //SPAWN
-    spawnPlane();
+    spawnPlane(numberOfEnemies);
 
 
     //MUOVI PLAYER
@@ -573,13 +585,15 @@ void Project::gameLogic()
     }
 
     //update flickering time for the spheres
-    planeLights->planeLights.fo.flick.time+= deltaT;
-    gubo.pointLights[MAXBULLETS].time += deltaT;
-    gubo.pointLights[MAXBULLETS + 1].time += deltaT;
+    planeLights->planeLights.fo.flick.time += deltaT;
+    for(int i = 0;i<gubo.pointLightsAirplaneCounter;++i)
+        gubo.pointLightsAirplane[i].time += deltaT;
 
+    numberOfEnemies = std::count_if(planes->enemyInfo.begin(),planes->enemyInfo.end(),
+                                    [](PlaneInfo* info){return !info->pEnemy->getDead();});
 }
 
-void Project::spawnPlane()
+void Project::spawnPlane(int& numberOfEnemies)
 {
     static float time = 0;
 
@@ -599,6 +613,7 @@ void Project::spawnPlane()
                     planes->newBoss(plane, sizeof(UniformBufferObject), sizeof(GlobalUniformBufferObject));
                     break;
             }
+            numberOfEnemies++;
         }
         time = 0;
     }

@@ -26,7 +26,6 @@ enum STAGE{
 class Partita {
 
     friend class Project;
-    static constexpr int MAX_PLANE = 3; // maximum number of planes before boss
 
     int state;
     int stage;
@@ -54,6 +53,9 @@ class Partita {
     void cleanup();
 
 public:
+
+    static constexpr int MAX_PLANE = 3; // maximum number of planes before boss
+
     Partita();
 
     [[nodiscard]] const Tiles* getMap(int x, int y) const;
