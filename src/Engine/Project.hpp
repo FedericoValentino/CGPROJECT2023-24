@@ -72,7 +72,7 @@ private:
 
     void gameLogic() final;
 
-    void spawnPlane(int& numberOfEnemies);
+    void spawnPlane();
 
     void updateMapUniform(glm::mat4 S, int currentImage);
 
@@ -558,7 +558,7 @@ void Project::gameLogic()
     }
 
     //SPAWN
-    spawnPlane(numberOfEnemies);
+    spawnPlane();
 
 
     //MUOVI PLAYER
@@ -593,7 +593,7 @@ void Project::gameLogic()
                                     [](PlaneInfo* info){return !info->pEnemy->getDead();});
 }
 
-void Project::spawnPlane(int& numberOfEnemies)
+void Project::spawnPlane()
 {
     static float time = 0;
 
@@ -613,7 +613,6 @@ void Project::spawnPlane(int& numberOfEnemies)
                     planes->newBoss(plane, sizeof(UniformBufferObject), sizeof(GlobalUniformBufferObject));
                     break;
             }
-            numberOfEnemies++;
         }
         time = 0;
     }
