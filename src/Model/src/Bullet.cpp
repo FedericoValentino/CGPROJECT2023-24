@@ -16,6 +16,7 @@ unsigned int Bullet::count_ = 0;
  */
 Bullet::Bullet(const Position3D& position3D, PLANETYPE type, bool debug)
 {
+    toClear = false;
     this->position3D_=position3D;
     debug = false;
     id_ = count_;

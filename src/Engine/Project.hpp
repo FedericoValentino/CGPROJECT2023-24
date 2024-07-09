@@ -30,7 +30,7 @@ struct GlobalUniformBufferObject {
     glm::vec4 ambientLight;
     directLightObject moon;
     alignas(4) int lightCounter;
-    alignas(4) int pointLightsAirplaneCounter; // number of enemies
+    alignas(4) int pointLightsAirplaneCounter = 0; // number of enemies
 };
 
 class Project : public BaseProject
@@ -237,7 +237,6 @@ void Project::updateEnemyUniform(glm::mat4 S, int currentImage)
 
         info->ubo.worldViewProj = S * info->ubo.model;
         info->ubo.normal = glm::inverse(glm::transpose(info->ubo.model));
-
 
         info->DS.map(currentImage, &info->ubo, sizeof(UniformBufferObject), 0);
         info->DS.map(currentImage, &gubo, sizeof(GlobalUniformBufferObject), 2);
