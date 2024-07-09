@@ -8,6 +8,7 @@
 #include "../View/ParticleSystem.hpp"
 #include "../View/BulletView.hpp"
 #include "../Model/Include/Partita.h"
+#include "../View/AirplaneLights.hpp"
 
 
 struct directLightObject{
@@ -24,7 +25,7 @@ struct pointLightObject{
 };
 
 struct GlobalUniformBufferObject {
-    pointLightObject pointLights[MAXBULLETS];
+    pointLightObject pointLights[MAXBULLETS + 2]; // plus two lights on the airplane
     glm::vec4 ambientLight;
     directLightObject moon;
     alignas(4)int lightCounter;
@@ -39,6 +40,7 @@ private:
     TileView* tiles;
     BulletView* bullets;
     ParticleSystem* particles;
+    AirplaneLights* planeLights;
     GlobalUniformBufferObject gubo;
 
     int numObj = 100;
@@ -73,6 +75,8 @@ private:
 
     void updatePlayerUniform(glm::mat4 S, int currentImage);
 
+    void updatePlaneLightsUniform(int currentImage);
+
     void updateEnemyUniform(glm::mat4 S, int currentImage);
 
     void updateBossUniform(glm::mat4 S, int currentImage);
@@ -91,6 +95,9 @@ void Project::localInit() {
 
     this->particles = new ParticleSystem();
     particles->init(this);
+
+    this->planeLights = new AirplaneLights();
+    planeLights->init(this);
 
     this->tiles = new TileView;
     tiles->init(this);
@@ -121,6 +128,7 @@ void Project::localInit() {
 
 void Project::pipelinesAndDescriptorSetsInit() {
     particles->pipelineAndDSInit(this);
+    planeLights->pipelineAndDSInit(this);
     bullets->pipelineAndDSInit(this, sizeof(BulletUniformBufferObject), sizeof(FlickeringObject));
     tiles->pipelineAndDSInit(this, sizeof(TileUniformBufferObject), sizeof(GlobalUniformBufferObject));
     planes->pipelineAndDSInit(this, sizeof(UniformBufferObject), sizeof(GlobalUniformBufferObject));
@@ -128,6 +136,7 @@ void Project::pipelinesAndDescriptorSetsInit() {
 
 void Project::populateCommandBuffer(VkCommandBuffer commandBuffer, int i) {
     particles->populateCommandBuffer(commandBuffer, i);
+    planeLights->populateCommandBuffer(commandBuffer,i);
     planes->populateCommandBuffer(commandBuffer, i);
     tiles->populateCommandBuffer(commandBuffer, i);
     bullets->populateCommandBuffer(commandBuffer, i);
@@ -199,7 +208,7 @@ void Project::updatePlayerUniform(glm::mat4 S, int currentImage)
 {
     //Player Updates
     planes->playerInfo->toDraw = true;
-    planes->playerInfo->ubo.worldViewProj = S * planes->playerInfo->ubo.model;
+    planes->playerInfo->ubo.worldViewProj = S * planes->playerInfo->ubo.model; // S = View-Proj
     planes->playerInfo->ubo.normal = glm::inverse(planes->playerInfo->ubo.model);
 
     planes->playerInfo->DS.map(currentImage, &planes->playerInfo->ubo, sizeof(planes->playerInfo->ubo), 0);
@@ -273,7 +282,6 @@ void Project::updateBulletsUniform(glm::mat4 S, int currentImage)
             bullets->buboBullet.normal[i] = info->ubo.normal;
 
             bullets->fo.flick[i].time = bullets->bulletInfo[i]->time;
-            std::cout<<bullets->bulletInfo[i]->time<<std::endl;
             bullets->fo.flick[i].size = bullets->bulletInfo[i]->pBullet->getSize();
         }
         bullets->DSBullet.map(currentImage, &bullets->buboBullet, sizeof(BulletUniformBufferObject), 0);
@@ -291,9 +299,26 @@ void Project::updateParticlesUniforms(glm::mat4 S, int currentImage)
     }
 }
 
+void Project::updatePlaneLightsUniform(int currentImage)
+{
+
+    planeLights->planeLights.plubo.View = planes->playerInfo->ubo.view;
+    planeLights->planeLights.plubo.Proj = planes->playerInfo->ubo.proj;
+    planeLights->planeLights.plubo.model = planes->playerInfo->ubo.model;
+    planeLights->planeLights.plubo.WVP = planes->playerInfo->ubo.worldViewProj;
+    planeLights->planeLights.plubo.translation[0] = glm::translate(glm::mat4(1.0f),glm::vec3(2.5f,0.0f,-1.45f));
+    planeLights->planeLights.plubo.translation[1] = glm::translate(glm::mat4(1.0f),glm::vec3(-2.5f,0.0f,-1.45f));
+
+    planeLights->planeLights.fo.flick.color = glm::vec4(0.0f,1.0f,0.0f,1.0f); // green
+    planeLights->planeLights.fo.flick.size = 1;
+
+    planeLights->planeLights.DS.map(currentImage,&planeLights->planeLights.plubo,sizeof(PlaneLightUniformBufferObject),0);
+    planeLights->planeLights.DS.map(currentImage,&planeLights->planeLights.fo,sizeof(FlickeringSphere),1);
+}
+
 void Project::updateLights()
 {
-    gubo.lightCounter = 0;
+    gubo.lightCounter = 2;
     for (int i = 0; i < bullets->bulletInfo.size(); i++) {
 
         bullets->fo.flick[i].color = bullets->bulletInfo[i]->color;
@@ -305,6 +330,15 @@ void Project::updateLights()
         gubo.pointLights[i].pointLightColor = bullets->bulletInfo[i]->color;
         gubo.lightCounter++;
     }
+    gubo.pointLights[MAXBULLETS].PointlightPosition  = glm::translate(glm::mat4(1.0f),glm::vec3(2.5f,0.0f,-1.45f)) *
+                                                       glm::vec4(partita->player->getPosition().origin,1.0f);
+    gubo.pointLights[MAXBULLETS + 1].PointlightPosition  = glm::translate(glm::mat4(1.0f),glm::vec3(-2.5f,0.0f,-1.45f)) *
+                                                           glm::vec4(partita->player->getPosition().origin,1.0f);
+    gubo.pointLights[MAXBULLETS + 1].PointlightPosition  = glm::vec4(0.0f,8.4f,0.0f,1.0f); // REMOVE
+    gubo.pointLights[MAXBULLETS].pointLightColor = glm::vec4(1.0f,1.0f,1.0f,1.0f);
+    gubo.pointLights[MAXBULLETS + 1].pointLightColor = glm::vec4(1.0f,1.0f,1.0f,1.0f);
+    gubo.pointLights[MAXBULLETS].size = 10;
+    gubo.pointLights[MAXBULLETS + 1].size = 10;
 }
 
 /**
@@ -323,27 +357,13 @@ void Project::updateUniformBuffer(uint32_t currentImage) {
     //update Plane world matrix
     updatePlaneMatrix(WorldMatrixPlane,partita->player->getPosition());
 
-    //Camera Update
-    glm::mat4 S = updateCam(Ar, partita->player->getPosition(),WorldMatrixPlane);
+    //Camera Update(View-Proj)
+    auto [S,proj,view] = updateCam(Ar, partita->player->getPosition(),WorldMatrixPlane);
 
     WorldMatrixPlane = glm::rotate(WorldMatrixPlane, partita->player->getPosition().rotation.z, glm::vec3(0, 0, 1));
     //light updates
     auto rotate = glm::rotate(glm::mat4(1.0f), deltaT, glm::vec3(0.0f, 1.0f, 0.0f));
 
-    //InfiniteGrid
-    const float FOVy = glm::radians(105.0f);
-    const float nearPlane = 0.1f;
-    const float farPlane = 150.f;
-    const float camHeight = 15.0f;
-    const float camDist = -20.0f;
-
-    glm::vec3 target = partita->player->getPosition().origin;
-    glm::vec3 cameraPosition = WorldMatrixPlane * glm::vec4(0.0f,camHeight,1.0f,1.0f);
-    glm::vec3 up = glm::normalize(WorldMatrixPlane * glm::vec4(0.0f,1.0f,0.0f,0.0f));
-
-
-    glm::mat4 view = glm::lookAt(cameraPosition,target, up);
-    glm::mat4 proj = glm::scale(glm::mat4(1),glm::vec3(1,-1,1)) * glm::frustum(-Ar*nearPlane*tan(FOVy/2),Ar*nearPlane*tan(FOVy/2),-nearPlane*tan(FOVy/2),nearPlane*tan(FOVy/2),nearPlane,farPlane);
 
     //View - Proj for bullets
     bullets->buboBullet.proj = proj;
@@ -389,10 +409,13 @@ void Project::updateUniformBuffer(uint32_t currentImage) {
     updateBulletsUniform(S, currentImage);
 
     updateParticlesUniforms(S, currentImage);
+
+    updatePlaneLightsUniform(currentImage);
 }
 
 void Project::pipelinesAndDescriptorSetsCleanup() {
     particles->pipelineAndDSCleanup();
+    planeLights->pipelineAndDSCleanup();
     tiles->pipelineAndDSCleanup();
     planes->pipelineAndDSCleanup();
     bullets->pipelineAndDSCleanup();
@@ -401,6 +424,7 @@ void Project::pipelinesAndDescriptorSetsCleanup() {
 void Project::localCleanup() {
     bullets->cleanup();
     particles->cleanup();
+    planeLights->cleanup();
     tiles->cleanup();
     planes->cleanup();
 }
@@ -547,6 +571,11 @@ void Project::gameLogic()
 
         boss->bossMovement(partita->player->getPosition(), deltaT);
     }
+
+    //update flickering time for the spheres
+    planeLights->planeLights.fo.flick.time+= deltaT;
+    gubo.pointLights[MAXBULLETS].time += deltaT;
+    gubo.pointLights[MAXBULLETS + 1].time += deltaT;
 
 }
 

@@ -4,6 +4,7 @@
 #include "Starter.hpp"
 #include "../../View/PlaneView.hpp"
 #include "../../Model/Include/Partita.h"
+#include <tuple>
 
 enum DIR
 {
@@ -105,8 +106,9 @@ void updatePlaneMatrix(glm::mat4& WorldMatrixPlane,const Position3D& pl_pos)
  aspect ratio given in <Ar>. The view matrix, uses the Look-in-Direction model, with
  vector <pos> specifying the position of the camera, and angles <Alpha>, <Beta> and <Rho>
  defining its direction. In particular, <Alpha> defines the direction (Yaw), <Beta> the
- elevation (Pitch), and <Rho> the roll.*/
-glm::mat4 updateCam(float Ar, Position3D pl_pos,glm::mat4 playerUbo){
+ elevation (Pitch), and <Rho> the roll.
+ Return the Proj-View matrix , the Proj matrix and the View matrix*/
+std::tuple<glm::mat4,glm::mat4,glm::mat4> updateCam(float Ar, Position3D pl_pos,glm::mat4 playerUbo){
 
     const float FOVy = glm::radians(105.0f);
     const float nearPlane = 0.1f;
@@ -115,35 +117,14 @@ glm::mat4 updateCam(float Ar, Position3D pl_pos,glm::mat4 playerUbo){
     const float camDistZ = -10.0f;
     const float camDistX = -10.0f;
 
-    bool model = false;
+    glm::vec3 target = pl_pos.origin;
+    glm::vec3 cameraPosition = playerUbo * glm::vec4(0.0f,camHeight,camDistZ,1.0f);
+    glm::vec3 up = glm::normalize(playerUbo * glm::vec4(0.0f,1.0f,0.0f,0.0f));
 
-    if(model) {
-        glm::vec3 target = pl_pos.origin;
-        glm::vec3 cameraPosition = glm::vec3(pl_pos.origin.x + camDistX, pl_pos.origin.y + camHeight,pl_pos.origin.z + camDistZ);
-        glm::vec3 up = glm::vec3(0.0f, 1.0f, 0.0f);
-
-
-        auto ortho = glm::ortho(-40.0f / 2, 40.0f, -30.0f / 2, 30.0f / 2, nearPlane, farPlane);
-        ortho[1][1] *= -1;
-
-        auto P = ortho;
-        P = P * glm::rotate(glm::mat4(1), glm::radians(-23.0f), glm::vec3(1.0f, 0.0f, 0.0f));
-
-        return P * glm::lookAt(cameraPosition, target, up);
-    }
-    else
-    {
-        glm::vec3 target = pl_pos.origin;
-        glm::vec3 cameraPosition = playerUbo * glm::vec4(0.0f,camHeight,camDistZ,1.0f);
-        glm::vec3 up = glm::normalize(playerUbo * glm::vec4(0.0f,1.0f,0.0f,0.0f));
-
-        return glm::scale(glm::mat4(1),glm::vec3(1,-1,1)) *
-               glm::frustum(-Ar*nearPlane*tan(FOVy/2),Ar*nearPlane*tan(FOVy/2),-nearPlane*tan(FOVy/2),nearPlane*tan(FOVy/2),nearPlane,farPlane) *
-               glm::lookAt(cameraPosition,target,up);
-    }
-
-
-
+    glm::mat4 Proj = glm::scale(glm::mat4(1),glm::vec3(1,-1,1)) *
+                     glm::frustum(-Ar*nearPlane*tan(FOVy/2),Ar*nearPlane*tan(FOVy/2),-nearPlane*tan(FOVy/2),nearPlane*tan(FOVy/2),nearPlane,farPlane);
+    glm::mat4 View = glm::lookAt(cameraPosition,target,up);
+    return {Proj*View,Proj,View};
 }
 
 bool sphereInFrustum(glm::vec4* m_planes, glm::vec3 point, float radius)

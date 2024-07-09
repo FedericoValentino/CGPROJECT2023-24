@@ -25,7 +25,7 @@ struct pointLight{
 };
 
 layout(binding = 2) uniform GlobalUniformBufferObject {
-        pointLight lights[MAXBULLETS];
+        pointLight lights[MAXBULLETS+2];
         vec4 ambientLight;
         directLight moon;
         int lightCounter;
