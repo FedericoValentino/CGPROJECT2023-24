@@ -158,9 +158,9 @@ void Partita::checkCollision(float deltaT) {
 
     static constexpr float RADIUS_COLLISION = 5.5f;
     //Check collision player with skyscrapers.
-    /*for(Tiles* skyscraper : skyscrapers)
+    for(Tiles* skyscraper : skyscrapers)
         if(skyscraper->checkCollision(player->getPosition().origin.x,player->getPosition().origin.z,RADIUS_COLLISION))
-            state=END;*/
+            state=END;
 
     //Check Collision of player with other enemies and bosses
     float radius = 4 * (MAPDIM);
