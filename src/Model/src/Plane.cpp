@@ -77,8 +77,10 @@ void Plane::moveTowardsPoint(Position3D point, float deltaT)
     if(!avoidBuilding)
         changeDirection(point, deltaT);
     else
+    {
         evasive(deltaT);
-
+        evasionTimer += deltaT;
+    }
     changePosition(position, deltaT);
 }
 
@@ -90,7 +92,7 @@ void Plane::moveTowardsPoint(Position3D point, float deltaT)
 void Plane::changePosition(Position3D inputPosition, float deltaT)
 {
     float x =  glm::sin(position.rotation.y) * translationSpeed * deltaT;
-    float y =  position.rotation.x * translationSpeed * deltaT;
+    float y =  glm::sin(position.rotation.x) * translationSpeed * deltaT;
     float z =  glm::cos(position.rotation.y) * translationSpeed * deltaT;
     glm::mat4 T = glm::translate(glm::mat4(1), glm::vec3(x, -y, z));
     position.origin= T * glm::vec4(position.origin,1.0f);
@@ -111,8 +113,8 @@ void Plane::roll(int direction, float deltaT) {
 
 void Plane::climb(int direction, float climbRate, float deltaT)
 {
-    if(position.rotation.x + rotationSpeed/climbRate * direction * deltaT <= M_PI/4 && position.rotation.x + rotationSpeed/climbRate * direction * deltaT >= -M_PI/4)
-        position.rotation.x -= rotationSpeed/climbRate * direction * deltaT; //pitch
+    if(position.rotation.x + (rotationSpeed/climbRate) * direction * deltaT <= M_PI/4 && position.rotation.x + (rotationSpeed/climbRate) * direction * deltaT >= -M_PI/4)
+        position.rotation.x -= (rotationSpeed/climbRate) * direction * deltaT; //pitch
     if (position.rotation.x < -M_PI/4)
     {
         position.rotation.x = -M_PI/4;
@@ -138,6 +140,13 @@ void Plane::evasive(float deltaT)
     if(position.origin.y > 12.0f )
         climb(-1, 2.0f, deltaT);
 
+    if(evasionTimer >= 2.0f)
+    {
+        avoidBuilding = false;
+        evasionTimer = 0.0f;
+    }
+
+
     printf("Height while avoiding %f\n", position.origin.y);
 }
 
@@ -161,8 +170,9 @@ void Plane::changeDirection(Position3D inputPosition, float deltaT)
 
     float dir_x = glm::sin(position.rotation.y);
     float dir_z = glm::cos(position.rotation.y);
+    float dir_y = glm::sin(position.rotation.x);
 
-    glm::vec3 direction = glm::normalize(glm::vec3(dir_x, 0.0f, dir_z));
+    glm::vec3 direction = glm::normalize(glm::vec3(dir_x, dir_y, dir_z));
     float distanceToIntersect;
 
     bool intersecting = false;
@@ -190,21 +200,15 @@ void Plane::changeDirection(Position3D inputPosition, float deltaT)
         position.rotation.y = fmod(position.rotation.y, 2.0f * M_PI);
     }
 
-    if(position.origin.y >= 9.0f)
+    float distanceFromPlayerHeight = position.origin.y - 8.40f;
+
+    if(distanceFromPlayerHeight > 3.0f && position.rotation.x > -M_PI/6)
         climb(-1, 1.0f, deltaT);
-    else if(position.origin.y > 8.40f && position.origin.y < 9.0f && position.rotation.x > 0)
-        climb(1, 10.0f, deltaT);
-    else if(position.origin.y <= 7.80f)
-        climb(-1, 1.0f, deltaT);
-    else if(position.origin.y < 8.40f && position.origin.y > 7.80f && position.rotation.x < 0)
-        climb(1, 10.0f, deltaT);
-    else if(position.origin.y == 8.40f)
-    {
-        if(position.rotation.x > 0.0f)
-            position.rotation.x += rotationSpeed * deltaT;
-        else if(position.rotation.x < 0.0f)
-            position.rotation.x -= rotationSpeed * deltaT;
-    }
+    else if(distanceFromPlayerHeight < -3.0f && position.rotation.x < M_PI/6)
+        climb(1, 1.0f, deltaT);
+    else if(abs(distanceFromPlayerHeight) <= 0.05f)
+        position.rotation.x = 0.0f;
+
     printf("Height not avoiding %f\n", position.origin.y);
 }
 

@@ -174,7 +174,7 @@ void Partita::checkCollision(float deltaT) {
     for(Plane* enemy : enemies)
         for(Tiles* skyscraper : skyscrapers)
         {
-            if(skyscraper->checkCollision(enemy->getPosition().origin.x, enemy->getPosition().origin.z, 11.0f))
+            if(skyscraper->checkCollision(enemy->getPosition().origin.x, enemy->getPosition().origin.z, 11.0f) &&enemy->getPosition().origin.y <= 10.0f)
                 enemy->setAvoidBuilding(true);
         }
 

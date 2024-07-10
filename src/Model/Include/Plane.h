@@ -29,6 +29,7 @@ protected:
     bool dead;
     bool avoidBuilding;
     float elapsedTime;
+    float evasionTimer;
 
 public:
 

@@ -13,6 +13,7 @@ Enemy::Enemy(Position3D position) {
     type = ENEMY;
     hp = 1;
     dead = false;
+    evasionTimer = 0.0;
 }
 
 
