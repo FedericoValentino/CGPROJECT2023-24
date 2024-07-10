@@ -21,10 +21,10 @@ private:
     float speed_;
     unsigned int id_;
     bool debug_;
-    PLANETYPE owner;
+    PLANETYPE_UTILITY owner;
 public:
     bool toClear;
-    Bullet(const Position3D& position3D, PLANETYPE type, bool debug=false);
+    Bullet(const Position3D& position3D, PLANETYPE_UTILITY type, bool debug=false);
 
     [[nodiscard]] const Position3D& getPosition3D() const ;
     [[nodiscard]] float getSize() const;
@@ -33,7 +33,7 @@ public:
     void move(const float deltaT); // move to direction_
     [[nodiscard]]bool isPositionInsideScreen(const float SCREEN_WIDTH,
                                 const float SCREEN_HEIGHT) const;
-    PLANETYPE getType();
+    PLANETYPE_UTILITY getType();
 };
 
 

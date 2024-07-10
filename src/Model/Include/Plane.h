@@ -24,9 +24,10 @@ protected:
     float rotationSpeed;
     float translationSpeed;
     std::set<Bullet*>* bullets;
-    PLANETYPE type;
+    PLANETYPE_UTILITY type;
     int hp;
     bool dead;
+    bool avoidBuilding;
     float elapsedTime;
 
 public:
@@ -47,17 +48,23 @@ public:
 
     virtual void changeDirection(Position3D inputPosition, float deltaT);
 
-    bool checkDistance3D(glm::vec3 center, glm::vec3 point, PLANETYPE plane);
+    bool checkDistance3D(glm::vec3 center, glm::vec3 point, PLANETYPE_UTILITY desiredRadius);
 
     void roll(int direction, float deltaT);
+
+    void climb(int direction, float climbRate, float deltaT);
+
+    void evasive(float deltaT);
 
     Position3D getPosition() const;
     float getSpeed();
     std::set<Bullet*> getBullets();
     int getHP();
     bool getDead();
-    PLANETYPE getType();
+    PLANETYPE_UTILITY getType();
     void timePasses(const float deltaT);
+
+    void setAvoidBuilding(bool avoiding);
 };
 
 

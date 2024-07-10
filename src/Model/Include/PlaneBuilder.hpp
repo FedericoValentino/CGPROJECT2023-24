@@ -12,12 +12,12 @@ class PlaneBuilder {
 public:
 
     /**
-     * Factory method that calls the right constructor based on the PLANETYPE of the plane we want to create
-     * @param type the PLANETYPE
+     * Factory method that calls the right constructor based on the PLANETYPE_UTILITY of the plane we want to create
+     * @param type the PLANETYPE_UTILITY
      * @param position the position to assign to some of the planes
      * @return the constructed plane
      */
-    static Plane* getPlane(PLANETYPE type, const Position3D& position){
+    static Plane* getPlane(PLANETYPE_UTILITY type, const Position3D& position){
 
         Plane* plane;
         switch(type){

@@ -119,6 +119,7 @@ void Project::localInit() {
     gubo.ambientLight = glm::vec4(1.0f, 1.0f, 1.0f, 0.02f);
     gubo.moon.direction = glm::vec4(glm::vec3(0.0f) - glm::vec3(40.0f), 1.0f);
     gubo.moon.color = glm::vec4(0.965f,0.945f,0.835f, 0.02f);
+    gubo.pointLightsAirplaneCounter = 0.0f;
 
 
     //TODO Change pointers
@@ -233,6 +234,7 @@ void Project::updateEnemyUniform(glm::mat4 S, int currentImage)
         info->ubo.model = glm::translate(info->ubo.model, pos.origin);
         info->ubo.model = glm::scale(info->ubo.model, glm::vec3(0.1f, 0.1f, 0.1f));
         info->ubo.model = glm::rotate(info->ubo.model, pos.rotation.y, glm::vec3(0, 1, 0));
+        info->ubo.model = glm::rotate(info->ubo.model, pos.rotation.x, glm::vec3(1, 0, 0));
         info->ubo.model = glm::rotate(info->ubo.model, pos.rotation.z, glm::vec3(0, 0, 1));
 
         info->ubo.worldViewProj = S * info->ubo.model;
@@ -477,7 +479,7 @@ void Project::gameLogic()
         p.pubo.time += deltaT;
 
     //CHECK COLLISION
-    partita->checkCollision();
+    partita->checkCollision(deltaT);
     if(partita->state == END)
     {
         glfwSetWindowShouldClose(window, GL_TRUE);
@@ -585,7 +587,7 @@ void Project::gameLogic()
 
     //update flickering time for the spheres
     planeLights->planeLights.fo.flick.time += deltaT;
-    for(int i = 0;i<gubo.pointLightsAirplaneCounter;++i)
+    for(int i = 0; i<gubo.pointLightsAirplaneCounter; ++i)
         gubo.pointLightsAirplane[i].time += deltaT;
 
     numberOfEnemies = std::count_if(planes->enemyInfo.begin(),planes->enemyInfo.end(),

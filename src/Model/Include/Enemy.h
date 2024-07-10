@@ -18,8 +18,8 @@ class Enemy : public Plane{
 
 
 
-    //void moveProjectile(unsigned int projectileId, float distance,
-                       // float windowWidth, float windowHeight);
+protected:
+
 
 public:
 

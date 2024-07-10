@@ -15,25 +15,6 @@ Enemy::Enemy(Position3D position) {
     dead = false;
 }
 
-/*void Enemy::changePosition(Position3D inputPosition, const float deltaT)
-{
-    float x =  glm::sin(glm::radians(position.orientation.y)) * speed * deltaT;
-    float y =  0.0f;
-    float z =  glm::cos(glm::radians(position.orientation.y)) * speed * deltaT;
-    glm::mat4 T = glm::translate(glm::mat4(1), glm::vec3(x, y, z));
-    position.origin= position.origin * T;
-}
-
-void Enemy::changeDirection(Position3D inputPosition, const float deltaT)
-{
-    glm::vec3 pointingDirection = glm::vec4(glm::sin(glm::radians(position.orientation.y)), 0.0f, glm::cos(glm::radians(position.orientation.y)), 1.0f);
-    glm::vec3 cross  = glm::cross(pointingDirection, glm::vec3(inputPosition.origin));
-    if(cross.y > 0)
-        position.orientation.y -= speed * deltaT;
-    else if (cross.y < 0)
-        position.orientation.y += speed * deltaT;
-    //TODO If cross==0
-}*/
 
 /**
  * Enemy will shoot towards Player if he is sufficiently close and if his direction vector intersect a sphere centered
@@ -55,5 +36,19 @@ Bullet* Enemy::shoot(Position3D inputPosition, const float deltaT)
         elapsedTime = 0;
     }
     return b;
-
 }
+
+
+/*void Plane::roll(int direction, float deltaT) {
+    if(position.rotation.z + rotationSpeed/2.0f *  deltaT <= M_PI/4 && position.rotation.z + rotationSpeed/2.0f *  deltaT >= -M_PI/4)
+        position.rotation.z += rotationSpeed/2.0f * direction * deltaT; // roll
+    if (position.rotation.z < -M_PI/4)
+    {
+        position.rotation.z = -M_PI/4;
+    }
+    else if (position.rotation.z > M_PI/4)
+    {
+        position.rotation.z = M_PI/4;
+    }
+}*/
+

@@ -7,10 +7,11 @@
 
 
 /**
- * Plane constructor handles only PLANETYPE agnostic attributes of planes
+ * Plane constructor handles only PLANETYPE_UTILITY agnostic attributes of planes
  */
 Plane::Plane() {
     this->bullets = new std::set<Bullet*>;
+    this->avoidBuilding = false;
 }
 
 /**
@@ -36,16 +37,16 @@ void Plane::clearBullet(Bullet* own)
 }
 
 /**
- * Checks whether a point lies within a sphere of a certain radius. The radius is decided based on the PLANETYPE
- * of the plane that calls the function
+ * Checks whether a point lies within a sphere of a certain radius. The radius is decided based on the PLANETYPE_UTILITY
+ * of the desiredRadius that calls the function
  * @param center the center of the sphere
  * @param point the point we want to check
- * @param plane the PLANETYPE of the caller
+ * @param desiredRadius the PLANETYPE_UTILITY of the caller
  * @return true if the point lies within the sphere (or on its surface)
  */
-bool Plane::checkDistance3D(glm::vec3 center, glm::vec3 point, PLANETYPE plane) {
+bool Plane::checkDistance3D(glm::vec3 center, glm::vec3 point, PLANETYPE_UTILITY desiredRadius) {
     float radius = 0.0f;
-    switch (plane) {
+    switch (desiredRadius) {
         case(ENEMY):
             radius = 20.0f;
             break;
@@ -55,6 +56,8 @@ bool Plane::checkDistance3D(glm::vec3 center, glm::vec3 point, PLANETYPE plane) 
         case PLAYER:
             radius = 2.0f;
             break;
+        case COLLISION_SKY:
+            radius = 10.0f;
         default:
             break;
     }
@@ -71,7 +74,11 @@ bool Plane::checkDistance3D(glm::vec3 center, glm::vec3 point, PLANETYPE plane) 
  */
 void Plane::moveTowardsPoint(Position3D point, float deltaT)
 {
-    changeDirection(point, deltaT);
+    if(!avoidBuilding)
+        changeDirection(point, deltaT);
+    else
+        evasive(deltaT);
+
     changePosition(position, deltaT);
 }
 
@@ -83,9 +90,9 @@ void Plane::moveTowardsPoint(Position3D point, float deltaT)
 void Plane::changePosition(Position3D inputPosition, float deltaT)
 {
     float x =  glm::sin(position.rotation.y) * translationSpeed * deltaT;
-    float y =  0.0f;
+    float y =  position.rotation.x * translationSpeed * deltaT;
     float z =  glm::cos(position.rotation.y) * translationSpeed * deltaT;
-    glm::mat4 T = glm::translate(glm::mat4(1), glm::vec3(x, y, z));
+    glm::mat4 T = glm::translate(glm::mat4(1), glm::vec3(x, -y, z));
     position.origin= T * glm::vec4(position.origin,1.0f);
 }
 
@@ -100,6 +107,38 @@ void Plane::roll(int direction, float deltaT) {
     {
         position.rotation.z = M_PI/4;
     }
+}
+
+void Plane::climb(int direction, float climbRate, float deltaT)
+{
+    if(position.rotation.x + rotationSpeed/climbRate * direction * deltaT <= M_PI/4 && position.rotation.x + rotationSpeed/climbRate * direction * deltaT >= -M_PI/4)
+        position.rotation.x -= rotationSpeed/climbRate * direction * deltaT; //pitch
+    if (position.rotation.x < -M_PI/4)
+    {
+        position.rotation.x = -M_PI/4;
+    }
+    else if (position.rotation.x > M_PI/4)
+    {
+        position.rotation.x = M_PI/4;
+    }
+}
+
+void Plane::evasive(float deltaT)
+{
+    //neuter roll
+    if(position.rotation.z < 0.0f)
+        position.rotation.z += rotationSpeed/2.0f * deltaT;
+    else if(position.rotation.z > 0.0f)
+        position.rotation.z -= rotationSpeed/2.0f * deltaT;
+
+    //pitch up or down
+    if(position.origin.y < 12.0f)
+        climb(1, 2.0f, deltaT);
+
+    if(position.origin.y > 12.0f )
+        climb(-1, 2.0f, deltaT);
+
+    printf("Height while avoiding %f\n", position.origin.y);
 }
 
 
@@ -150,6 +189,23 @@ void Plane::changeDirection(Position3D inputPosition, float deltaT)
 
         position.rotation.y = fmod(position.rotation.y, 2.0f * M_PI);
     }
+
+    if(position.origin.y >= 9.0f)
+        climb(-1, 1.0f, deltaT);
+    else if(position.origin.y > 8.40f && position.origin.y < 9.0f && position.rotation.x > 0)
+        climb(1, 10.0f, deltaT);
+    else if(position.origin.y <= 7.80f)
+        climb(-1, 1.0f, deltaT);
+    else if(position.origin.y < 8.40f && position.origin.y > 7.80f && position.rotation.x < 0)
+        climb(1, 10.0f, deltaT);
+    else if(position.origin.y == 8.40f)
+    {
+        if(position.rotation.x > 0.0f)
+            position.rotation.x += rotationSpeed * deltaT;
+        else if(position.rotation.x < 0.0f)
+            position.rotation.x -= rotationSpeed * deltaT;
+    }
+    printf("Height not avoiding %f\n", position.origin.y);
 }
 
 void Plane::timePasses(const float deltaT) {
@@ -174,7 +230,7 @@ int Plane::getHP() {
 }
 
 
-PLANETYPE Plane::getType() {
+PLANETYPE_UTILITY Plane::getType() {
     return type;
 }
 
@@ -185,6 +241,17 @@ float Plane::getTranslationSpeed() const {
 float Plane::getRotationSpeed() const {
     return rotationSpeed;
 }
+
+void Plane::setAvoidBuilding(bool avoiding)
+{
+    avoidBuilding = avoiding;
+}
+
+
+
+
+
+
 
 
 

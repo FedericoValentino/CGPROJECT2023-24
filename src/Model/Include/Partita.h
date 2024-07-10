@@ -37,6 +37,7 @@ class Partita {
     std::set<Plane*> enemies;
 
     Tiles* map[MAPDIM][MAPDIM];
+    std::set<Tiles*> skyscrapers;
 
     void generateWorld();
 
@@ -44,7 +45,7 @@ class Partita {
 
     void changeLevel();
 
-    void checkCollision();
+    void checkCollision(float d);
 
     void reset();
 

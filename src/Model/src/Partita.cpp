@@ -30,6 +30,7 @@ Partita::Partita() {
         }
     }
     srand(time(nullptr));
+    this->skyscrapers.clear();
 }
 
 /**
@@ -51,7 +52,7 @@ void Partita::generateWorld() {
         }
     }
 
-
+    //Creates the Map
     for(int x = 0; x < MAPDIM; x++)
     {
         for(int y = 0; y < MAPDIM; y++)
@@ -63,6 +64,7 @@ void Partita::generateWorld() {
 
                 if (map[x][y]->height == SKYSCRAPER)
                 {
+                    skyscrapers.insert(map[x][y]);
                     for (int i = x - SKYSCRAPER_RADIUS; i <= x + SKYSCRAPER_RADIUS; i++)
                     {
                         for (int j = y - SKYSCRAPER_RADIUS; j <= y + SKYSCRAPER_RADIUS; j++)
@@ -135,18 +137,20 @@ Plane* Partita::spawn() {
         bossSpawned = true;
         return plane;
     }
-    else if(killCounter < MAX_PLANE)
+    //TODO change later to < MAX_PLANE
+    else if(killCounter == 0.0f)
     {
         auto pos = randomPos();
         auto rot = glm::vec3(0.0f);
         auto plane = PlaneBuilder::getPlane(ENEMY, {pos, rot});
         enemies.insert(plane);
+        killCounter++;
         return plane;
     }
     return nullptr;
 }
 
-void Partita::checkCollision() {
+void Partita::checkCollision(float deltaT) {
 
     //RIEMPIO ALBERO O(N)
 
@@ -154,16 +158,25 @@ void Partita::checkCollision() {
 
     static constexpr float RADIUS_COLLISION = 5.5f;
     //Check collision player with skyscrapers.
-    for(int i = 0;i<MAPDIM;++i)
-        for(int j = 0;j<MAPDIM;++j)
-            if(map[i][j]->height == HEIGHT::SKYSCRAPER && map[i][j]->checkCollision(player->getPosition().origin.x,player->getPosition().origin.z,RADIUS_COLLISION))
-                state=END;
+    /*for(Tiles* skyscraper : skyscrapers)
+        if(skyscraper->checkCollision(player->getPosition().origin.x,player->getPosition().origin.z,RADIUS_COLLISION))
+            state=END;*/
 
     //Check Collision of player with other enemies and bosses
     float radius = 4 * (MAPDIM);
     for(Plane* enemy : enemies)
         if(player->checkDistance3D(enemy->getPosition().origin, player->getPosition().origin, PLAYER) && !enemy->getDead())
             state = END;
+
+
+    //Check collision of Enemy with Skyscraper
+    float distance;
+    for(Plane* enemy : enemies)
+        for(Tiles* skyscraper : skyscrapers)
+        {
+            if(skyscraper->checkCollision(enemy->getPosition().origin.x, enemy->getPosition().origin.z, 11.0f))
+                enemy->setAvoidBuilding(true);
+        }
 
 
     //check Collision of player with enemy projectiles

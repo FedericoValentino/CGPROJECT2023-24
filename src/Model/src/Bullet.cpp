@@ -14,7 +14,7 @@ unsigned int Bullet::count_ = 0;
  * @param type determines whether the entity generating the bullet is a Player, an Enemy or a Boss.
  * @param debug
  */
-Bullet::Bullet(const Position3D& position3D, PLANETYPE type, bool debug)
+Bullet::Bullet(const Position3D& position3D, PLANETYPE_UTILITY type, bool debug)
 {
     toClear = false;
     this->position3D_=position3D;
@@ -70,6 +70,6 @@ bool Bullet::isPositionInsideScreen(const float SCREEN_WIDTH,
             position3D_.origin.y >= 0 && position3D_.origin.y < SCREEN_HEIGHT);
 }
 
-PLANETYPE Bullet::getType() {
+PLANETYPE_UTILITY Bullet::getType() {
     return owner;
 }

@@ -7,10 +7,11 @@
 
 
 
-enum PLANETYPE{
+enum PLANETYPE_UTILITY{
     PLAYER,
     ENEMY,
-    BOSS
+    BOSS,
+    COLLISION_SKY
 };
 
 #endif //CGPRJ2023_24_PLANETYPE_H
