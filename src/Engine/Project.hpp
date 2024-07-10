@@ -501,7 +501,22 @@ void Project::gameLogic()
     // Erase the "toClear" elements from the vector
     bullets->bulletInfo.erase(it, bullets->bulletInfo.end());
 
-    //TODO DELETE PARTICLES
+
+    auto itParticles = std::remove_if(particles->particles.begin(), particles->particles.end(), [&](Particle p)
+    {
+        vkDeviceWaitIdle(device);
+        if(p.pubo.time>0.5f) {
+            p.DS.cleanup();
+            return true;
+        }
+        else
+        {
+            return false;
+        }
+    });
+
+    particles->particles.erase(itParticles, particles->particles.end());
+
 
 
     //MAKE ENEMIES SHOOT
