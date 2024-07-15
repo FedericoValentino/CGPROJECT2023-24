@@ -53,6 +53,7 @@ private:
     int numberOfEnemies = 0;
     glm::vec3 m = glm::vec3(0.0f);
     glm::vec3 r = glm::vec3(0.0f);
+    bool isFirstPerson = false;
 
     void localInit() final;
 
@@ -377,10 +378,8 @@ void Project::updateUniformBuffer(uint32_t currentImage) {
 
     //update Plane world matrix
     updatePlaneMatrix(WorldMatrixPlane,partita->player->getPosition());
-
     //Camera Update(View-Proj)
-    auto [S,proj,view] = updateCam(Ar, partita->player->getPosition(),WorldMatrixPlane);
-
+    auto [S,proj,view] = updateCam(Ar, partita->player->getPosition(),WorldMatrixPlane,isFirstPerson);
     WorldMatrixPlane = glm::rotate(WorldMatrixPlane, partita->player->getPosition().rotation.z, glm::vec3(0, 0, 1));
     //light updates
     auto rotate = glm::rotate(glm::mat4(1.0f), deltaT, glm::vec3(0.0f, 1.0f, 0.0f));
@@ -464,7 +463,7 @@ void Project::gameLogic()
 
 
     bool shoot = false;
-    getSixAxis(deltaT, time, m, r, shoot);
+    getSixAxis(deltaT, time, m, r, shoot,isFirstPerson);
 
     //INCREMENT INTERNAL CLOCK
     for(PlaneInfo* info : planes->enemyInfo)

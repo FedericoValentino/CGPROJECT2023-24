@@ -1880,10 +1880,12 @@ std::cout << "Starting createInstance()\n"  << std::flush;
 		}
 	}
 
-    void getSixAxis(float &deltaT, float &time, glm::vec3 &m, glm::vec3 &r, bool& shoot)
+    void getSixAxis(float &deltaT, float &time, glm::vec3 &m, glm::vec3 &r, bool& shoot,bool& isFirstPerson)
     {
         static auto startTime = std::chrono::high_resolution_clock::now();
         static float lastTime = 0.0f;
+        static float lastCTime = 0.0f; // Time of last press for 'C' key
+        constexpr static float minElapsedTimeBeforeC = 0.1f; // min time elapsed before checking whether C was pressed
 
         auto currentTime = std::chrono::high_resolution_clock::now();
         time = std::chrono::duration<float, std::chrono::seconds::period>
@@ -1938,6 +1940,13 @@ std::cout << "Starting createInstance()\n"  << std::flush;
         }
         if(glfwGetKey(window, GLFW_KEY_LEFT_CONTROL)) {
             m.y = -1.0f;
+        }
+        // Controllo per 'C' key con intervallo di 1 secondo
+        if (glfwGetKey(window, GLFW_KEY_C)) {
+            if (time - lastCTime >= minElapsedTimeBeforeC) {
+                isFirstPerson = !isFirstPerson;
+                lastCTime = time;
+            }
         }
 
         if(glfwGetKey(window, GLFW_KEY_SPACE)) {

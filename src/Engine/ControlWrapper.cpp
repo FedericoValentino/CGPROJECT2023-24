@@ -108,19 +108,47 @@ void updatePlaneMatrix(glm::mat4& WorldMatrixPlane,const Position3D& pl_pos)
  defining its direction. In particular, <Alpha> defines the direction (Yaw), <Beta> the
  elevation (Pitch), and <Rho> the roll.
  Return the Proj-View matrix , the Proj matrix and the View matrix*/
-std::tuple<glm::mat4,glm::mat4,glm::mat4> updateCam(float Ar, Position3D pl_pos,glm::mat4 playerUbo){
+std::tuple<glm::mat4,glm::mat4,glm::mat4> updateCam(float Ar, Position3D pl_pos,glm::mat4 playerUbo,bool isFirstPerson){
 
     const float FOVy = glm::radians(105.0f);
     const float nearPlane = 0.1f;
     const float farPlane = 150.f;
     const float camHeight = 20.0f;
     const float camDistZ = -10.0f;
-    const float camDistX = -10.0f;
 
+    //First Person
+    if(isFirstPerson)
+    {
+        // Threshold value to determine when to force rotation component to zero
+        const float rotationThreshold = 0.06f;
+
+        // Ensure pl_pos.rotation is within acceptable range to avoid numerical instability
+        if (std::abs(pl_pos.rotation.x) < rotationThreshold) {
+            pl_pos.rotation.x = 0.0f;
+        }
+        if (std::abs(pl_pos.rotation.y) < rotationThreshold) {
+            pl_pos.rotation.y = 0.0f;
+        }
+        if (std::abs(pl_pos.rotation.z) < rotationThreshold) {
+            pl_pos.rotation.z = 0.0f;
+        }
+
+        glm::mat4 Proj = glm::scale(glm::mat4(1),glm::vec3(1,-1,1)) *
+                         glm::frustum(-Ar*nearPlane*tan(FOVy/2),Ar*nearPlane*tan(FOVy/2),-nearPlane*tan(FOVy/2),nearPlane*tan(FOVy/2),nearPlane,farPlane);
+        glm::mat4 View = glm::translate(glm::mat4(1.0f),glm::vec3(0.0f,0.0f,1.6f)) *
+                         glm::rotate<float>(glm::mat4(1.0f),M_PI,glm::vec3(0.0f,1.0f,0.0f)) *
+                         glm::rotate(glm::mat4(1.0f),-pl_pos.rotation.z,glm::vec3(0.0f,0.0f,1.0f)) *
+                         glm::rotate(glm::mat4(1.0f),-pl_pos.rotation.x,glm::vec3(1.0f,0.0f,0.0f)) *
+                         glm::rotate(glm::mat4(1.0f),-pl_pos.rotation.y,glm::vec3(0.0f,1.0f,0.0f)) *
+                         glm::translate(glm::mat4(1.0f),-pl_pos.origin);
+
+        return {Proj*View,Proj,View};
+    }
+
+    // Third Person
     glm::vec3 target = pl_pos.origin;
     glm::vec3 cameraPosition = playerUbo * glm::vec4(0.0f,camHeight,camDistZ,1.0f);
     glm::vec3 up = glm::normalize(playerUbo * glm::vec4(0.0f,1.0f,0.0f,0.0f));
-
     glm::mat4 Proj = glm::scale(glm::mat4(1),glm::vec3(1,-1,1)) *
                      glm::frustum(-Ar*nearPlane*tan(FOVy/2),Ar*nearPlane*tan(FOVy/2),-nearPlane*tan(FOVy/2),nearPlane*tan(FOVy/2),nearPlane,farPlane);
     glm::mat4 View = glm::lookAt(cameraPosition,target,up);
