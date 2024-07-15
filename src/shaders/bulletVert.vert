@@ -1,6 +1,6 @@
 #version 450
 
-#define MAXSIZE 400
+#include "utility.glsl"
 
 layout(binding = 0) buffer UniformBufferObject {
     mat4 mvpMat[MAXSIZE];

@@ -1,6 +1,6 @@
 #version 450
 #extension GL_ARB_separate_shader_objects : enable
-#define MAXBULLETS 400
+#include "utility.glsl"
 
 layout(location = 0) in vec3 fragPos;
 layout(location = 1) in vec3 fragNorm;

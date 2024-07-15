@@ -147,7 +147,7 @@ void Plane::evasive(float deltaT)
     }
 
 
-    printf("Height while avoiding %f\n", position.origin.y);
+    //printf("Height while avoiding %f\n", position.origin.y);
 }
 
 
@@ -209,7 +209,7 @@ void Plane::changeDirection(Position3D inputPosition, float deltaT)
     else if(abs(distanceFromPlayerHeight) <= 0.05f)
         position.rotation.x = 0.0f;
 
-    printf("Height not avoiding %f\n", position.origin.y);
+    //printf("Height not avoiding %f\n", position.origin.y);
 }
 
 void Plane::timePasses(const float deltaT) {

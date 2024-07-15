@@ -27,10 +27,12 @@ struct pointLightObject{
 struct GlobalUniformBufferObject {
     pointLightObject pointLights[MAXBULLETS];
     pointLightObject pointLightsAirplane[10 * Partita::MAX_PLANE]; // Enemy lights;
+    pointLightObject explosions[MAXBULLETS];
     glm::vec4 ambientLight;
     directLightObject moon;
-    alignas(4) int lightCounter;
+    alignas(4) int lightCounter = 0;
     alignas(4) int pointLightsAirplaneCounter = 0; // number of enemies
+    alignas(4) int explosionCounter = 0;
 };
 
 class Project : public BaseProject
@@ -477,6 +479,11 @@ void Project::gameLogic()
     for(auto& p : particles->particles)
         p.pubo.time += deltaT;
 
+    for(int i = 0; i < gubo.explosionCounter; i++)
+    {
+        gubo.explosions[i].time += deltaT;
+    }
+
     //CHECK COLLISION
     partita->checkCollision(deltaT);
     if(partita->state == END)
@@ -492,6 +499,13 @@ void Project::gameLogic()
         if (info->pBullet->toClear) {
             info->ubo.model = glm::scale(info->ubo.model, glm::vec3(10.0f));
             particles->newParticle(info->ubo.model);
+            gubo.explosions[gubo.explosionCounter] = pointLightObject{glm::vec4(1.0, 0.0, 0.0, 3.0),
+                                                                      glm::vec4(info->pBullet->getPosition3D().origin, 1.0f),
+                                                                      0.0f,
+                                                                      3.0f};
+            printf("New Light\n");
+            gubo.explosionCounter++;
+
             return true;
         }
         return false;
@@ -501,6 +515,7 @@ void Project::gameLogic()
     bullets->bulletInfo.erase(it, bullets->bulletInfo.end());
 
 
+    //Erasing Particles and DS cleanup
     auto itParticles = std::remove_if(particles->particles.begin(), particles->particles.end(), [&](Particle p)
     {
         vkDeviceWaitIdle(device);
@@ -516,6 +531,18 @@ void Project::gameLogic()
 
     particles->particles.erase(itParticles, particles->particles.end());
 
+    //Overwriting explosions
+    for(int i = 0; i < gubo.explosionCounter; i++)
+    {
+        if(gubo.explosions[i].time>0.6f)
+        {
+            for(int j = i; j < gubo.explosionCounter; j++)
+            {
+                gubo.explosions[j] = gubo.explosions[j+1];
+            }
+            gubo.explosionCounter--;
+        }
+    }
 
 
     //MAKE ENEMIES SHOOT

@@ -1,10 +1,12 @@
 #version 450
 #extension GL_ARB_separate_shader_objects : enable
 
+#include "utility.glsl"
+
 layout(location = 0) in vec3 inPos;    // vertex position
 layout(location = 1) in vec3 inNorm; // vertex normal
 
-#define MAX_PLANE 50
+
 
 layout(binding = 0) uniform PlaneLightUniformBufferObject
 {

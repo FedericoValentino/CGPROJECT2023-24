@@ -197,6 +197,11 @@ void Partita::checkCollision(float deltaT) {
                 {
                     enemy->clearBullet(bullet);
                 }
+                for(Tiles* skyscraper : skyscrapers)
+                {
+                    if(skyscraper->checkCollision(bullet->getPosition3D().origin.x, bullet->getPosition3D().origin.z,RADIUS_COLLISION))
+                        enemy->clearBullet(bullet);
+                }
             }
         }
     }
@@ -206,9 +211,10 @@ void Partita::checkCollision(float deltaT) {
     std::vector<Plane*> toDelete;
     for (Bullet *p : player->getBullets())
     {
+        float dist = glm::distance(glm::vec3(0.0f, 0.0f, 0.0f), p->getPosition3D().origin);
         for(Plane* enemy: enemies)
         {
-            float dist = glm::distance(glm::vec3(0.0f, 0.0f, 0.0f), p->getPosition3D().origin);
+
             if(enemy->checkDistance3D( enemy->getPosition().origin, p->getPosition3D().origin, PLAYER) && !enemy->getDead())
             {
                 enemy->planeHit(*p);
@@ -218,10 +224,15 @@ void Partita::checkCollision(float deltaT) {
                     killCounter++;
                 }
             }
-            else if(dist > radius)
-            {
+        }
+        if(dist > radius)
+        {
+            player->clearBullet(p);
+        }
+        for(Tiles* skyscraper : skyscrapers)
+        {
+            if(skyscraper->checkCollision(p->getPosition3D().origin.x, p->getPosition3D().origin.z,RADIUS_COLLISION))
                 player->clearBullet(p);
-            }
         }
     }
     for(Plane* enemy : toDelete)
