@@ -10,16 +10,15 @@
 class Boss: public Plane{
 
 public:
-    Boss(Position3D position);
+    Boss(const Position3D& position);
 
-    void bossMovement(Position3D playerPosition, float deltaT);
+    void bossMovement(const Position3D& playerPosition, float deltaT);
 
-    void circularMovement(Position3D center, float deltaT);
+    void circularMovement(const Position3D& center, float deltaT);
 
-    Bullet* shoot(Position3D inputPosition, float deltaT) override;
+    std::shared_ptr<Bullet> shoot(const Position3D& inputPosition, float deltaT) override;
 
-    void changeDirection(Position3D playerPosition, float deltaT) override;
-
+    void changeDirection(const Position3D& playerPosition, float deltaT) override;
 
 };
 

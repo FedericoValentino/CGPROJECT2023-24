@@ -10,7 +10,7 @@
  * Plane constructor handles only PLANETYPE_UTILITY agnostic attributes of planes
  */
 Plane::Plane() {
-    this->bullets = new std::set<Bullet*>;
+    this->bullets =  std::make_shared<std::set<std::shared_ptr<Bullet>>>();
     this->avoidBuilding = false;
 }
 
@@ -18,7 +18,7 @@ Plane::Plane() {
  * Checks if a bullet has hit a plane, and decreases the plane HP by the bullet size
  * @param bullet the considered bullet
  */
-void Plane::planeHit(Bullet bullet)
+void Plane::planeHit(const Bullet& bullet)
 {
     if (hp>=1)
         hp -= bullet.getSize();
@@ -30,7 +30,7 @@ void Plane::planeHit(Bullet bullet)
  * Empties the bullet set of a plane from a bullet that needs to be despawned
  * @param own the bullet to despawn
  */
-void Plane::clearBullet(Bullet* own)
+void Plane::clearBullet(std::shared_ptr<Bullet> own)
 {
     own->toClear = true;
     bullets->erase(own);
@@ -44,7 +44,7 @@ void Plane::clearBullet(Bullet* own)
  * @param desiredRadius the PLANETYPE_UTILITY of the caller
  * @return true if the point lies within the sphere (or on its surface)
  */
-bool Plane::checkDistance3D(glm::vec3 center, glm::vec3 point, PLANETYPE_UTILITY desiredRadius) {
+bool Plane::checkDistance3D(const glm::vec3& center,const glm::vec3& point, PLANETYPE_UTILITY desiredRadius) {
     float radius = 0.0f;
     switch (desiredRadius) {
         case(ENEMY):
@@ -72,7 +72,7 @@ bool Plane::checkDistance3D(glm::vec3 center, glm::vec3 point, PLANETYPE_UTILITY
  * @param point the point we want to move towards
  * @param deltaT time
  */
-void Plane::moveTowardsPoint(Position3D point, float deltaT)
+void Plane::moveTowardsPoint(const Position3D& point, float deltaT)
 {
     if(!avoidBuilding)
         changeDirection(point, deltaT);
@@ -89,7 +89,7 @@ void Plane::moveTowardsPoint(Position3D point, float deltaT)
  * @param inputPosition --
  * @param deltaT time
  */
-void Plane::changePosition(Position3D inputPosition, float deltaT)
+void Plane::changePosition(const Position3D& inputPosition, float deltaT)
 {
     float x =  glm::sin(position.rotation.y) * translationSpeed * deltaT;
     float y =  glm::sin(position.rotation.x) * translationSpeed * deltaT;
@@ -160,7 +160,7 @@ void Plane::evasive(float deltaT)
  * @param inputPosition the position of the point we want to reach
  * @param deltaT time
  */
-void Plane::changeDirection(Position3D inputPosition, float deltaT)
+void Plane::changeDirection(const Position3D& inputPosition, float deltaT)
 {
     float target_x = inputPosition.origin.x;
     float target_z = inputPosition.origin.z;
@@ -221,15 +221,15 @@ Position3D Plane::getPosition() const{
     return position;
 }
 
-std::set<Bullet*> Plane::getBullets() {
+std::set<std::shared_ptr<Bullet>> Plane::getBullets() {
     return *bullets;
 }
 
-bool Plane::getDead() {
+bool Plane::getDead() const{
     return dead;
 }
 
-int Plane::getHP() {
+int Plane::getHP() const{
     return hp;
 }
 

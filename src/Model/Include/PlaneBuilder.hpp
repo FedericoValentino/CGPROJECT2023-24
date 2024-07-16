@@ -17,29 +17,17 @@ public:
      * @param position the position to assign to some of the planes
      * @return the constructed plane
      */
-    static Plane* getPlane(PLANETYPE_UTILITY type, const Position3D& position){
+    static std::shared_ptr<Plane> build(PLANETYPE_UTILITY type, const Position3D& position){
 
-        Plane* plane;
-        switch(type){
-
+        switch(type) {
             case PLAYER:
-                plane = new Player();
-
-                break;
+                return std::make_shared<Player>();
             case ENEMY:
-                plane = new Enemy(position);
-
-                break;
+                return std::make_shared<Enemy>(position);
             case BOSS:
-                plane = new Boss(position);
-
-                break;
+                return std::make_shared<Boss>(position);
             default:
-                break;
+                return nullptr;
         }
-
-        return plane;
     }
-
-
 };

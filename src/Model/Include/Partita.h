@@ -7,13 +7,11 @@
 #include "Enemy.h"
 #include "Tiles.h"
 #include "PlaneBuilder.hpp"
+#include "Constants.h"
 
-
-#define MAPDIM 25
 
 enum GAMESTATE{
     GAMING,
-    PAUSE,
     END
 };
 
@@ -24,24 +22,23 @@ enum STAGE{
 };
 
 class Partita {
-
+    using mapStructure = std::array<std::array<std::shared_ptr<Tiles>,MAPDIM>,MAPDIM>;
     friend class Project;
-
-    int state;
     int stage;
+    int state;
     int killCounter;
     bool bossSpawned = false;
     const int spawnRate = 5;
 
-    Player* player;
-    std::set<Plane*> enemies;
+    std::shared_ptr<Player> player;
+    std::set<std::shared_ptr<Plane>> enemies;
 
-    Tiles* map[MAPDIM][MAPDIM];
-    std::set<Tiles*> skyscrapers;
+    mapStructure map;
+    std::set<std::shared_ptr<Tiles>> skyscrapers;
 
     void generateWorld();
 
-    Plane* spawn();
+    std::shared_ptr<Plane> spawn();
 
     void changeLevel();
 
@@ -59,9 +56,9 @@ public:
 
     Partita();
 
-    [[nodiscard]] const Tiles* getMap(int x, int y) const;
+    [[nodiscard]] std::shared_ptr<const Tiles> getMap(int x, int y) const;
 
-     Player *const getPlayer();
+    std::shared_ptr<const Player> getPlayer() const;
 };
 
 

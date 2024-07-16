@@ -23,7 +23,7 @@ public:
 protected:
     float rotationSpeed;
     float translationSpeed;
-    std::set<Bullet*>* bullets;
+    std::shared_ptr<std::set<std::shared_ptr<Bullet>>> bullets;
     PLANETYPE_UTILITY type;
     int hp;
     bool dead;
@@ -37,19 +37,19 @@ public:
 
     Plane();
 
-    void planeHit(Bullet bullet);
+    void planeHit(const Bullet& bullet);
 
-    void clearBullet(Bullet* own);
+    void clearBullet(std::shared_ptr<Bullet> own);
 
-    virtual Bullet* shoot(Position3D inputPosition, float deltaT) = 0;
+    virtual std::shared_ptr<Bullet> shoot(const Position3D& inputPosition, float deltaT) = 0;
 
-    void moveTowardsPoint(Position3D point, float deltaT);
+    void moveTowardsPoint(const Position3D& point, float deltaT);
 
-    void changePosition(Position3D inputPosition, float deltaT);
+    void changePosition(const Position3D& inputPosition, float deltaT);
 
-    virtual void changeDirection(Position3D inputPosition, float deltaT);
+    virtual void changeDirection(const Position3D& inputPosition, float deltaT);
 
-    bool checkDistance3D(glm::vec3 center, glm::vec3 point, PLANETYPE_UTILITY desiredRadius);
+    bool checkDistance3D(const glm::vec3& center,const glm::vec3& point, PLANETYPE_UTILITY desiredRadius);
 
     void roll(int direction, float deltaT);
 
@@ -59,9 +59,9 @@ public:
 
     Position3D getPosition() const;
     float getSpeed();
-    std::set<Bullet*> getBullets();
-    int getHP();
-    bool getDead();
+    std::set<std::shared_ptr<Bullet>> getBullets();
+    int getHP() const;
+    bool getDead() const;
     PLANETYPE_UTILITY getType();
     void timePasses(const float deltaT);
 

@@ -29,9 +29,7 @@ public:
 
     BaseProject* app;
 
-
-
-    void newParticle(glm::mat4 model)
+    void newParticle(const glm::mat4& model)
     {
 
         Particle particle;
@@ -50,7 +48,6 @@ public:
         particle.DS.init(app, &this->DSL, {
                 {0, UNIFORM, sizeof(particleUniformBufferObject), nullptr}
         });
-
         particles.push_back(particle);
     }
 

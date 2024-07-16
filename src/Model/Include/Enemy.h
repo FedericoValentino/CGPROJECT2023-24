@@ -16,16 +16,13 @@
 
 class Enemy : public Plane{
 
-
-
 protected:
-
 
 public:
 
-    Enemy(Position3D position);
+    Enemy(const Position3D& position);
 
-    Bullet* shoot(Position3D inputPosition, float deltaT) override;
+    std::shared_ptr<Bullet> shoot(const Position3D& inputPosition, float deltaT) override;
 
 };
 #endif //CGPROJECT2023_24_ENEMY_H

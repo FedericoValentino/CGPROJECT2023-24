@@ -6,7 +6,7 @@
 
 struct PlaneInfo
 {
-    Plane* pEnemy = nullptr;
+    std::shared_ptr<Plane> pEnemy = nullptr;
     bool toDraw;
     DescriptorSet DS;
     UniformBufferObject ubo;
@@ -23,26 +23,26 @@ public:
     Model Boss;
     Texture T;
 
-    std::set<PlaneInfo*> enemyInfo;
-    PlaneInfo* bossInfo;
+    std::set<std::shared_ptr<PlaneInfo>> enemyInfo;
+    std::shared_ptr<PlaneInfo> bossInfo;
     bool bossSpawned;
-    PlaneInfo* playerInfo;
+    std::shared_ptr<PlaneInfo> playerInfo;
 
-    std::vector<DescriptorSet*> toClean;
-
+    //deleted toClean
     BaseProject* app;
 
 
-    void newPlayer(Player* pPlayer)
+    void newPlayer(const std::shared_ptr<Player>& pPlayer)
     {
-        playerInfo = new PlaneInfo();
+        playerInfo = std::make_shared<PlaneInfo>();
         playerInfo->pEnemy = pPlayer;
         playerInfo->ubo.model = glm::translate(glm::mat4(1.0f), glm::vec3(0.0f, 8.40f, 0.0f));
     }
 
-    void newEnemy(Plane* enemy, int ubosize, int gubosize)
+    void newEnemy(std::shared_ptr<Plane> enemy, int ubosize, int gubosize)
     {
-        PlaneInfo* newEnemyInfo = new PlaneInfo();
+
+        std::shared_ptr<PlaneInfo> newEnemyInfo = std::make_shared<PlaneInfo>();
         newEnemyInfo->pEnemy = enemy;
         newEnemyInfo->ubo.model = glm::translate(glm::mat4(1.0f), enemy->getPosition().origin);
         newEnemyInfo->DS.init(app, &DSL, {
@@ -54,10 +54,10 @@ public:
 
     }
 
-    void newBoss(Plane* enemy, int ubosize, int gubosize)
+    void newBoss(std::shared_ptr<Plane> enemy, int ubosize, int gubosize)
     {
         bossSpawned = true;
-        bossInfo = new PlaneInfo();
+        bossInfo = std::make_shared<PlaneInfo>();
         bossInfo->pEnemy = enemy;
         bossInfo->ubo.model = glm::translate(glm::mat4(1.0f), enemy->getPosition().origin);
         bossInfo->DS.init(app, &DSL, {
@@ -107,7 +107,7 @@ public:
         });
         if(!enemyInfo.empty())
         {
-            for(PlaneInfo* info : enemyInfo)
+            for(auto info : enemyInfo)
             {
                 info->DS.init(bp, &this->DSL, {
                         {0, UNIFORM, ubosize, nullptr},
@@ -131,7 +131,7 @@ public:
         if(!enemyInfo.empty())
         {
             this->baseEnemy.bind(commandBuffer);
-            for(PlaneInfo* planeInfo : enemyInfo)
+            for(auto planeInfo : enemyInfo)
             {
                 if(planeInfo->toDraw)
                 {
@@ -173,7 +173,7 @@ public:
 
     void pipelineAndDSCleanup(){
         this->P.cleanup();
-        for(PlaneInfo* planeInfo : enemyInfo)
+        for(auto planeInfo : enemyInfo)
             planeInfo->DS.cleanup();
         playerInfo->DS.cleanup();
         if(bossSpawned)

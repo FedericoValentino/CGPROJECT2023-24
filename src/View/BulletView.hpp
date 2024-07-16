@@ -4,8 +4,6 @@
 #include "../Engine/Starter.hpp"
 #include "../Model/Include/Partita.h"
 
-#define MAXBULLETS 400
-
 struct BulletUniformBufferObject {
     alignas(16) glm::mat4 worldViewProj[MAXBULLETS];
     alignas(16) glm::mat4 proj;
@@ -27,7 +25,7 @@ struct FlickeringObject{
 };
 
 struct BulletInfo{
-    Bullet* pBullet;
+    std::shared_ptr<Bullet> pBullet;
     UniformBufferObject ubo;
     glm::vec4 color;
     float time;
@@ -43,7 +41,7 @@ public:
 
     Texture bulletTexture;
 
-    std::vector<BulletInfo*> bulletInfo;
+    std::vector<std::shared_ptr<BulletInfo>> bulletInfo;
 
     BaseProject* app;
 
@@ -52,12 +50,12 @@ public:
 
     FlickeringObject fo;
 
-    void newBullet(Bullet* bullet)
+    void newBullet(const std::shared_ptr<Bullet>& bullet)
     {
-        BulletInfo* newInfo = new BulletInfo();
+        std::shared_ptr<BulletInfo> newInfo = std::make_shared<BulletInfo>();
 
         newInfo->pBullet = bullet;
-        newInfo->ubo.model = glm::mat4(1);
+        newInfo->ubo.model = glm::mat4(1.0f);
         newInfo->ubo.normal = glm::inverse(glm::transpose(newInfo->ubo.model));
 
         switch (bullet->getType())
@@ -76,7 +74,6 @@ public:
         }
         newInfo->time = 0;
         bulletInfo.push_back(newInfo);
-
     }
 
     void init(BaseProject* bp)

@@ -18,7 +18,7 @@ struct values{
 
 Partita::Partita() {
     this->stage = BIPLANI;
-    this->player = new Player();
+    this->player = std::make_shared<Player>();
     this->enemies.clear();
     this->killCounter = 0;
     state = GAMING;
@@ -26,7 +26,7 @@ Partita::Partita() {
     {
         for(int j = 0; j < MAPDIM; j++)
         {
-            map[i][j] = new Tiles(i,j);
+            map[i][j] = std::make_shared<Tiles>(i,j);
         }
     }
     srand(time(nullptr));
@@ -127,12 +127,12 @@ glm::vec3 randomPos()
     }
 }
 
-Plane* Partita::spawn() {
+std::shared_ptr<Plane> Partita::spawn() {
     if(!bossSpawned && killCounter >= MAX_PLANE)
     {
         auto pos = randomPos();
         auto rot = glm::vec3(0.0f);
-        auto plane = PlaneBuilder::getPlane(BOSS, {pos, rot});
+        auto plane = PlaneBuilder::build(BOSS, {pos, rot});
         enemies.insert(plane);
         bossSpawned = true;
         return plane;
@@ -142,7 +142,7 @@ Plane* Partita::spawn() {
     {
         auto pos = randomPos();
         auto rot = glm::vec3(0.0f);
-        auto plane = PlaneBuilder::getPlane(ENEMY, {pos, rot});
+        auto plane = PlaneBuilder::build(ENEMY, {pos, rot});
         enemies.insert(plane);
         killCounter++;
         return plane;
@@ -158,21 +158,21 @@ void Partita::checkCollision(float deltaT) {
 
     static constexpr float RADIUS_COLLISION = 5.5f;
     //Check collision player with skyscrapers.
-    for(Tiles* skyscraper : skyscrapers)
+    for(auto skyscraper : skyscrapers)
         if(skyscraper->checkCollision(player->getPosition().origin.x,player->getPosition().origin.z,RADIUS_COLLISION))
             state=END;
 
     //Check Collision of player with other enemies and bosses
     float radius = 4 * (MAPDIM);
-    for(Plane* enemy : enemies)
+    for(auto enemy : enemies)
         if(player->checkDistance3D(enemy->getPosition().origin, player->getPosition().origin, PLAYER) && !enemy->getDead())
             state = END;
 
 
     //Check collision of Enemy with Skyscraper
     float distance;
-    for(Plane* enemy : enemies)
-        for(Tiles* skyscraper : skyscrapers)
+    for(auto enemy : enemies)
+        for(auto skyscraper : skyscrapers)
         {
             if(skyscraper->checkCollision(enemy->getPosition().origin.x, enemy->getPosition().origin.z, 11.0f) &&enemy->getPosition().origin.y <= 10.0f)
                 enemy->setAvoidBuilding(true);
@@ -180,11 +180,11 @@ void Partita::checkCollision(float deltaT) {
 
 
     //check Collision of player with enemy projectiles
-    for(Plane* enemy : enemies)
+    for(auto enemy : enemies)
     {
         if(!enemy->getDead())
         {
-            for (Bullet *bullet: enemy->getBullets()) {
+            for (auto bullet: enemy->getBullets()) {
                 float dist = glm::distance(glm::vec3(0.0f, 0.0f, 0.0f), bullet->getPosition3D().origin);
                 if (player->checkDistance3D(player->getPosition().origin, bullet->getPosition3D().origin, PLAYER)) {
                     player->planeHit(*bullet);
@@ -197,7 +197,7 @@ void Partita::checkCollision(float deltaT) {
                 {
                     enemy->clearBullet(bullet);
                 }
-                for(Tiles* skyscraper : skyscrapers)
+                for(auto skyscraper : skyscrapers)
                 {
                     if(skyscraper->checkCollision(bullet->getPosition3D().origin.x, bullet->getPosition3D().origin.z,RADIUS_COLLISION))
                         enemy->clearBullet(bullet);
@@ -208,11 +208,11 @@ void Partita::checkCollision(float deltaT) {
 
 
     //check collision of player projectiles with enemies
-    std::vector<Plane*> toDelete;
-    for (Bullet *p : player->getBullets())
+    std::vector<std::shared_ptr<Plane>> toDelete;
+    for (auto p : player->getBullets())
     {
         float dist = glm::distance(glm::vec3(0.0f, 0.0f, 0.0f), p->getPosition3D().origin);
-        for(Plane* enemy: enemies)
+        for(auto enemy: enemies)
         {
 
             if(enemy->checkDistance3D( enemy->getPosition().origin, p->getPosition3D().origin, PLAYER) && !enemy->getDead())
@@ -229,20 +229,20 @@ void Partita::checkCollision(float deltaT) {
         {
             player->clearBullet(p);
         }
-        for(Tiles* skyscraper : skyscrapers)
+        for(auto skyscraper : skyscrapers)
         {
             if(skyscraper->checkCollision(p->getPosition3D().origin.x, p->getPosition3D().origin.z,RADIUS_COLLISION))
                 player->clearBullet(p);
         }
     }
-    for(Plane* enemy : toDelete)
+    for(auto enemy : toDelete)
         enemies.erase(enemy);
 }
 
-Player *const Partita::getPlayer(){
+std::shared_ptr<const Player> Partita::getPlayer() const{
     return player;
 }
 
-const Tiles* Partita::getMap(int x, int y) const {
+std::shared_ptr<const Tiles> Partita::getMap(int x, int y) const {
     return map[x][y];
 }

@@ -20,7 +20,9 @@ add_executable(Project src/main.cpp
         src/Model/src/Boss.cpp
         src/Model/Include/Plane.h
         src/Model/src/Plane.cpp
-        src/Model/Include/PlaneType.h)
+        src/Model/Include/PlaneType.h
+        src/Model/src/Constants.cpp
+        src/Model/Include/Constants.h)
 target_link_libraries(Project glfw)
 target_link_libraries(Project glm)
 target_link_libraries(Project Vulkan::Vulkan)

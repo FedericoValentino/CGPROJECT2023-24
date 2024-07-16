@@ -23,7 +23,7 @@ Player::Player() {
  * Modifies the Player's position according to the new position
  * @param newPosition the new origin position
  */
-void Player::setPosition(glm::vec3 newPosition) {
+void Player::setPosition(const glm::vec3& newPosition) {
     position.origin = newPosition;
 }
 
@@ -31,7 +31,7 @@ void Player::setPosition(glm::vec3 newPosition) {
  * Modifies the Player's orientation according to the new direction
  * @param newDirection the new direction
  */
-void Player::setOrientation(glm::vec3 newOrientation) {
+void Player::setOrientation(const glm::vec3& newOrientation) {
     position.rotation = newOrientation;
 }
 
@@ -40,11 +40,11 @@ void Player::setOrientation(glm::vec3 newOrientation) {
  * @param inputPosition not used
  * @param deltaT time
  */
-Bullet* Player::shoot(Position3D inputPosition, const float deltaT) {
-    Bullet* toShoot = nullptr;
+std::shared_ptr<Bullet> Player::shoot(const Position3D& inputPosition, const float deltaT) {
+    std::shared_ptr<Bullet> toShoot = nullptr;
     if(elapsedTime > 1 || bullets->empty())
     {
-        toShoot = new Bullet(position, PLAYER, false);
+        toShoot = std::make_shared<Bullet>(position, PLAYER, false);
         bullets->insert(toShoot);
         elapsedTime = 0;
     }

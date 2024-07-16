@@ -35,9 +35,9 @@ public:
     Texture Skyscraper;
     Texture Floor;
 
-    std::vector<TileInfo*> floorTiles;
-    std::vector<TileInfo*> houseTiles;
-    std::vector<TileInfo*> skyscraperTiles;
+    std::vector<std::shared_ptr<TileInfo>> floorTiles;
+    std::vector<std::shared_ptr<TileInfo>> houseTiles;
+    std::vector<std::shared_ptr<TileInfo>> skyscraperTiles;
 
     BaseProject* app;
 
@@ -50,7 +50,7 @@ public:
 
     void newTile(int row, int col, int type)
     {
-        TileInfo* newInfo = new TileInfo();
+        std::shared_ptr<TileInfo> newInfo = std::make_shared<TileInfo>();
 
         newInfo->row_ = row;
         newInfo->col_ = col;

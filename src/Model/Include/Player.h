@@ -17,11 +17,11 @@ public:
 
     Player();
 
-    void setPosition(glm::vec3 newPosition);
+    void setPosition(const glm::vec3& newPosition);
 
-    void setOrientation(glm::vec3 newOrientation);
+    void setOrientation(const glm::vec3& newOrientation);
 
-    Bullet* shoot(Position3D inputPosition, float deltaT) override;
+    std::shared_ptr<Bullet> shoot(const Position3D& inputPosition, float deltaT) override;
 
 };
 

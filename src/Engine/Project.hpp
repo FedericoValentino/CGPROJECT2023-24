@@ -9,6 +9,7 @@
 #include "../View/BulletView.hpp"
 #include "../Model/Include/Partita.h"
 #include "../View/AirplaneLights.hpp"
+#include <memory.h>
 
 
 struct directLightObject{
@@ -39,12 +40,12 @@ class Project : public BaseProject
 {
 private:
 
-    Partita* partita;
-    PlaneView* planes;
-    TileView* tiles;
-    BulletView* bullets;
-    ParticleSystem* particles;
-    AirplaneLights* planeLights;
+    std::shared_ptr<Partita> partita;
+    std::shared_ptr<PlaneView> planes;
+    std::shared_ptr<TileView> tiles;
+    std::shared_ptr<BulletView> bullets;
+    std::shared_ptr<ParticleSystem> particles;
+    std::shared_ptr<AirplaneLights> planeLights;
     GlobalUniformBufferObject gubo;
 
     int numObj = 100;
@@ -77,19 +78,19 @@ private:
 
     void spawnPlane();
 
-    void updateMapUniform(glm::mat4 S, int currentImage);
+    void updateMapUniform(const glm::mat4& S, int currentImage);
 
-    void updatePlayerUniform(glm::mat4 S, int currentImage);
+    void updatePlayerUniform(const glm::mat4& S, int currentImage);
 
     void updatePlaneLightsUniform(int currentImage);
 
-    void updateEnemyUniform(glm::mat4 S, int currentImage);
+    void updateEnemyUniform(const glm::mat4& S, int currentImage);
 
-    void updateBossUniform(glm::mat4 S, int currentImage);
+    void updateBossUniform(const glm::mat4& S, int currentImage);
 
-    void updateBulletsUniform(glm::mat4 S, int currentImage);
+    void updateBulletsUniform(const glm::mat4& S, int currentImage);
 
-    void updateParticlesUniforms(glm::mat4 S, int currentImage);
+    void updateParticlesUniforms(const glm::mat4& S, int currentImage);
 
     void updateLights();
 
@@ -98,16 +99,16 @@ private:
 
 void Project::localInit() {
 
-    this->partita = new Partita();
+    this->partita = std::make_shared<Partita>();
     partita->generateWorld();
 
-    this->particles = new ParticleSystem();
+    this->particles = std::make_shared<ParticleSystem>();
     particles->init(this);
 
-    this->planeLights = new AirplaneLights(numberOfEnemies);
+    this->planeLights = std::make_shared<AirplaneLights>(numberOfEnemies);
     planeLights->init(this);
 
-    this->tiles = new TileView;
+    this->tiles = std::make_shared<TileView>();
     tiles->init(this);
 
     for(int row = 0; row < MAPDIM; row++)
@@ -126,12 +127,12 @@ void Project::localInit() {
 
 
     //TODO Change pointers
-    this->planes = new PlaneView();
+    this->planes = std::make_shared<PlaneView>();
     planes->init(this);
     planes->newPlayer(partita->player);
 
 
-    bullets = new BulletView();
+    bullets = std::make_shared<BulletView>();
     bullets->init(this);
 }
 
@@ -165,12 +166,12 @@ void Project::setWindowParameters() {
     Ar = 5.0f / 3.0f;
 }
 
-void Project::updateMapUniform(glm::mat4 S, int currentImage)
+void Project::updateMapUniform(const glm::mat4& S, int currentImage)
 {
     //Map updates
     for(int i = 0; i < tiles->floorTiles.size(); i++)
     {
-        TileInfo* info = tiles->floorTiles[i];
+        auto info = tiles->floorTiles[i];
         glm::vec3 tilePosition = glm::vec3(info->ubo.model[3][0], info->ubo.model[3][1], info->ubo.model[3][2]);
 
         info->ubo.worldViewProj = S * info->ubo.model;
@@ -185,7 +186,7 @@ void Project::updateMapUniform(glm::mat4 S, int currentImage)
 
     for(int i = 0; i < tiles->houseTiles.size(); i++)
     {
-        TileInfo* info = tiles->houseTiles[i];
+        auto info = tiles->houseTiles[i];
         glm::vec3 tilePosition = glm::vec3(info->ubo.model[3][0], info->ubo.model[3][1], info->ubo.model[3][2]);
 
         info->ubo.worldViewProj = S * info->ubo.model;
@@ -199,7 +200,7 @@ void Project::updateMapUniform(glm::mat4 S, int currentImage)
 
     for(int i = 0; i < tiles->skyscraperTiles.size(); i++)
     {
-        TileInfo* info = tiles->skyscraperTiles[i];
+        auto info = tiles->skyscraperTiles[i];
         glm::vec3 tilePosition = glm::vec3(info->ubo.model[3][0], info->ubo.model[3][1], info->ubo.model[3][2]);
 
         info->ubo.worldViewProj = S * info->ubo.model;
@@ -213,7 +214,7 @@ void Project::updateMapUniform(glm::mat4 S, int currentImage)
 }
 
 
-void Project::updatePlayerUniform(glm::mat4 S, int currentImage)
+void Project::updatePlayerUniform(const glm::mat4& S, int currentImage)
 {
     //Player Updates
     planes->playerInfo->toDraw = true;
@@ -225,10 +226,10 @@ void Project::updatePlayerUniform(glm::mat4 S, int currentImage)
     planes->playerInfo->DS.map(currentImage, &gubo, sizeof(GlobalUniformBufferObject), 2);
 }
 
-void Project::updateEnemyUniform(glm::mat4 S, int currentImage)
+void Project::updateEnemyUniform(const glm::mat4& S, int currentImage)
 {
     //buffer update sequence for planes
-    for(PlaneInfo* info : planes->enemyInfo)
+    for(auto info : planes->enemyInfo)
     {
         auto pos = info->pEnemy->getPosition();
         info->toDraw = !info->pEnemy->getDead();
@@ -249,7 +250,7 @@ void Project::updateEnemyUniform(glm::mat4 S, int currentImage)
 }
 
 
-void Project::updateBossUniform(glm::mat4 S, int currentImage)
+void Project::updateBossUniform(const glm::mat4& S, int currentImage)
 {
     if(partita->bossSpawned)
     {
@@ -271,12 +272,12 @@ void Project::updateBossUniform(glm::mat4 S, int currentImage)
 }
 
 
-void Project::updateBulletsUniform(glm::mat4 S, int currentImage)
+void Project::updateBulletsUniform(const glm::mat4& S, int currentImage)
 {
     if(!bullets->bulletInfo.empty())
     {
         for (int i = 0; i < bullets->bulletInfo.size(); i++) {
-            BulletInfo *info = bullets->bulletInfo[i];
+            auto info = bullets->bulletInfo[i];
 
 
             info->ubo.model = glm::translate(glm::mat4(1), info->pBullet->getPosition3D().origin);
@@ -299,7 +300,7 @@ void Project::updateBulletsUniform(glm::mat4 S, int currentImage)
 }
 
 
-void Project::updateParticlesUniforms(glm::mat4 S, int currentImage)
+void Project::updateParticlesUniforms(const glm::mat4& S, int currentImage)
 {
     for(auto& p : particles->particles)
     {
@@ -331,7 +332,7 @@ void Project::updatePlaneLightsUniform(int currentImage)
 void Project::updateEnemyLights(){
 
     int i = 0;
-    for(PlaneInfo* info : planes->enemyInfo)
+    for(auto info : planes->enemyInfo)
     {
         if(info->pEnemy->getType() == ENEMY && info->toDraw)
         {
@@ -373,7 +374,7 @@ void Project::updateLights()
  * @param currentImage
  */
 void Project::updateUniformBuffer(uint32_t currentImage) {
-    glm::vec4 frustumPlanes[6];
+    std::array<glm::vec4,6> frustumPlanes;
 
     //update Starship world matrix
     glm::mat4& WorldMatrixPlane = planes->playerInfo->ubo.model;
@@ -402,7 +403,7 @@ void Project::updateUniformBuffer(uint32_t currentImage) {
     tiles->tuboSkyscraper.view = view;
 
     //View - Proj for planes
-    for(PlaneInfo* info : planes->enemyInfo) {
+    for(auto info : planes->enemyInfo) {
         info->ubo.proj = proj;
         info->ubo.view = view;
     }
@@ -468,7 +469,7 @@ void Project::gameLogic()
     getSixAxis(deltaT, time, m, r, shoot,isFirstPerson);
 
     //INCREMENT INTERNAL CLOCK
-    for(PlaneInfo* info : planes->enemyInfo)
+    for(auto info : planes->enemyInfo)
     {
         info->pEnemy->timePasses(deltaT);
     }
@@ -494,7 +495,7 @@ void Project::gameLogic()
     //RIMUOVI ROBA(DA AGGIORNARE ANCHE IL COUNTER ENEMIES SU CUI SI BASANO LE LUCI DEGLI AEREI)
 
     //DELETE BULLETS
-    auto it = std::remove_if(bullets->bulletInfo.begin(), bullets->bulletInfo.end(), [&](BulletInfo* info) {
+    auto it = std::remove_if(bullets->bulletInfo.begin(), bullets->bulletInfo.end(), [&](auto info) {
         info->time += deltaT;
         if (info->pBullet->toClear) {
             info->ubo.model = glm::scale(info->ubo.model, glm::vec3(10.0f));
@@ -546,7 +547,7 @@ void Project::gameLogic()
 
 
     //MAKE ENEMIES SHOOT
-    for(PlaneInfo* info : planes->enemyInfo)
+    for(auto info : planes->enemyInfo)
     {
         if(!info->pEnemy->getDead())
         {
@@ -578,22 +579,22 @@ void Project::gameLogic()
 
 
     //MAKE BULLETS MOVE
-    for(PlaneInfo* info : planes->enemyInfo)
+    for(auto info : planes->enemyInfo)
     {
-        for(Bullet* bullet : info->pEnemy->getBullets())
+        for(auto bullet : info->pEnemy->getBullets())
         {
             bullet->move(deltaT);
         }
     }
 
-    for(Bullet* bullet : partita->player->getBullets())
+    for(auto bullet : partita->player->getBullets())
     {
         bullet->move(deltaT);
     }
 
     if(partita->bossSpawned)
     {
-        for(Bullet* bullet : planes->bossInfo->pEnemy->getBullets())
+        for(auto bullet : planes->bossInfo->pEnemy->getBullets())
         {
             bullet->move(deltaT);
         }
@@ -606,12 +607,12 @@ void Project::gameLogic()
     //MUOVI PLAYER
     auto pl_pos = partita->getPlayer()->position;
     //update Plane position & orientation
-    updatePlaneMatrix(pl_pos, deltaT, time, m, r);
+    updatePlaneMatrix(pl_pos, deltaT, r);
     partita->player->setOrientation(pl_pos.rotation);
     partita->player->setPosition(pl_pos.origin);
 
     //MUOVI NEMICI
-    for(PlaneInfo* info : planes->enemyInfo)
+    for(auto info : planes->enemyInfo)
     {
         info->pEnemy->moveTowardsPoint(partita->player->getPosition(), deltaT);
     }
@@ -619,9 +620,9 @@ void Project::gameLogic()
     //MUOVI BOSS
     if(partita->bossSpawned)
     {
-        PlaneInfo* info = planes->bossInfo;
+        auto info = planes->bossInfo;
 
-        Boss* boss = dynamic_cast<Boss*>(info->pEnemy);
+        std::shared_ptr<Boss> boss = std::dynamic_pointer_cast<Boss>(info->pEnemy);
 
         boss->bossMovement(partita->player->getPosition(), deltaT);
     }
@@ -632,7 +633,7 @@ void Project::gameLogic()
         gubo.pointLightsAirplane[i].time += deltaT;
 
     numberOfEnemies = std::count_if(planes->enemyInfo.begin(),planes->enemyInfo.end(),
-                                    [](PlaneInfo* info){return !info->pEnemy->getDead();});
+                                    [](auto info){return !info->pEnemy->getDead();});
 }
 
 void Project::spawnPlane()

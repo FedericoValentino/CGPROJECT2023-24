@@ -60,11 +60,8 @@
 #define M_2_SQRTPI	1.12837916709551257390	/* 2/sqrt(pi) */
 #define M_SQRT2		1.41421356237309504880	/* sqrt(2) */
 #define M_SQRT1_2	0.70710678118654752440	/* 1/sqrt(2) */
+#include "../../../Model/Include/Constants.h"
 
-
-const int MAX_FRAMES_IN_FLIGHT = 2;
-constexpr float MOVE_SPEED = 5.0f;
-constexpr float ROT_SPEED = glm::radians(120.0f);
 
 struct UniformBufferObject {
     alignas(16) glm::mat4 worldViewProj;

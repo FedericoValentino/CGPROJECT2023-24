@@ -6,7 +6,7 @@
 #include <glm/gtx/vector_angle.hpp>
 
 
-Boss::Boss(Position3D position){
+Boss::Boss(const Position3D& position){
     this->position = position;
     translationSpeed = 10;
     rotationSpeed = glm::radians(45.0f);
@@ -21,16 +21,16 @@ Boss::Boss(Position3D position){
  * @param inputPosition the Player's position
  * @param deltaT time
  */
-Bullet* Boss::shoot(Position3D inputPosition, const float deltaT)
+std::shared_ptr<Bullet> Boss::shoot(const Position3D& inputPosition, const float deltaT)
 {
     Position3D shootingVector;
     shootingVector.origin = position.origin;
     shootingVector.rotation = glm::normalize((inputPosition.origin - position.origin));
     shootingVector.rotation = glm::vec3(0.0f, atan2(shootingVector.rotation.x, shootingVector.rotation.z), 0.0f);
-    Bullet* bullet = nullptr;
+    std::shared_ptr<Bullet> bullet = nullptr;
     if(checkDistance3D(inputPosition.origin, position.origin, BOSS)
         && (elapsedTime > 1.0f || bullets->empty())) {
-        bullet = new Bullet(shootingVector, BOSS, false);
+        bullet = std::make_shared<Bullet>(shootingVector, BOSS, false);
         bullets->insert(bullet);
         elapsedTime = 0;
     }
@@ -45,7 +45,7 @@ Bullet* Boss::shoot(Position3D inputPosition, const float deltaT)
  * @param playerPosition the Player's position
  * @param deltaT time
  */
-void Boss::bossMovement(Position3D playerPosition, float deltaT)
+void Boss::bossMovement(const Position3D& playerPosition, float deltaT)
 {
     Position3D tempPosForward{};
     tempPosForward.origin = glm::vec3(playerPosition.origin.x + glm::sin(playerPosition.rotation.y) * 10.0f,
@@ -74,7 +74,7 @@ void Boss::bossMovement(Position3D playerPosition, float deltaT)
  * @param center the Player's position
  * @param deltaT time
  */
-void Boss::circularMovement(Position3D center, float deltaT)
+void Boss::circularMovement(const Position3D& center, float deltaT)
 {
     float radius = 10.0f;
 
@@ -104,7 +104,7 @@ void Boss::circularMovement(Position3D center, float deltaT)
     changeDirection(pos, deltaT);
 }
 
-void Boss::changeDirection(Position3D playerPosition, float deltaT)
+void Boss::changeDirection(const Position3D& playerPosition, float deltaT)
 {
     float target_x = playerPosition.origin.x;
     float target_z = playerPosition.origin.z;

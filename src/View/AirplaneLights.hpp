@@ -14,7 +14,7 @@ struct AirplaneVertex {
 
 struct PlaneLightUniformBufferObject
 {
-    glm::mat4 WVP[10 * Partita::MAX_PLANE];
+    glm::mat4 WVP[10 * Partita::MAX_PLANE]; // we suppose to have at most 30 enemies
     alignas(4) int counter;
 };
 

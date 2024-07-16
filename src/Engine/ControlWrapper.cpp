@@ -44,7 +44,7 @@ glm::mat4 generateXRotation(float degree)
 }
 
 //update Plane position & orientation
-void updatePlaneMatrix(Position3D& pl_pos,float deltaT, float time, const glm::vec3 &m, const glm::vec3 &r)
+void updatePlaneMatrix(Position3D& pl_pos,float deltaT, const glm::vec3 &r)
 {
     // Update Euler angles
     //pl_pos.rotation.x += ROT_SPEED/2.0f * r.x * deltaT; // pitch
@@ -155,7 +155,7 @@ std::tuple<glm::mat4,glm::mat4,glm::mat4> updateCam(float Ar, Position3D pl_pos,
     return {Proj*View,Proj,View};
 }
 
-bool sphereInFrustum(glm::vec4* m_planes, glm::vec3 point, float radius)
+bool sphereInFrustum(std::array<glm::vec4,6>& m_planes, const glm::vec3& point, float radius)
 {
     for (uint32_t i = 0; i < 6; i++) {
         if (m_planes[i][0] * point.x + m_planes[i][1] * point.y + m_planes[i][2] * point.z + m_planes[i][3] <= -radius) {
@@ -165,7 +165,7 @@ bool sphereInFrustum(glm::vec4* m_planes, glm::vec3 point, float radius)
     return true;
 }
 
-void extractFrustumPlanes(glm::vec4* m_planes, glm::mat4 m)
+void extractFrustumPlanes(std::array<glm::vec4,6>& m_planes, glm::mat4 m)
 {
     m = glm::transpose(m);
     m_planes[Left]   = m[3] + m[0];
