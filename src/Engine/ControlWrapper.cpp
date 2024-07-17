@@ -92,14 +92,19 @@ Position3D updatePlaneMatrix(Position3D pl_pos,float deltaT, const glm::vec3 &r)
 }
 
 
-glm::mat4 updatePlaneMatrix(glm::mat4 WorldMatrixPlane,const Position3D& pl_pos)
+glm::mat4 updatePlaneMatrix(const Position3D& pl_pos, bool cam)
 {
-    WorldMatrixPlane = glm::mat4(1.0f);
+    glm::mat4 WorldMatrixPlane = glm::mat4(1.0f);
     WorldMatrixPlane = glm::translate(WorldMatrixPlane, glm::vec3(pl_pos.origin));
+
+    if(!cam)
+        WorldMatrixPlane = glm::scale(WorldMatrixPlane, glm::vec3(40.0f));
 
     WorldMatrixPlane = glm::rotate(WorldMatrixPlane, pl_pos.rotation.y, glm::vec3(0, 1, 0)); // pitch
     WorldMatrixPlane = glm::rotate(WorldMatrixPlane, pl_pos.rotation.x, glm::vec3(1, 0, 0)); // yaw
-    //WorldMatrixPlane = glm::rotate(WorldMatrixPlane, pl_pos.rotation.z, glm::vec3(0, 0, 1)); // roll
+    if(!cam)
+        WorldMatrixPlane = glm::rotate(WorldMatrixPlane, pl_pos.rotation.z, glm::vec3(0, 0, 1)); // roll
+
     return WorldMatrixPlane;
 }
 

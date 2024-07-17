@@ -377,10 +377,9 @@ void Project::updateUniformBuffer(uint32_t currentImage) {
     std::array<glm::vec4,6> frustumPlanes;
 
     //update Starship world matrix
-    glm::mat4& WorldMatrixPlane = planes->playerInfo->ubo.model;
+    glm::mat4 WorldMatrixPlane = updatePlaneMatrix(partita->player->getPosition(), true);
+    planes->playerInfo->ubo.model = updatePlaneMatrix(partita->player->getPosition(), false);
 
-    //update Plane world matrix
-    WorldMatrixPlane = updatePlaneMatrix(WorldMatrixPlane,partita->player->getPosition());
     //Camera Update(View-Proj)
     auto [S,proj,view] = updateCam(Ar, partita->player->getPosition(),WorldMatrixPlane,isFirstPerson);
     WorldMatrixPlane = glm::rotate(WorldMatrixPlane, partita->player->getPosition().rotation.z, glm::vec3(0, 0, 1));
