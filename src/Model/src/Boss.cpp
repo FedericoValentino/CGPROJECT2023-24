@@ -24,9 +24,10 @@ Boss::Boss(const Position3D& position){
 std::shared_ptr<Bullet> Boss::shoot(const Position3D& inputPosition, const float deltaT)
 {
     std::shared_ptr<Bullet> bullet = nullptr;
-    if(!avoidBuilding || position.origin.y >= 12.0f) {
+    if((!avoidBuilding || position.origin.y >= 11.0f) || (avoidBuilding && position.origin.y >= 11.0f)) {
         Position3D shootingVector;
         shootingVector.origin = position.origin;
+
         shootingVector.rotation = glm::normalize((inputPosition.origin - position.origin));
         shootingVector.rotation = glm::vec3(atan2(shootingVector.rotation.y, shootingVector.rotation.z),
                                             atan2(shootingVector.rotation.x, shootingVector.rotation.z),
