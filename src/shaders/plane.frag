@@ -9,7 +9,9 @@ layout(location = 3) in float visibility;
 
 layout(location = 0) out vec4 outColor;
 
-layout(binding = 1) uniform sampler2D tex1;
+layout(binding = 1) uniform sampler2D playerTexture;
+layout(binding = 3) uniform sampler2D enemyTexture;
+layout(binding = 4) uniform sampler2D bossTexture;
 
 struct directLight{
     vec4 color;
@@ -34,10 +36,29 @@ layout(binding = 2) uniform GlobalUniformBufferObject {
     int explosionCounter;
 } gubo;
 
+layout( push_constant ) uniform constants
+{
+    int planeType;
+} plane;
+
 vec4 skycolor = vec4(0.012f,0.031f,0.11f, 1.0f);
 
 void main()
 {
+    vec4 color;
+    switch(plane.planeType)
+    {
+            case 0:
+                color = texture(playerTexture, fragUV);
+                break;
+            case 1:
+                color = texture(enemyTexture, fragUV);
+                break;
+            case 2:
+                color = texture(bossTexture, fragUV);
+                break;
+    }
+
     //ambient light
     vec3 diffuseLight = gubo.ambientLight.xyz * gubo.ambientLight.w;
     vec3 surfaceNormal = normalize(fragNorm);
@@ -75,7 +96,6 @@ void main()
                                             surfaceNormal);
     }
 
-    vec4 color = vec4(1.0f, 1.0f, 1.0f, 1.0f);
     outColor = vec4(diffuseLight * color.xyz, 1.0);
     outColor = mix(skycolor, outColor, visibility);
 }

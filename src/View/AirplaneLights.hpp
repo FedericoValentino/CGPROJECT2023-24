@@ -124,7 +124,7 @@ public:
     }
 
     void pipelineAndDSInit(BaseProject* bp){
-        this->P.create();
+        this->P.create(false, 0, VK_SHADER_STAGE_ALL);
 
         this->planeLights.DS.init(bp, &this->DSL, {
                 {0, UNIFORM, sizeof(PlaneLightUniformBufferObject), nullptr},

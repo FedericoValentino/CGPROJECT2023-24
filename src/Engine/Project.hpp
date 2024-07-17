@@ -236,7 +236,7 @@ void Project::updateEnemyUniform(const glm::mat4& S, int currentImage)
 
         info->ubo.model = glm::mat4(1);
         info->ubo.model = glm::translate(info->ubo.model, pos.origin);
-        info->ubo.model = glm::scale(info->ubo.model, glm::vec3(0.1f, 0.1f, 0.1f));
+        info->ubo.model = glm::scale(info->ubo.model, glm::vec3(10.0f));
         info->ubo.model = glm::rotate(info->ubo.model, pos.rotation.y, glm::vec3(0, 1, 0));
         info->ubo.model = glm::rotate(info->ubo.model, pos.rotation.x, glm::vec3(1, 0, 0));
         info->ubo.model = glm::rotate(info->ubo.model, pos.rotation.z, glm::vec3(0, 0, 1));
@@ -295,7 +295,7 @@ void Project::updateBulletsUniform(const glm::mat4& S, int currentImage)
             bullets->fo.flick[i].size = bullets->bulletInfo[i]->pBullet->getSize();
         }
         bullets->DSBullet.map(currentImage, &bullets->buboBullet, sizeof(BulletUniformBufferObject), 0);
-        bullets->DSBullet.map(currentImage, &bullets->fo, sizeof(FlickeringObject), 2);
+        bullets->DSBullet.map(currentImage, &bullets->fo, sizeof(FlickeringObject), 1);
     }
 }
 
@@ -382,7 +382,6 @@ void Project::updateUniformBuffer(uint32_t currentImage) {
 
     //Camera Update(View-Proj)
     auto [S,proj,view] = updateCam(Ar, partita->player->getPosition(),WorldMatrixPlane,isFirstPerson);
-    WorldMatrixPlane = glm::rotate(WorldMatrixPlane, partita->player->getPosition().rotation.z, glm::vec3(0, 0, 1));
 
     //View - Proj for bullets
     bullets->buboBullet.proj = proj;

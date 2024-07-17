@@ -92,13 +92,8 @@ public:
                       });
 
         this->DSL.init(bp, {
-                // this array contains the binding:
-                // first  element : the binding number
-                // second element : the type of element (buffer or texture)
-                // third  element : the pipeline stage where it will be used
                 {0, VK_DESCRIPTOR_TYPE_STORAGE_BUFFER, VK_SHADER_STAGE_VERTEX_BIT},
-                {1, VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, VK_SHADER_STAGE_FRAGMENT_BIT},
-                {2, VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, VK_SHADER_STAGE_ALL_GRAPHICS}});
+                {1, VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, VK_SHADER_STAGE_ALL_GRAPHICS}});
 
         for(int i=0; i<MAXBULLETS; i++)
             this->fo.flick[i].time = 0.0f;
@@ -106,18 +101,16 @@ public:
 
         this->P.init(bp, &VD, "../src/shaders/bulletVert.spv", "../src/shaders/bulletFrag.spv", {&this->DSL});
 
-        this->bulletTexture.init(bp, "../src/textures/cube.png");
 
         this->bullet.init(bp, &VD, "../src/models/stdbullet.obj", OBJ);
     }
 
     void pipelineAndDSInit(BaseProject* bp, int ubosize, int foSize){
-        this->P.create();
+        this->P.create(false, 0, VK_SHADER_STAGE_ALL);
 
         DSBullet.init(bp, &this->DSL, {
                 {0, STORAGE, ubosize,  nullptr},
-                {1, TEXTURE, 0,        &this->bulletTexture},
-                {2, UNIFORM, foSize, nullptr}
+                {1, UNIFORM, foSize, nullptr}
         });
     }
 
@@ -129,11 +122,8 @@ public:
             DSBullet.bind(commandBuffer, this->P, 0, currentImage);
             this->bullet.bind(commandBuffer);
 
-            vkCmdDrawIndexed(commandBuffer,
-                             static_cast<uint32_t>(this->bullet.indices.size()), bulletInfo.size(), 0, 0, 0);
+            vkCmdDrawIndexed(commandBuffer,static_cast<uint32_t>(this->bullet.indices.size()), bulletInfo.size(), 0, 0, 0);
         }
-
-
 
     }
 

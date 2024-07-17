@@ -12,6 +12,11 @@ struct PlaneInfo
     UniformBufferObject ubo;
 };
 
+struct pushPlane
+{
+    alignas(4) int planeType;
+};
+
 class PlaneView {
 public:
     Pipeline P;
@@ -21,7 +26,9 @@ public:
     Model player;
     Model baseEnemy;
     Model Boss;
-    Texture T;
+    Texture playerTexture;
+    Texture enemyTexture;
+    Texture bossTexture;
 
     std::set<std::shared_ptr<PlaneInfo>> enemyInfo;
     std::shared_ptr<PlaneInfo> bossInfo;
@@ -47,8 +54,10 @@ public:
         newEnemyInfo->ubo.model = glm::translate(glm::mat4(1.0f), enemy->getPosition().origin);
         newEnemyInfo->DS.init(app, &DSL, {
                 {0, UNIFORM, ubosize, nullptr},
-                {1, TEXTURE, 0, &this->T},
-                {2, UNIFORM, gubosize, nullptr}
+                {1, TEXTURE, 0, &this->playerTexture},
+                {2, UNIFORM, gubosize, nullptr},
+                {3, TEXTURE, 0, &this->enemyTexture},
+                {4, TEXTURE, 0, &this->bossTexture}
         });
         enemyInfo.insert(newEnemyInfo);
 
@@ -62,8 +71,10 @@ public:
         bossInfo->ubo.model = glm::translate(glm::mat4(1.0f), enemy->getPosition().origin);
         bossInfo->DS.init(app, &DSL, {
                 {0, UNIFORM, ubosize, nullptr},
-                {1, TEXTURE, 0, &this->T},
-                {2, UNIFORM, gubosize, nullptr}
+                {1, TEXTURE, 0, &this->playerTexture},
+                {2, UNIFORM, gubosize, nullptr},
+                {3, TEXTURE, 0, &this->enemyTexture},
+                {4, TEXTURE, 0, &this->bossTexture}
         });
     }
 
@@ -78,7 +89,9 @@ public:
                 // third  element : the pipeline stage where it will be used
                 {0, VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, VK_SHADER_STAGE_VERTEX_BIT},
                 {1, VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, VK_SHADER_STAGE_FRAGMENT_BIT},
-                {2, VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, VK_SHADER_STAGE_ALL_GRAPHICS}});
+                {2, VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, VK_SHADER_STAGE_ALL_GRAPHICS},
+                {3, VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, VK_SHADER_STAGE_FRAGMENT_BIT},
+                {4, VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, VK_SHADER_STAGE_FRAGMENT_BIT}});
 
         this->VD.init(bp, {
             {0, sizeof(Vertex), VK_VERTEX_INPUT_RATE_VERTEX}
@@ -92,18 +105,24 @@ public:
         });
 
         this->P.init(bp, &VD, "../src/shaders/planeVert.spv", "../src/shaders/planeFrag.spv", {&this->DSL});
-        this->T.init(bp, "../src/textures/cube.png");
+
+        this->playerTexture.init(bp, "../src/textures/B2.png");
+        this->enemyTexture.init(bp, "../src/textures/Biplane.png");
+        this->bossTexture.init(bp, "../src/textures/Zeppelin.png");
+
         this->player.init(bp, &VD, "../src/models/player.obj", OBJ);
-        this->Boss.init(bp, &VD, "../src/models/dirigibile.obj", OBJ);
-        this->baseEnemy.init(bp, &VD, "../src/models/Aereoaviatore.obj", OBJ);
+        this->Boss.init(bp, &VD, "../src/models/Zeppelin.obj", OBJ);
+        this->baseEnemy.init(bp, &VD, "../src/models/Biplane.obj", OBJ);
     }
 
     void pipelineAndDSInit(BaseProject* bp, int ubosize, int gubosize){
-        this->P.create();
+        this->P.create(true, sizeof(pushPlane), VK_SHADER_STAGE_FRAGMENT_BIT);
         this->playerInfo->DS.init(bp, &this->DSL, {
                 {0, UNIFORM, ubosize, nullptr},
-                {1, TEXTURE, 0, &this->T},
-                {2, UNIFORM, gubosize, nullptr}
+                {1, TEXTURE, 0, &this->playerTexture},
+                {2, UNIFORM, gubosize, nullptr},
+                {3, TEXTURE, 0, &this->enemyTexture},
+                {4, TEXTURE, 0, &this->bossTexture}
         });
         if(!enemyInfo.empty())
         {
@@ -111,8 +130,11 @@ public:
             {
                 info->DS.init(bp, &this->DSL, {
                         {0, UNIFORM, ubosize, nullptr},
-                        {1, TEXTURE, 0, &this->T},
-                        {2, UNIFORM, gubosize, nullptr}});
+                        {1, TEXTURE, 0, &this->playerTexture},
+                        {2, UNIFORM, gubosize, nullptr},
+                        {3, TEXTURE, 0, &this->enemyTexture},
+                        {4, TEXTURE, 0, &this->bossTexture}
+                });
             }
         }
 
@@ -120,8 +142,11 @@ public:
         {
             bossInfo->DS.init(bp, &this->DSL, {
                     {0, UNIFORM, ubosize, nullptr},
-                    {1, TEXTURE, 0, &this->T},
-                    {2, UNIFORM, gubosize, nullptr}});
+                    {1, TEXTURE, 0, &this->playerTexture},
+                    {2, UNIFORM, gubosize, nullptr},
+                    {3, TEXTURE, 0, &this->enemyTexture},
+                    {4, TEXTURE, 0, &this->bossTexture}
+            });
         }
 
     }
@@ -136,6 +161,8 @@ public:
                 if(planeInfo->toDraw)
                 {
                     planeInfo->DS.bind(commandBuffer, this->P, 0, currentImage);
+                    pushPlane push{ENEMY};
+                    vkCmdPushConstants(commandBuffer, this->P.pipelineLayout, VK_SHADER_STAGE_FRAGMENT_BIT, 0, sizeof(pushPlane), &push);
 
                     vkCmdDrawIndexed(commandBuffer,
                                      static_cast<uint32_t>(this->baseEnemy.indices.size()), 1, 0, 0, 0);
@@ -148,6 +175,8 @@ public:
             if (bossInfo->toDraw) {
                 this->Boss.bind(commandBuffer);
                 this->bossInfo->DS.bind(commandBuffer, this->P, 0, currentImage);
+                pushPlane push{BOSS};
+                vkCmdPushConstants(commandBuffer, this->P.pipelineLayout, VK_SHADER_STAGE_FRAGMENT_BIT, 0, sizeof(pushPlane), &push);
                 vkCmdDrawIndexed(commandBuffer,
                                  static_cast<uint32_t>(this->Boss.indices.size()), 1, 0, 0, 0);
             }
@@ -157,13 +186,15 @@ public:
         {
             this->player.bind(commandBuffer);
             this->playerInfo->DS.bind(commandBuffer, this->P, 0, currentImage);
+            pushPlane push{PLAYER};
+            vkCmdPushConstants(commandBuffer, this->P.pipelineLayout, VK_SHADER_STAGE_FRAGMENT_BIT, 0, sizeof(pushPlane), &push);
             vkCmdDrawIndexed(commandBuffer,
                              static_cast<uint32_t>(this->player.indices.size()), 1, 0, 0, 0);
         }
     }
 
     void cleanup(){
-        this->T.cleanup();
+        this->playerTexture.cleanup();
         this->baseEnemy.cleanup();
         this->Boss.cleanup();
         this->player.cleanup();

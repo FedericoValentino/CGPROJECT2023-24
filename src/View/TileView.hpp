@@ -111,7 +111,7 @@ public:
     }
 
     void pipelineAndDSInit(BaseProject* bp, int ubosize, int gubosize){
-        this->P.create();
+        this->P.create(false, 0, VK_SHADER_STAGE_ALL);
 
         DSFloor.init(bp, &this->DSL, {
                 {0, STORAGE, ubosize,  nullptr},

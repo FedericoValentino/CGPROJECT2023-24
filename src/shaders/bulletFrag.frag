@@ -9,8 +9,6 @@ layout(location = 3) in flat int instanceID;
 
 layout(location = 0) out vec4 outColor;
 
-layout(binding = 1) uniform sampler2D tex1;
-
 
 struct bulletFlicker
 {
@@ -19,7 +17,7 @@ struct bulletFlicker
     float size;
 };
 
-layout(binding = 2) uniform FlickeringObject{
+layout(binding = 1) uniform FlickeringObject{
 bulletFlicker flick[MAXBULLETS];
 }fo;
 

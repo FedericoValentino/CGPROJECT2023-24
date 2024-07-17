@@ -324,7 +324,7 @@ struct Pipeline {
   			  std::vector<DescriptorSetLayout *> D);
   	void setAdvancedFeatures(VkCompareOp _compareOp, VkPolygonMode _polyModel,
  						VkCullModeFlagBits _CM, bool _transp);
-  	void create();
+  	void create(bool push, size_t size, VkShaderStageFlagBits pushStage);
   	void destroy();
   	void bind(VkCommandBuffer commandBuffer);
   	
@@ -3072,7 +3072,7 @@ void Pipeline::setAdvancedFeatures(VkCompareOp _compareOp, VkPolygonMode _polyMo
 }
 
 
-void Pipeline::create() {	
+void Pipeline::create(bool pushConstant, size_t size, VkShaderStageFlagBits pushStage) {
 	VkPipelineShaderStageCreateInfo vertShaderStageInfo{};
     vertShaderStageInfo.sType =
     		VK_STRUCTURE_TYPE_PIPELINE_SHADER_STAGE_CREATE_INFO;
@@ -3195,8 +3195,20 @@ void Pipeline::create() {
 		VK_STRUCTURE_TYPE_PIPELINE_LAYOUT_CREATE_INFO;
 	pipelineLayoutInfo.setLayoutCount = DSL.size();
 	pipelineLayoutInfo.pSetLayouts = DSL.data();
-	pipelineLayoutInfo.pushConstantRangeCount = 0; // Optional
-	pipelineLayoutInfo.pPushConstantRanges = nullptr; // Optional
+
+    if(pushConstant)
+    {//setup push constants
+        VkPushConstantRange push_constant;
+        //this push constant range starts at the beginning
+        push_constant.offset = 0;
+        //this push constant range takes up the size of a MeshPushConstants struct
+        push_constant.size = size;
+        //this push constant range is accessible only in the vertex shader
+        push_constant.stageFlags = pushStage;
+
+        pipelineLayoutInfo.pPushConstantRanges = &push_constant;
+        pipelineLayoutInfo.pushConstantRangeCount = 1;
+    }
 	
 	VkResult result = vkCreatePipelineLayout(BP->device, &pipelineLayoutInfo, nullptr,
 				&pipelineLayout);
