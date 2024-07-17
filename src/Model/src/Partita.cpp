@@ -9,12 +9,6 @@
 
 #define SKYSCRAPER_RADIUS 6
 
-struct values{
-    bool zero;
-    bool one;
-    bool two;
-    bool three;
-};
 
 Partita::Partita() {
     this->stage = BIPLANI;
@@ -175,8 +169,15 @@ void Partita::checkCollision(float deltaT) {
     for(auto enemy : enemies)
         for(auto skyscraper : skyscrapers)
         {
-            if(skyscraper->checkCollision(enemy->getPosition().origin.x, enemy->getPosition().origin.z, 11.0f) &&enemy->getPosition().origin.y <= 10.0f)
-                enemy->setAvoidBuilding(true);
+            if(enemy->getType() == ENEMY) {
+                if (skyscraper->checkCollision(enemy->getPosition().origin.x, enemy->getPosition().origin.z, 11.0f) && enemy->getPosition().origin.y <= 10.0f)
+                    enemy->setAvoidBuilding(true);
+            }
+            else
+            {
+                if (skyscraper->checkCollision(enemy->getPosition().origin.x, enemy->getPosition().origin.z, 11.0f))
+                    enemy->setAvoidBuilding(true);
+            }
         }
 
 

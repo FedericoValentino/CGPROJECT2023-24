@@ -58,6 +58,7 @@ void Boss::bossMovement(const Position3D& playerPosition, float deltaT)
 
 
     verticalMovement(deltaT);
+    avoidBuilding = false;
     // if boss is far from player
     if(!checkDistance3D(playerPosition.origin, position.origin, BOSS))
     {
@@ -67,8 +68,6 @@ void Boss::bossMovement(const Position3D& playerPosition, float deltaT)
         else
             moveTowardsPoint(tempPosBackward, deltaT);
     }
-
-    avoidBuilding = false;
 }
 
 
@@ -113,13 +112,13 @@ void Boss::verticalMovement(float deltaT)
     if(avoidBuilding)
     {
         if (position.origin.y < 15.0f)
-            position.origin.y += translationSpeed/2.0f * deltaT;
+            position.origin.y += translationSpeed/5.0f * deltaT;
     }
 
     else
     {
         if (position.origin.y > 8.40f)
-            position.origin.y -= translationSpeed/2.0f * deltaT;
+            position.origin.y -= translationSpeed/5.0f * deltaT;
     }
 
     printf("Height %f\n", position.origin.y);
