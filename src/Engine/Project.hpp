@@ -380,7 +380,7 @@ void Project::updateUniformBuffer(uint32_t currentImage) {
     glm::mat4& WorldMatrixPlane = planes->playerInfo->ubo.model;
 
     //update Plane world matrix
-    updatePlaneMatrix(WorldMatrixPlane,partita->player->getPosition());
+    WorldMatrixPlane = updatePlaneMatrix(WorldMatrixPlane,partita->player->getPosition());
     //Camera Update(View-Proj)
     auto [S,proj,view] = updateCam(Ar, partita->player->getPosition(),WorldMatrixPlane,isFirstPerson);
     WorldMatrixPlane = glm::rotate(WorldMatrixPlane, partita->player->getPosition().rotation.z, glm::vec3(0, 0, 1));
@@ -607,7 +607,7 @@ void Project::gameLogic()
     //MUOVI PLAYER
     auto pl_pos = partita->getPlayer()->position;
     //update Plane position & orientation
-    updatePlaneMatrix(pl_pos, deltaT, r);
+    pl_pos = updatePlaneMatrix(pl_pos, deltaT, r);
     partita->player->setOrientation(pl_pos.rotation);
     partita->player->setPosition(pl_pos.origin);
 

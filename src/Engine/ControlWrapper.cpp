@@ -44,7 +44,7 @@ glm::mat4 generateXRotation(float degree)
 }
 
 //update Plane position & orientation
-void updatePlaneMatrix(Position3D& pl_pos,float deltaT, const glm::vec3 &r)
+Position3D updatePlaneMatrix(Position3D pl_pos,float deltaT, const glm::vec3 &r)
 {
     // Update Euler angles
     //pl_pos.rotation.x += ROT_SPEED/2.0f * r.x * deltaT; // pitch
@@ -88,10 +88,11 @@ void updatePlaneMatrix(Position3D& pl_pos,float deltaT, const glm::vec3 &r)
     pl_pos.origin += forwardDirection * MOVE_SPEED * 2.0f * deltaT; // Forward/Backward
     //pl_pos.origin += upDirection * MOVE_SPEED * m.y * deltaT;      // Up/Down
     //pl_pos.origin += rightDirection * MOVE_SPEED * m.x * deltaT;   // Left/Right
+    return pl_pos;
 }
 
 
-void updatePlaneMatrix(glm::mat4& WorldMatrixPlane,const Position3D& pl_pos)
+glm::mat4 updatePlaneMatrix(glm::mat4 WorldMatrixPlane,const Position3D& pl_pos)
 {
     WorldMatrixPlane = glm::mat4(1.0f);
     WorldMatrixPlane = glm::translate(WorldMatrixPlane, glm::vec3(pl_pos.origin));
@@ -99,6 +100,7 @@ void updatePlaneMatrix(glm::mat4& WorldMatrixPlane,const Position3D& pl_pos)
     WorldMatrixPlane = glm::rotate(WorldMatrixPlane, pl_pos.rotation.y, glm::vec3(0, 1, 0)); // pitch
     WorldMatrixPlane = glm::rotate(WorldMatrixPlane, pl_pos.rotation.x, glm::vec3(1, 0, 0)); // yaw
     //WorldMatrixPlane = glm::rotate(WorldMatrixPlane, pl_pos.rotation.z, glm::vec3(0, 0, 1)); // roll
+    return WorldMatrixPlane;
 }
 
 
