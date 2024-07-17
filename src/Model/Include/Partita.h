@@ -2,6 +2,7 @@
 #define CGPRJ2023_24_PARTITA_H
 
 #include <vector>
+#include <array>
 
 #include "Player.h"
 #include "Enemy.h"
