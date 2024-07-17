@@ -39,8 +39,6 @@ public:
 
     Model bullet;
 
-    Texture bulletTexture;
-
     std::vector<std::shared_ptr<BulletInfo>> bulletInfo;
 
     BaseProject* app;
@@ -129,7 +127,6 @@ public:
 
     void cleanup(){
         this->bullet.cleanup();
-        this->bulletTexture.cleanup();
         this->P.destroy();
         this->DSL.cleanup();
     }

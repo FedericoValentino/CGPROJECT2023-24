@@ -99,7 +99,6 @@ void Boss::verticalMovement(float deltaT)
         if (position.origin.y < 15.0f)
             position.origin.y += translationSpeed/5.0f * deltaT;
     }
-
     else
     {
         if (position.origin.y > 8.40f)

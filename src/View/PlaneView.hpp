@@ -195,6 +195,8 @@ public:
 
     void cleanup(){
         this->playerTexture.cleanup();
+        this->bossTexture.cleanup();
+        this->enemyTexture.cleanup();
         this->baseEnemy.cleanup();
         this->Boss.cleanup();
         this->player.cleanup();
