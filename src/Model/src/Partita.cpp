@@ -138,13 +138,13 @@ std::shared_ptr<Plane> Partita::spawn() {
         return plane;
     }
     //TODO change later to < MAX_PLANE
-    else if(killCounter == 0.0f)
+    else if(killCounter < MAX_PLANE)
     {
         auto pos = randomPos();
         auto rot = glm::vec3(0.0f);
         auto plane = PlaneBuilder::build(ENEMY, {pos, rot});
         enemies.insert(plane);
-        killCounter++;
+        //killCounter++;
         return plane;
     }
     return nullptr;
@@ -156,11 +156,12 @@ void Partita::checkCollision(float deltaT) {
 
     //SCORRO L'ALBERO
 
+    //TODO Remove comments
     static constexpr float RADIUS_COLLISION = 5.5f;
     //Check collision player with skyscrapers.
-    for(auto skyscraper : skyscrapers)
+    /*for(auto skyscraper : skyscrapers)
         if(skyscraper->checkCollision(player->getPosition().origin.x,player->getPosition().origin.z,RADIUS_COLLISION))
-            state=END;
+            state=END;*/
 
     //Check Collision of player with other enemies and bosses
     float radius = 4 * (MAPDIM);
@@ -169,8 +170,7 @@ void Partita::checkCollision(float deltaT) {
             state = END;
 
 
-    //Check collision of Enemy with Skyscraper
-    float distance;
+    //Check collision of Enemy with Skyscraper;
     for(auto enemy : enemies)
         for(auto skyscraper : skyscrapers)
         {

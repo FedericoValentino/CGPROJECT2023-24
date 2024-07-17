@@ -24,5 +24,13 @@ public:
 
     std::shared_ptr<Bullet> shoot(const Position3D& inputPosition, float deltaT) override;
 
+    void evasive(float deltaT);
+
+    void climb(int direction, float climbRate, float deltaT);
+
+    void moveTowardsPoint(const Position3D& point, float deltaT) override;
+
+    void changeDirection(const Position3D& inputPosition, float deltaT) override;
+
 };
 #endif //CGPROJECT2023_24_ENEMY_H

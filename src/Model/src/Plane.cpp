@@ -74,15 +74,10 @@ bool Plane::checkDistance3D(const glm::vec3& center,const glm::vec3& point, PLAN
  */
 void Plane::moveTowardsPoint(const Position3D& point, float deltaT)
 {
-    if(!avoidBuilding)
-        changeDirection(point, deltaT);
-    else
-    {
-        evasive(deltaT);
-        evasionTimer += deltaT;
-    }
+    changeDirection(point, deltaT);
     changePosition(position, deltaT);
 }
+
 
 /**
  * Changes position of a point to match it's current direction. Used in moveTowardsPoint
@@ -98,6 +93,7 @@ void Plane::changePosition(const Position3D& inputPosition, float deltaT)
     position.origin= T * glm::vec4(position.origin,1.0f);
 }
 
+
 void Plane::roll(int direction, float deltaT) {
     if(position.rotation.z + rotationSpeed/2.0f *  deltaT <= M_PI/4 && position.rotation.z + rotationSpeed/2.0f *  deltaT >= -M_PI/4)
         position.rotation.z += rotationSpeed/2.0f * direction * deltaT; // roll
@@ -110,46 +106,6 @@ void Plane::roll(int direction, float deltaT) {
         position.rotation.z = M_PI/4;
     }
 }
-
-void Plane::climb(int direction, float climbRate, float deltaT)
-{
-    if(position.rotation.x + (rotationSpeed/climbRate) * direction * deltaT <= M_PI/4 && position.rotation.x + (rotationSpeed/climbRate) * direction * deltaT >= -M_PI/4)
-        position.rotation.x -= (rotationSpeed/climbRate) * direction * deltaT; //pitch
-    if (position.rotation.x < -M_PI/4)
-    {
-        position.rotation.x = -M_PI/4;
-    }
-    else if (position.rotation.x > M_PI/4)
-    {
-        position.rotation.x = M_PI/4;
-    }
-}
-
-void Plane::evasive(float deltaT)
-{
-    //neuter roll
-    if(position.rotation.z < 0.0f)
-        position.rotation.z += rotationSpeed/2.0f * deltaT;
-    else if(position.rotation.z > 0.0f)
-        position.rotation.z -= rotationSpeed/2.0f * deltaT;
-
-    //pitch up or down
-    if(position.origin.y < 12.0f)
-        climb(1, 2.0f, deltaT);
-
-    if(position.origin.y > 12.0f )
-        climb(-1, 2.0f, deltaT);
-
-    if(evasionTimer >= 2.0f)
-    {
-        avoidBuilding = false;
-        evasionTimer = 0.0f;
-    }
-
-
-    //printf("Height while avoiding %f\n", position.origin.y);
-}
-
 
 
 /**
@@ -199,17 +155,6 @@ void Plane::changeDirection(const Position3D& inputPosition, float deltaT)
 
         position.rotation.y = fmod(position.rotation.y, 2.0f * M_PI);
     }
-
-    float distanceFromPlayerHeight = position.origin.y - 8.40f;
-
-    if(distanceFromPlayerHeight > 3.0f && position.rotation.x > -M_PI/6)
-        climb(-1, 1.0f, deltaT);
-    else if(distanceFromPlayerHeight < -3.0f && position.rotation.x < M_PI/6)
-        climb(1, 1.0f, deltaT);
-    else if(abs(distanceFromPlayerHeight) <= 0.05f)
-        position.rotation.x = 0.0f;
-
-    //printf("Height not avoiding %f\n", position.origin.y);
 }
 
 void Plane::timePasses(const float deltaT) {

@@ -44,7 +44,7 @@ public:
 
     virtual std::shared_ptr<Bullet> shoot(const Position3D& inputPosition, float deltaT) = 0;
 
-    void moveTowardsPoint(const Position3D& point, float deltaT);
+    virtual void moveTowardsPoint(const Position3D& point, float deltaT);
 
     void changePosition(const Position3D& inputPosition, float deltaT);
 
@@ -54,9 +54,9 @@ public:
 
     void roll(int direction, float deltaT);
 
-    void climb(int direction, float climbRate, float deltaT);
 
-    void evasive(float deltaT);
+
+
 
     Position3D getPosition() const;
     float getSpeed();
