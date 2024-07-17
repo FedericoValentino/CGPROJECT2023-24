@@ -384,9 +384,6 @@ void Project::updateUniformBuffer(uint32_t currentImage) {
     //Camera Update(View-Proj)
     auto [S,proj,view] = updateCam(Ar, partita->player->getPosition(),WorldMatrixPlane,isFirstPerson);
     WorldMatrixPlane = glm::rotate(WorldMatrixPlane, partita->player->getPosition().rotation.z, glm::vec3(0, 0, 1));
-    //light updates
-    auto rotate = glm::rotate(glm::mat4(1.0f), deltaT, glm::vec3(0.0f, 1.0f, 0.0f));
-
 
     //View - Proj for bullets
     bullets->buboBullet.proj = proj;

@@ -6,6 +6,7 @@
 #define CGPRJ2023_24_PLANE_H
 
 #include <set>
+#include <memory>
 #include "Position3D.h"
 #include "Bullet.h"
 #include "PlaneType.h"
