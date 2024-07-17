@@ -201,7 +201,7 @@ void Partita::checkCollision(float deltaT) {
                 }
                 for(auto skyscraper : skyscrapers)
                 {
-                    if(skyscraper->checkCollision(bullet->getPosition3D().origin.x, bullet->getPosition3D().origin.z,RADIUS_COLLISION))
+                    if(skyscraper->checkCollision(bullet->getPosition3D().origin.x, bullet->getPosition3D().origin.z,RADIUS_COLLISION) && bullet->getPosition3D().origin.y <= 11.40f)
                         enemy->clearBullet(bullet);
                 }
             }
