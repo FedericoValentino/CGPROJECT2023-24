@@ -59,7 +59,7 @@ unsigned int Bullet::getId() const
 }
 
 void Bullet::move(const float deltaT) {
-    auto direction = glm::vec3(glm::sin(position3D_.rotation.y), 0.0f, glm::cos(position3D_.rotation.y));
+    auto direction = glm::vec3(glm::sin(position3D_.rotation.y), glm::sin(position3D_.rotation.x), glm::cos(position3D_.rotation.y));
     position3D_.origin += direction * speed_ * deltaT;
 }
 
