@@ -92,21 +92,6 @@ void Boss::changeDirection(const Position3D& playerPosition, float deltaT)
 }
 
 
-/**
- * Changes position of a point to match it's current direction. Used in moveTowardsPoint
- * @param inputPosition --
- * @param deltaT time
- */
-void Boss::changePosition(const Position3D& inputPosition, float deltaT)
-{
-
-    float x =  glm::sin(position.rotation.y) * translationSpeed * deltaT;
-    float y = 0.0f;
-    float z =  glm::cos(position.rotation.y) * translationSpeed * deltaT;
-    glm::mat4 T = glm::translate(glm::mat4(1), glm::vec3(x, y, z));
-    position.origin= T * glm::vec4(position.origin,1.0f);
-}
-
 void Boss::verticalMovement(float deltaT)
 {
     if(avoidBuilding)
@@ -120,8 +105,6 @@ void Boss::verticalMovement(float deltaT)
         if (position.origin.y > 8.40f)
             position.origin.y -= translationSpeed/5.0f * deltaT;
     }
-
-    printf("Height %f\n", position.origin.y);
 }
 
 

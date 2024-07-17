@@ -14,13 +14,9 @@ public:
 
     void bossMovement(const Position3D& playerPosition, float deltaT);
 
-    void circularMovement(const Position3D& center, float deltaT);
-
     std::shared_ptr<Bullet> shoot(const Position3D& inputPosition, float deltaT) override;
 
     void changeDirection(const Position3D& playerPosition, float deltaT) override;
-
-    virtual void changePosition(const Position3D& inputPosition, float deltaT) override;
 
     void verticalMovement(float deltaT);
 
