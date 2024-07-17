@@ -40,8 +40,7 @@ std::shared_ptr<Bullet> Boss::shoot(const Position3D& inputPosition, const float
 
 /**
  * Disciplines how the BOSS should move given the circumstances; if BOSS is too far from the Player, it will fly
- * towards the Player's position like a normal enemy. Otherwise, it will start flying in circle around the
- * Player's position
+ * towards the Player's position like a normal enemy. Otherwise, it will stop to shoot at them
  * @param playerPosition the Player's position
  * @param deltaT time
  */
@@ -58,51 +57,20 @@ void Boss::bossMovement(const Position3D& playerPosition, float deltaT)
                                       playerPosition.origin.z - glm::cos(playerPosition.rotation.y) * 10.0f);
 
 
-    // if boss is far from playre
+    verticalMovement(deltaT);
+    // if boss is far from player
     if(!checkDistance3D(playerPosition.origin, position.origin, BOSS))
-        if(glm::distance(position.origin, tempPosBackward.origin) > glm::distance(position.origin, tempPosForward.origin))
+    {
+        if (glm::distance(position.origin, tempPosBackward.origin) >
+            glm::distance(position.origin, tempPosForward.origin))
             moveTowardsPoint(tempPosForward, deltaT);
         else
             moveTowardsPoint(tempPosBackward, deltaT);
+    }
 
+    avoidBuilding = false;
 }
 
-
-/**
- * Changes the Boss's position around a circumference centered in the Player's position.
- *  The direction is changed normally, so BOSS will rotate towards the center.
- * @param center the Player's position
- * @param deltaT time
- */
-void Boss::circularMovement(const Position3D& center, float deltaT)
-{
-    float radius = 10.0f;
-
-    glm::vec3 toPlayer = glm::vec3(glm::sin(position.rotation.y), 8.40f, glm::cos(position.rotation.y));
-    glm::vec3 right = glm::normalize(glm::cross(toPlayer, glm::vec3(0.0f, 1.0f, 0.0f)));
-    float circlingDirection = (glm::dot(right, toPlayer) > 0.0f) ? 1.0f : -1.0f;
-
-    glm::vec3 offset = position.origin - center.origin;
-
-    float angle = rotationSpeed * deltaT * circlingDirection;
-    float sinAngle = glm::sin(angle);
-    float cosAngle = glm::cos(angle);
-
-    glm::vec3 newOffset;
-    newOffset.x = cosAngle * offset.x - sinAngle * offset.z;
-    newOffset.z = sinAngle * offset.x + cosAngle * offset.z;
-    newOffset.y = offset.y;
-
-    position.origin = center.origin + glm::normalize(newOffset) * radius;
-
-    Position3D pos{};
-
-    pos.origin.x = center.origin.x + radius*glm::cos(angle * 2);
-    pos.origin.y = center.origin.y;
-    pos.origin.z = center.origin.z + radius*glm::cos(angle * 2);
-
-    changeDirection(pos, deltaT);
-}
 
 void Boss::changeDirection(const Position3D& playerPosition, float deltaT)
 {
@@ -123,6 +91,41 @@ void Boss::changeDirection(const Position3D& playerPosition, float deltaT)
     position.rotation.y = fmod(position.rotation.y, 2.0f * M_PI);
 
 }
+
+
+/**
+ * Changes position of a point to match it's current direction. Used in moveTowardsPoint
+ * @param inputPosition --
+ * @param deltaT time
+ */
+void Boss::changePosition(const Position3D& inputPosition, float deltaT)
+{
+
+    float x =  glm::sin(position.rotation.y) * translationSpeed * deltaT;
+    float y = 0.0f;
+    float z =  glm::cos(position.rotation.y) * translationSpeed * deltaT;
+    glm::mat4 T = glm::translate(glm::mat4(1), glm::vec3(x, y, z));
+    position.origin= T * glm::vec4(position.origin,1.0f);
+}
+
+void Boss::verticalMovement(float deltaT)
+{
+    if(avoidBuilding)
+    {
+        if (position.origin.y < 15.0f)
+            position.origin.y += translationSpeed/2.0f * deltaT;
+    }
+
+    else
+    {
+        if (position.origin.y > 8.40f)
+            position.origin.y -= translationSpeed/2.0f * deltaT;
+    }
+
+    printf("Height %f\n", position.origin.y);
+}
+
+
 
 
 

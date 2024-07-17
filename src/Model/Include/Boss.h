@@ -20,6 +20,10 @@ public:
 
     void changeDirection(const Position3D& playerPosition, float deltaT) override;
 
+    virtual void changePosition(const Position3D& inputPosition, float deltaT) override;
+
+    void verticalMovement(float deltaT);
+
 };
 
 

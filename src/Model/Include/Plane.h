@@ -46,7 +46,7 @@ public:
 
     virtual void moveTowardsPoint(const Position3D& point, float deltaT);
 
-    void changePosition(const Position3D& inputPosition, float deltaT);
+    virtual void changePosition(const Position3D& inputPosition, float deltaT);
 
     virtual void changeDirection(const Position3D& inputPosition, float deltaT);
 
