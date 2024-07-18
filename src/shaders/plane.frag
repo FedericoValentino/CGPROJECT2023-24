@@ -29,6 +29,7 @@ layout(binding = 2) uniform GlobalUniformBufferObject {
     pointLight lights[MAXBULLETS];
     pointLight pointLightsAirplane[10 * MAX_PLANE];
     pointLight explosions[MAXBULLETS];
+    SpotLight spotlight;
     vec4 ambientLight;
     directLight moon;
     int lightCounter;
@@ -95,6 +96,13 @@ void main()
                                             fragPos,
                                             surfaceNormal);
     }
+
+    diffuseLight += spotlightIntensity(gubo.spotlight.spotlightPosition,
+                                       gubo.spotlight.spotlightDirection,
+                                       gubo.spotlight.spotlightColor,
+                                       gubo.spotlight.spotlightCosIn,
+                                       gubo.spotlight.spotlightCosOut,
+                                       vec4(fragPos - gubo.spotlight.spotlightPosition.xyz , 1.0f));
 
     outColor = vec4(diffuseLight * color.xyz, 1.0);
     outColor = mix(skycolor, outColor, visibility);

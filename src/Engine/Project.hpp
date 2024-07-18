@@ -25,10 +25,20 @@ struct pointLightObject{
     float pad[2];
 };
 
+struct spotLightObject{
+    glm::vec4 spotlightPosition;
+    glm::vec4 spotlightDirection;
+    glm::vec4 spotlightColor;
+    float spotLightCosIn;
+    float spotLightCosOut;
+    float pad[2];
+};
+
 struct GlobalUniformBufferObject {
     pointLightObject pointLights[MAXBULLETS];
     pointLightObject pointLightsAirplane[10 * Partita::MAX_PLANE]; // Enemy lights;
     pointLightObject explosions[MAXBULLETS];
+    spotLightObject spotlight;
     glm::vec4 ambientLight;
     directLightObject moon;
     alignas(4) int lightCounter = 0;
@@ -124,6 +134,7 @@ void Project::localInit() {
     gubo.moon.direction = glm::vec4(glm::vec3(0.0f) - glm::vec3(40.0f), 1.0f);
     gubo.moon.color = glm::vec4(0.965f,0.945f,0.835f, 0.02f);
     gubo.pointLightsAirplaneCounter = 0.0f;
+    gubo.spotlight.spotlightColor = glm::vec4(0.0f);
 
 
     //TODO Change pointers
@@ -363,6 +374,18 @@ void Project::updateLights()
         gubo.pointLights[i].PointlightPosition = glm::vec4(bullets->bulletInfo[i]->pBullet->getPosition3D().origin, 1.0f);
         gubo.pointLights[i].pointLightColor = bullets->bulletInfo[i]->color;
         gubo.lightCounter++;
+    }
+
+    if(partita->bossSpawned)
+    {
+        gubo.spotlight.spotlightColor = glm::vec4(1.0f, 0.0f, 0.0f, 1.0f);
+        gubo.spotlight.spotlightPosition = glm::vec4(planes->bossInfo->pEnemy->getPosition().origin, 1.0f);
+        gubo.spotlight.spotlightDirection = glm::vec4(glm::sin(planes->bossInfo->pEnemy->getPosition().rotation.y)*0.5,
+                                                      -1.0f,
+                                                      glm::cos(planes->bossInfo->pEnemy->getPosition().rotation.y)*0.5,
+                                                      1.0f);
+        gubo.spotlight.spotLightCosIn = 1.0f;
+        gubo.spotlight.spotLightCosOut = 0.95f;
     }
 }
 

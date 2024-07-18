@@ -4,6 +4,15 @@
 #define MAPDIM 25
 #define MAXPARTICLES 20
 
+struct SpotLight{
+    vec4 spotlightPosition;            	// postion of the spotlight
+    vec4 spotlightDirection;           	// direction of the spotlight/directional light
+    vec4 spotlightColor;               	// color of the light
+    float spotlightCosIn;
+    float spotlightCosOut;
+};
+
+
 
 vec3 pointLightIntensityBlink(float frequencyIn, vec4 position, vec4 color, float time, vec3 pos, vec3 normal)
 {
@@ -30,4 +39,24 @@ vec3 pointLightIntensity(float frequencyIn, vec4 position, vec4 color, vec3 pos,
 
 
     return intensity * cosAngIncidence;
+}
+
+vec3 spotlightIntensity(vec4 spotlightPosition,
+                        vec4 spotlightDirection,
+                        vec4 spotlightColor,
+                        float spotlightCosIn,
+                        float spotlightCosOut,
+                        vec4 dirToLight) {
+
+    vec3 dir = dirToLight.xyz;
+    vec3 lightDirection = normalize(dir);
+    float decay = pow(5 / length(dir), 2);
+    vec3 lightColor = spotlightColor.xyz * spotlightColor.w;
+    float cosalpha = dot(lightDirection, spotlightDirection.xyz);
+    float coneDimming = clamp((cosalpha - spotlightCosOut) / (spotlightCosIn - spotlightCosOut), 0, 1);
+    lightColor = lightColor * decay * coneDimming;
+
+    return lightColor;
+
+
 }
