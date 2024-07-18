@@ -10,6 +10,7 @@
 #include "../Model/Include/Partita.h"
 #include "../View/AirplaneLights.hpp"
 #include <memory.h>
+#include <thread>
 
 
 struct directLightObject{
@@ -376,7 +377,7 @@ void Project::updateLights()
         gubo.lightCounter++;
     }
 
-    if(partita->bossSpawned)
+    if(partita->bossSpawned && !planes->bossInfo->pEnemy->getDead())
     {
         gubo.spotlight.spotlightColor = glm::vec4(1.0f, 0.0f, 0.0f, 1.0f);
         gubo.spotlight.spotlightPosition = glm::vec4(planes->bossInfo->pEnemy->getPosition().origin, 1.0f);
@@ -386,6 +387,11 @@ void Project::updateLights()
                                                       1.0f);
         gubo.spotlight.spotLightCosIn = 1.0f;
         gubo.spotlight.spotLightCosOut = 0.95f;
+    }
+    if(partita->bossSpawned && planes->bossInfo->pEnemy->getDead())
+    {
+        gubo.spotlight.spotlightColor = glm::vec4(0.0f, 0.0f, 0.0f, 0.0f);
+        partita->state = END;
     }
 }
 
@@ -507,6 +513,8 @@ void Project::gameLogic()
     partita->checkCollision(deltaT);
     if(partita->state == END)
     {
+        std::cout << "Boss defeated" << std::endl;
+        std::this_thread::sleep_for(std::chrono::seconds(5));
         glfwSetWindowShouldClose(window, GL_TRUE);
     }
 

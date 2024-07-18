@@ -29,6 +29,7 @@ class Partita {
     int state;
     int killCounter;
     bool bossSpawned = false;
+    bool bossDead = false;
     const int spawnRate = 5;
 
     std::shared_ptr<Player> player;
