@@ -41,6 +41,7 @@ struct GlobalUniformBufferObject {
     pointLightObject explosions[constant::MAXBULLETS];
     spotLightObject spotlight;
     glm::vec4 ambientLight;
+    glm::vec4 eyepos;
     directLightObject moon;
     alignas(4) int lightCounter = 0;
     alignas(4) int pointLightsAirplaneCounter = 0; // number of enemies
@@ -158,7 +159,7 @@ void Project::pipelinesAndDescriptorSetsInit() {
 
 void Project::populateCommandBuffer(VkCommandBuffer commandBuffer, int i) {
     particles->populateCommandBuffer(commandBuffer, i);
-    planeLights->populateCommandBuffer(commandBuffer,i);
+    //planeLights->populateCommandBuffer(commandBuffer,i);
     planes->populateCommandBuffer(commandBuffer, i);
     tiles->populateCommandBuffer(commandBuffer, i);
     bullets->populateCommandBuffer(commandBuffer, i);
@@ -408,7 +409,7 @@ void Project::updateUniformBuffer(uint32_t currentImage) {
     planes->playerInfo->ubo.model = updatePlaneMatrix(partita->player->getPosition(), false);
 
     //Camera Update(View-Proj)
-    auto [S,view] = updateCam(partita->player->getPosition(),WorldMatrixPlane,isFirstPerson);
+    auto [S,view] = updateCam(partita->player->getPosition(),WorldMatrixPlane,isFirstPerson, gubo.eyepos);
 
     //View - Proj for bullets
     bullets->buboBullet.view = view;
@@ -436,7 +437,7 @@ void Project::updateUniformBuffer(uint32_t currentImage) {
 
     updateLights();
 
-    updateEnemyLights();
+    //updateEnemyLights();
 
     updateMapUniform(S, currentImage);
 
@@ -450,7 +451,7 @@ void Project::updateUniformBuffer(uint32_t currentImage) {
 
     updateParticlesUniforms(S, currentImage);
 
-    updatePlaneLightsUniform(currentImage);
+    //updatePlaneLightsUniform(currentImage);
 }
 
 void Project::pipelinesAndDescriptorSetsCleanup() {

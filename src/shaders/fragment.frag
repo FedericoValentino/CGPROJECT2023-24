@@ -6,7 +6,6 @@ layout(location = 0) in vec3 fragPos;
 layout(location = 1) in vec3 fragNorm;
 layout(location = 2) in vec2 fragUV;
 layout(location = 3) in float visibility;
-layout(location = 4) in vec3 cameraPos;
 
 
 layout(location = 0) out vec4 outColor;
@@ -31,6 +30,7 @@ layout(binding = 2) uniform GlobalUniformBufferObject {
     pointLight explosions[MAXBULLETS];
     SpotLight spotlight;
     vec4 ambientLight;
+    vec4 eyepos;
     directLight moon;
     int lightCounter;
     int pointLightsAirplaneCounter;
@@ -62,9 +62,9 @@ void main()
                                             surfaceNormal);
         specularReflection += phongSpecularNonMetals(fragPos,
                                             gubo.lights[i].position,
-                                            cameraPos,
+                                            gubo.eyepos.xyz,
                                             surfaceNormal,
-                                            0.1);
+                                            160, gubo.lights[i].color.xyz);
     }
     for(int i = 0; i < gubo.pointLightsAirplaneCounter; ++i)
     {
@@ -76,9 +76,9 @@ void main()
                                             surfaceNormal);
         specularReflection += phongSpecularNonMetals(fragPos,
                                                      gubo.pointLightsAirplane[i].position,
-                                                     cameraPos,
+                                                     gubo.eyepos.xyz,
                                                      surfaceNormal,
-                                                     0.1);
+                                                     160, gubo.pointLightsAirplane[i].color.xyz);
     }
     for(int i = 0; i < gubo.explosionCounter; ++i)
     {
@@ -89,9 +89,10 @@ void main()
                                             surfaceNormal);
         specularReflection += phongSpecularNonMetals(fragPos,
                                                      gubo.explosions[i].position,
-                                                     cameraPos,
+                                                     gubo.eyepos.xyz,
                                                      surfaceNormal,
-                                                     0.1);
+                                                     160,
+                                                     gubo.explosions[i].color.xyz);
     }
 
     //Spot Light
@@ -101,13 +102,14 @@ void main()
                                        gubo.spotlight.spotlightCosIn,
                                        gubo.spotlight.spotlightCosOut,
                                        vec4(fragPos - gubo.spotlight.spotlightPosition.xyz , 1.0f));
-    specularReflection += phongSpecularNonMetals(fragPos,
+    if(gubo.spotlight.spotlightColor != vec4(0.0f, 0.0f, 0.0f, 0.0f))
+        specularReflection += phongSpecularNonMetals(fragPos,
                                                  gubo.spotlight.spotlightPosition,
-                                                 cameraPos,
+                                                 gubo.eyepos.xyz,
                                                  surfaceNormal,
-                                                 0.1);
+                                                 160, gubo.spotlight.spotlightColor.xyz);
 
     vec4 color = texture(tex1, fragUV);
-    outColor = vec4((diffuseLight  + specularReflection) * color.xyz, 1.0);
+    outColor = vec4((diffuseLight + specularReflection) * color.xyz, 1.0);
     outColor = mix(skycolor, outColor, visibility);
 }

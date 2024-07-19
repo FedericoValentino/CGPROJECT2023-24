@@ -31,6 +31,7 @@ layout(binding = 2) uniform GlobalUniformBufferObject {
     pointLight explosions[MAXBULLETS];
     SpotLight spotlight;
     vec4 ambientLight;
+    vec4 eyepos;
     directLight moon;
     int lightCounter;
     int pointLightsAirplaneCounter;

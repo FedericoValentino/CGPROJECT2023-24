@@ -115,7 +115,7 @@ glm::mat4 updatePlaneMatrix(const Position3D& pl_pos, bool cam)
  defining its direction. In particular, <Alpha> defines the direction (Yaw), <Beta> the
  elevation (Pitch), and <Rho> the roll.
  Return the Proj-View matrix and and the View matrix*/
-std::tuple<glm::mat4,glm::mat4> updateCam(Position3D pl_pos,glm::mat4 playerUbo,bool isFirstPerson){
+std::tuple<glm::mat4,glm::mat4> updateCam(Position3D pl_pos,glm::mat4 playerUbo,bool isFirstPerson, glm::vec4& eyePos){
 
     //First Person
     if(isFirstPerson)
@@ -146,6 +146,7 @@ std::tuple<glm::mat4,glm::mat4> updateCam(Position3D pl_pos,glm::mat4 playerUbo,
     // Third Person
     glm::vec3 target = pl_pos.origin;
     glm::vec3 cameraPosition = playerUbo * glm::vec4(0.0f,constant::camHeight,constant::camDistZ,1.0f);
+    eyePos = glm::vec4(cameraPosition, 1.0f);
     glm::vec3 up = glm::normalize(playerUbo * glm::vec4(0.0f,1.0f,0.0f,0.0f));
     glm::mat4 View = glm::lookAt(cameraPosition,target,up);
     return {constant::Proj*View,View};
