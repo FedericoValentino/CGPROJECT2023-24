@@ -16,9 +16,9 @@ Partita::Partita() {
     this->enemies.clear();
     this->killCounter = 0;
     state = GAMING;
-    for(int i = 0; i < MAPDIM; i++)
+    for(int i = 0; i < constant::MAPDIM; i++)
     {
-        for(int j = 0; j < MAPDIM; j++)
+        for(int j = 0; j < constant::MAPDIM; j++)
         {
             map[i][j] = std::make_shared<Tiles>(i,j);
         }
@@ -36,20 +36,20 @@ Partita::Partita() {
 void Partita::generateWorld() {
 
     std::set<int> choices = {FLOOR, HOUSE, SKYSCRAPER};
-    std::set<int> possibleChoices[MAPDIM][MAPDIM];
+    std::set<int> possibleChoices[constant::MAPDIM][constant::MAPDIM];
 
-    for(int i = 0; i < MAPDIM; i++)
+    for(int i = 0; i < constant::MAPDIM; i++)
     {
-        for(int j = 0; j < MAPDIM; j++)
+        for(int j = 0; j < constant::MAPDIM; j++)
         {
             possibleChoices[i][j] = choices;
         }
     }
 
     //Creates the Map
-    for(int x = 0; x < MAPDIM; x++)
+    for(int x = 0; x < constant::MAPDIM; x++)
     {
-        for(int y = 0; y < MAPDIM; y++)
+        for(int y = 0; y < constant::MAPDIM; y++)
         {
             if(!possibleChoices[x][y].empty())
             {
@@ -63,7 +63,7 @@ void Partita::generateWorld() {
                     {
                         for (int j = y - SKYSCRAPER_RADIUS; j <= y + SKYSCRAPER_RADIUS; j++)
                         {
-                            if (!(i == x && j == y) && i >= 0 && i < MAPDIM && j >= 0 && j < MAPDIM && !possibleChoices[i][j].empty())
+                            if (!(i == x && j == y) && i >= 0 && i < constant::MAPDIM && j >= 0 && j < constant::MAPDIM && !possibleChoices[i][j].empty())
                             {
                                 possibleChoices[i][j].erase(SKYSCRAPER);
                                 int randomNumber = rand() % possibleChoices[i][j].size();
@@ -82,9 +82,9 @@ void Partita::generateWorld() {
         }
     }
 
-    for(int x = 0; x < MAPDIM; x++)
+    for(int x = 0; x < constant::MAPDIM; x++)
     {
-        for (int y = 0; y < MAPDIM; y++)
+        for (int y = 0; y < constant::MAPDIM; y++)
         {
             printf("%d ", map[x][y]->height);
         }
@@ -94,10 +94,10 @@ void Partita::generateWorld() {
 
 glm::vec3 randomPos()
 {
-    float max_x = 2.8072f * (MAPDIM-1);
-    float max_z = 2.8072f * (MAPDIM-1);
-    float min_x = -2.8072f * (MAPDIM-1);
-    float min_z = -2.8072f * (MAPDIM-1);
+    float max_x = 2.8072f * (constant::MAPDIM-1);
+    float max_z = 2.8072f * (constant::MAPDIM-1);
+    float min_x = -2.8072f * (constant::MAPDIM-1);
+    float min_z = -2.8072f * (constant::MAPDIM-1);
 
     float x = fmod(rand(),(max_x-min_x + 1)) + min_x;
     float z = fmod(rand(),(max_z-min_z + 1)) + min_z;
@@ -152,14 +152,13 @@ void Partita::checkCollision(float deltaT) {
     //SCORRO L'ALBERO
 
     //TODO Remove comments
-    static constexpr float RADIUS_COLLISION = 5.5f;
     //Check collision player with skyscrapers.
     /*for(auto skyscraper : skyscrapers)
         if(skyscraper->checkCollision(player->getPosition().origin.x,player->getPosition().origin.z,RADIUS_COLLISION))
             state=END;*/
 
     //Check Collision of player with other enemies and bosses
-    float radius = 4 * (MAPDIM);
+    float radius = 4 * (constant::MAPDIM);
     for(auto enemy : enemies)
         if(player->checkDistance3D(enemy->getPosition().origin, player->getPosition().origin, PLAYER) && !enemy->getDead())
             state = END;
@@ -201,7 +200,7 @@ void Partita::checkCollision(float deltaT) {
                 }
                 for(auto skyscraper : skyscrapers)
                 {
-                    if(skyscraper->checkCollision(bullet->getPosition3D().origin.x, bullet->getPosition3D().origin.z,RADIUS_COLLISION) && bullet->getPosition3D().origin.y <= 11.40f)
+                    if(skyscraper->checkCollision(bullet->getPosition3D().origin.x, bullet->getPosition3D().origin.z,constant::RADIUS_COLLISION) && bullet->getPosition3D().origin.y <= 11.40f)
                         enemy->clearBullet(bullet);
                 }
             }
@@ -233,7 +232,7 @@ void Partita::checkCollision(float deltaT) {
         }
         for(auto skyscraper : skyscrapers)
         {
-            if(skyscraper->checkCollision(p->getPosition3D().origin.x, p->getPosition3D().origin.z,RADIUS_COLLISION))
+            if(skyscraper->checkCollision(p->getPosition3D().origin.x, p->getPosition3D().origin.z,constant::RADIUS_COLLISION))
                 player->clearBullet(p);
         }
     }

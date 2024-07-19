@@ -65,7 +65,7 @@
 
 struct UniformBufferObject {
     alignas(16) glm::mat4 worldViewProj;
-    alignas(16) glm::mat4 proj;
+    alignas(16) glm::mat4 proj = constant::Proj;
     alignas(16) glm::mat4 view;
     alignas(16) glm::mat4 model;
     alignas(16) glm::mat4 normal;
@@ -1632,9 +1632,9 @@ std::cout << "Starting createInstance()\n"  << std::flush;
 	}
     
     void createSyncObjects() {
-    	imageAvailableSemaphores.resize(MAX_FRAMES_IN_FLIGHT);
-    	renderFinishedSemaphores.resize(MAX_FRAMES_IN_FLIGHT);
-    	inFlightFences.resize(MAX_FRAMES_IN_FLIGHT);
+    	imageAvailableSemaphores.resize(constant::MAX_FRAMES_IN_FLIGHT);
+    	renderFinishedSemaphores.resize(constant::MAX_FRAMES_IN_FLIGHT);
+    	inFlightFences.resize(constant::MAX_FRAMES_IN_FLIGHT);
     	imagesInFlight.resize(swapChainImages.size(), VK_NULL_HANDLE);
     	    	
     	VkSemaphoreCreateInfo semaphoreInfo{};
@@ -1644,7 +1644,7 @@ std::cout << "Starting createInstance()\n"  << std::flush;
 		fenceInfo.sType = VK_STRUCTURE_TYPE_FENCE_CREATE_INFO;
 		fenceInfo.flags = VK_FENCE_CREATE_SIGNALED_BIT;
 		
-		for (size_t i = 0; i < MAX_FRAMES_IN_FLIGHT; i++) {
+		for (size_t i = 0; i < constant::MAX_FRAMES_IN_FLIGHT; i++) {
 			VkResult result1 = vkCreateSemaphore(device, &semaphoreInfo, nullptr,
 								&imageAvailableSemaphores[i]);
 			VkResult result2 = vkCreateSemaphore(device, &semaphoreInfo, nullptr,
@@ -1743,7 +1743,7 @@ std::cout << "Starting createInstance()\n"  << std::flush;
             throw std::runtime_error("failed to present swap chain image!");
         }
 		
-		currentFrame = (currentFrame + 1) % MAX_FRAMES_IN_FLIGHT;
+		currentFrame = (currentFrame + 1) % constant::MAX_FRAMES_IN_FLIGHT;
     }
 
 	virtual void updateUniformBuffer(uint32_t currentImage) = 0;
@@ -1819,7 +1819,7 @@ std::cout << "Starting createInstance()\n"  << std::flush;
     	 	
 		localCleanup();
     	
-    	for (size_t i = 0; i < MAX_FRAMES_IN_FLIGHT; i++) {
+    	for (size_t i = 0; i < constant::MAX_FRAMES_IN_FLIGHT; i++) {
 			vkDestroySemaphore(device, renderFinishedSemaphores[i], nullptr);
 			vkDestroySemaphore(device, imageAvailableSemaphores[i], nullptr);
 			vkDestroyFence(device, inFlightFences[i], nullptr);

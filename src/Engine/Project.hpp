@@ -36,9 +36,9 @@ struct spotLightObject{
 };
 
 struct GlobalUniformBufferObject {
-    pointLightObject pointLights[MAXBULLETS];
+    pointLightObject pointLights[constant::MAXBULLETS];
     pointLightObject pointLightsAirplane[10 * Partita::MAX_PLANE]; // Enemy lights;
-    pointLightObject explosions[MAXBULLETS];
+    pointLightObject explosions[constant::MAXBULLETS];
     spotLightObject spotlight;
     glm::vec4 ambientLight;
     directLightObject moon;
@@ -122,9 +122,9 @@ void Project::localInit() {
     this->tiles = std::make_shared<TileView>();
     tiles->init(this);
 
-    for(int row = 0; row < MAPDIM; row++)
+    for(int row = 0; row < constant::MAPDIM; row++)
     {
-        for(int col = 0; col < MAPDIM; col++)
+        for(int col = 0; col < constant::MAPDIM; col++)
         {
             tiles->newTile(row, col, partita->map[row][col]->height);
         }
@@ -174,8 +174,6 @@ void Project::setWindowParameters() {
     uniformBlocksInPool = numObj*2;
     texturesInPool = numObj;
     setsInPool = numObj;
-
-    Ar = 5.0f / 3.0f;
 }
 
 void Project::updateMapUniform(const glm::mat4& S, int currentImage)
@@ -410,33 +408,26 @@ void Project::updateUniformBuffer(uint32_t currentImage) {
     planes->playerInfo->ubo.model = updatePlaneMatrix(partita->player->getPosition(), false);
 
     //Camera Update(View-Proj)
-    auto [S,proj,view] = updateCam(Ar, partita->player->getPosition(),WorldMatrixPlane,isFirstPerson);
+    auto [S,view] = updateCam(partita->player->getPosition(),WorldMatrixPlane,isFirstPerson);
 
     //View - Proj for bullets
-    bullets->buboBullet.proj = proj;
     bullets->buboBullet.view = view;
 
     //View - Proj for the map
-    tiles->tuboFloor.proj = proj;
     tiles->tuboFloor.view = view;
 
-    tiles->tuboHouse.proj = proj;
     tiles->tuboHouse.view = view;
 
-    tiles->tuboSkyscraper.proj = proj;
     tiles->tuboSkyscraper.view = view;
 
     //View - Proj for planes
     for(auto info : planes->enemyInfo) {
-        info->ubo.proj = proj;
         info->ubo.view = view;
     }
 
-    planes->playerInfo->ubo.proj = proj;
     planes->playerInfo->ubo.view = view;
 
     if(partita->bossSpawned) {
-        planes->bossInfo->ubo.proj = proj;
         planes->bossInfo->ubo.view = view;
     }
 
@@ -514,7 +505,7 @@ void Project::gameLogic()
     if(partita->state == END)
     {
         std::cout << "Boss defeated" << std::endl;
-        std::this_thread::sleep_for(std::chrono::seconds(5));
+        //std::thread taskThread(CamMovement);
         glfwSetWindowShouldClose(window, GL_TRUE);
     }
 

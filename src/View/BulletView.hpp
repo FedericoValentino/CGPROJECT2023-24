@@ -5,11 +5,11 @@
 #include "../Model/Include/Partita.h"
 
 struct BulletUniformBufferObject {
-    alignas(16) glm::mat4 worldViewProj[MAXBULLETS];
-    alignas(16) glm::mat4 proj;
+    alignas(16) glm::mat4 worldViewProj[constant::MAXBULLETS];
+    alignas(16) glm::mat4 proj = constant::Proj;
     alignas(16) glm::mat4 view;
-    alignas(16) glm::mat4 model[MAXBULLETS];
-    alignas(16) glm::mat4 normal[MAXBULLETS];
+    alignas(16) glm::mat4 model[constant::MAXBULLETS];
+    alignas(16) glm::mat4 normal[constant::MAXBULLETS];
 };
 
 struct bulletFlicker
@@ -21,7 +21,7 @@ struct bulletFlicker
 };
 
 struct FlickeringObject{
-    bulletFlicker flick[MAXBULLETS];
+    bulletFlicker flick[constant::MAXBULLETS];
 };
 
 struct BulletInfo{
@@ -93,7 +93,7 @@ public:
                 {0, VK_DESCRIPTOR_TYPE_STORAGE_BUFFER, VK_SHADER_STAGE_VERTEX_BIT},
                 {1, VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, VK_SHADER_STAGE_ALL_GRAPHICS}});
 
-        for(int i=0; i<MAXBULLETS; i++)
+        for(int i=0; i<constant::MAXBULLETS; i++)
             this->fo.flick[i].time = 0.0f;
 
 

@@ -23,7 +23,7 @@ enum STAGE{
 };
 
 class Partita {
-    using mapStructure = std::array<std::array<std::shared_ptr<Tiles>,MAPDIM>,MAPDIM>;
+    using mapStructure = std::array<std::array<std::shared_ptr<Tiles>,constant::MAPDIM>,constant::MAPDIM>;
     friend class Project;
     int stage;
     int state;

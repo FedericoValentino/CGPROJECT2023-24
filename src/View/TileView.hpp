@@ -6,11 +6,11 @@
 #include "../Model/Include/Partita.h"
 
 struct TileUniformBufferObject {
-    alignas(16) glm::mat4 worldViewProj[MAPDIM*MAPDIM];
-    alignas(16) glm::mat4 proj;
+    alignas(16) glm::mat4 worldViewProj[constant::MAPDIM*constant::MAPDIM];
+    alignas(16) glm::mat4 proj = constant::Proj;
     alignas(16) glm::mat4 view;
-    alignas(16) glm::mat4 model[MAPDIM*MAPDIM];
-    alignas(16) glm::mat4 normal[MAPDIM*MAPDIM];
+    alignas(16) glm::mat4 model[constant::MAPDIM*constant::MAPDIM];
+    alignas(16) glm::mat4 normal[constant::MAPDIM*constant::MAPDIM];
 };
 
 
@@ -56,7 +56,7 @@ public:
         newInfo->col_ = col;
 
         newInfo->ubo.model = glm::mat4(1);
-        newInfo->ubo.model = glm::translate(newInfo->ubo.model, glm::vec3(2.8072f * (MAPDIM-1), 0.0f, 2.8072f * (MAPDIM-1)));
+        newInfo->ubo.model = glm::translate(newInfo->ubo.model, glm::vec3(2.8072f * (constant::MAPDIM-1), 0.0f, 2.8072f * (constant::MAPDIM-1)));
         newInfo->ubo.model = glm::translate(newInfo->ubo.model, glm::vec3(-5.6144f * (float)row, 0.0f, -5.6144f * (float)col));
         newInfo->ubo.normal = glm::inverse(glm::transpose(newInfo->ubo.model));
 
