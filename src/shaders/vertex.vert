@@ -19,6 +19,7 @@ layout (location = 0) out vec3 fragPos;
 layout (location = 1) out vec3 fragNorm;
 layout (location = 2) out vec2 fragUV;
 layout (location = 3) out float visibility;
+layout (location = 4) out vec3 cameraPos;
 
 const float density = 0.01;
 const float gradient = 1.5;
@@ -31,6 +32,7 @@ void main()
     fragPos = (ubo.mMat[gl_InstanceIndex] * vec4(pos, 1.0)).xyz;
     fragNorm = norm;
     fragUV = texCoord;
+    cameraPos = vec3(ubo.view[0][3], ubo.view[1][3], ubo.view[2][3]);
 
     float distance = length(positionToCam.xyz);
     visibility = exp(-pow((distance * density), gradient));

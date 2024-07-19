@@ -123,7 +123,7 @@ glm::vec3 randomPos()
 
 //TODO change later to killCounter >= MAX_PLANE
 std::shared_ptr<Plane> Partita::spawn() {
-    if(!bossSpawned && killCounter == 0)
+    if(!bossSpawned && killCounter >= MAX_PLANE)
     {
         auto pos = randomPos();
         auto rot = glm::vec3(0.0f);
@@ -133,7 +133,7 @@ std::shared_ptr<Plane> Partita::spawn() {
         return plane;
     }
     //TODO change later to < MAX_PLANE
-    else if(killCounter ==  1)
+    else if(killCounter < MAX_PLANE)
     {
         auto pos = randomPos();
         auto rot = glm::vec3(0.0f);

@@ -57,6 +57,27 @@ vec3 spotlightIntensity(vec4 spotlightPosition,
     lightColor = lightColor * decay * coneDimming;
 
     return lightColor;
+}
 
+vec3 phongSpecularNonMetals(vec3 objectPos, vec4 lightPos, vec3 cameraPos, vec3 normal, float shineFactor)
+{
+    vec3 dirToLight = lightPos.xyz - objectPos;
+    vec3 cameraDir = cameraPos - objectPos;
+    vec3 reflectionColor = {1.0, 1.0, 1.0};
 
+    vec3 reflectionDir = -reflect(dirToLight, normal);
+    float reflectionIntensity = pow(clamp(dot(cameraDir, reflectionDir), 0, 1), shineFactor);
+
+    return reflectionColor * reflectionIntensity;
+}
+
+vec3 phongSpecularMetals(vec3 objectPos, vec4 lightPos, vec3 cameraPos, vec3 normal, vec3 metalColor, float shineFactor)
+{
+    vec3 dirToLight = lightPos.xyz - objectPos;
+    vec3 cameraDir = cameraPos - objectPos;
+
+    vec3 reflectionDir = -reflect(dirToLight, normal);
+    float reflectionIntensity = pow(clamp(dot(cameraDir, reflectionDir), 0, 1), shineFactor);
+
+    return metalColor * reflectionIntensity;
 }
