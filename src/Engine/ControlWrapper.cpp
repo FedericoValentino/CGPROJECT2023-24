@@ -150,67 +150,6 @@ std::tuple<glm::mat4,glm::mat4> updateCam(Position3D pl_pos,glm::mat4 playerUbo,
     glm::mat4 View = glm::lookAt(cameraPosition,target,up);
     return {constant::Proj*View,View};
 }
-/*
-void updateCamEND()
-{
-    getSixAxis(deltaT, time, m, r, shoot,isFirstPerson);
-
-    std::array<glm::vec4,6> frustumPlanes;
-
-    //update Starship world matrix
-    glm::mat4 WorldMatrixPlane = updatePlaneMatrix(partita->player->getPosition(), true);
-
-    //Camera Update(View-Proj)
-    auto [S,proj,view] = updateCam(Ar, partita->player->getPosition(),WorldMatrixPlane,isFirstPerson);
-
-    //View - Proj for bullets
-    bullets->buboBullet.proj = proj;
-    bullets->buboBullet.view = view;
-
-    //View - Proj for the map
-    tiles->tuboFloor.proj = proj;
-    tiles->tuboFloor.view = view;
-
-    tiles->tuboHouse.proj = proj;
-    tiles->tuboHouse.view = view;
-
-    tiles->tuboSkyscraper.proj = proj;
-    tiles->tuboSkyscraper.view = view;
-
-    //View - Proj for planes
-    for(auto info : planes->enemyInfo) {
-        info->ubo.proj = proj;
-        info->ubo.view = view;
-    }
-
-    planes->playerInfo->ubo.proj = proj;
-    planes->playerInfo->ubo.view = view;
-
-    if(partita->bossSpawned) {
-        planes->bossInfo->ubo.proj = proj;
-        planes->bossInfo->ubo.view = view;
-    }
-
-    //for FrustumCulling
-    extractFrustumPlanes(frustumPlanes, S);
-
-    updateLights();
-
-    updateEnemyLights();
-
-    updateMapUniform(S, currentImage);
-
-    updatePlayerUniform(S, currentImage);
-
-    updateEnemyUniform(S, currentImage);
-
-    updateBulletsUniform(S, currentImage);
-
-    updateParticlesUniforms(S, currentImage);
-
-    updatePlaneLightsUniform(currentImage);
-}
- */
 
 bool sphereInFrustum(std::array<glm::vec4,6>& m_planes, const glm::vec3& point, float radius)
 {

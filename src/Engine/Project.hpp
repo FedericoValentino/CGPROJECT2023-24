@@ -505,7 +505,7 @@ void Project::gameLogic()
     if(partita->state == END)
     {
         std::cout << "Boss defeated" << std::endl;
-        //std::thread taskThread(CamMovement);
+        std::this_thread::sleep_for(std::chrono::seconds(3));
         glfwSetWindowShouldClose(window, GL_TRUE);
     }
 
