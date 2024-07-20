@@ -115,7 +115,7 @@ public:
 
         this->player.init(bp, &VD, "../src/models/player.obj", OBJ);
         this->Boss.init(bp, &VD, "../src/models/Zeppelin.obj", OBJ);
-        this->baseEnemy.init(bp, &VD, "../src/models/sphere.obj", OBJ);
+        this->baseEnemy.init(bp, &VD, "../src/models/Biplane.obj", OBJ);
     }
 
     void pipelineAndDSInit(BaseProject* bp, int ubosize, int gubosize){
