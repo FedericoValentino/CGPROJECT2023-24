@@ -1,6 +1,6 @@
 #define MAXBULLETS 400
 #define MAXSIZE 400
-#define MAX_PLANE 3
+#define MAX_PLANE 1
 #define MAPDIM 25
 #define MAXPARTICLES 20
 #define PI 3.1415926538
@@ -55,7 +55,7 @@ vec3 spotlightIntensity(vec4 spotlightPosition,
     float decay = pow(5 / length(dir), 2);
     vec3 lightColor = spotlightColor.xyz * spotlightColor.w;
     float cosalpha = dot(lightDirection, spotlightDirection.xyz);
-    float coneDimming = clamp((cosalpha - spotlightCosOut) / (spotlightCosIn - spotlightCosOut), 0, 1);
+    float coneDimming = clamp((cosalpha - spotlightCosOut) / (spotlightCosIn - spotlightCosOut), 0.0f, 1.0f);
     lightColor = lightColor * decay * coneDimming;
 
     return lightColor;

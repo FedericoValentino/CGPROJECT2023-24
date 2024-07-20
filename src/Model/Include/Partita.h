@@ -56,7 +56,7 @@ class Partita {
 
 public:
 
-    static constexpr int MAX_PLANE = 3; // maximum number of planes before boss
+    static constexpr int MAX_PLANE = 1; // maximum number of planes before boss
 
     Partita();
 
