@@ -132,6 +132,7 @@ void Project::localInit() {
     }
 
     //Light updates
+    //TODO moon.color.w was 0.02f
     gubo.ambientLight = glm::vec4(1.0f, 1.0f, 1.0f, 0.02f);
     gubo.moon.direction = glm::vec4(glm::vec3(0.0f) - glm::vec3(40.0f), 1.0f);
     gubo.moon.color = glm::vec4(0.965f,0.945f,0.835f, 0.02f);

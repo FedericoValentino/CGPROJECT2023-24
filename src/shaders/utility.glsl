@@ -3,6 +3,7 @@
 #define MAX_PLANE 3
 #define MAPDIM 25
 #define MAXPARTICLES 20
+#define PI 3.1415926538
 
 struct SpotLight{
     vec4 spotlightPosition;            	// postion of the spotlight
@@ -17,7 +18,7 @@ struct SpotLight{
 vec3 pointLightIntensityBlink(float frequencyIn, vec4 position, vec4 color, float time, vec3 pos, vec3 normal)
 {
     float frequency = frequencyIn;
-    vec3 directionToLight = position.xyz - pos;
+    vec3 directionToLight = normalize(position.xyz - pos);
     float attenuation = 1.0 / dot(directionToLight, directionToLight);
     float cosAngIncidence = max(dot(normal, normalize(directionToLight)), 0);
     vec3 intensity = color.xyz * color.w * attenuation;
@@ -79,4 +80,39 @@ vec3 phongSpecularMetals(vec3 objectPos, vec4 lightPos, vec3 cameraPos, vec3 nor
     float reflectionIntensity = pow(clamp(dot(cameraDir, reflectionDir), 0, 1), shineFactor);
 
     return metalColor * reflectionIntensity;
+}
+
+//Cook Torrance Specular related shit
+float Dbeckmann(float roughness, vec3 halfVector, vec3 normal)
+{
+    float expNumerator = pow(clamp(dot(halfVector, normal), 0.0, 1.0), 2) - 1;
+    float expDenominator = pow(clamp(dot(halfVector, normal), 0.0, 1.0), 2) * pow(roughness, 2);
+    float numerator = exp(expNumerator/expDenominator);
+    float denominator = PI * pow(roughness, 2) * pow(clamp(dot(halfVector, normal), 0.0, 1.0), 4);
+    return numerator/denominator;
+}
+
+float Fresnel(vec3 halfVector, vec3 cameraDirection)
+{
+    float refractiveIndex = 0.0;
+    float Fo = pow((1 - refractiveIndex)/(1 + refractiveIndex), 2);
+    float fifthPower = pow(1 - clamp(dot(cameraDirection, halfVector), 0.0, 1.0), 5);
+    float F = Fo + ((1 - Fo) * fifthPower);
+    return F;
+}
+
+
+float Gmicrofacet(float roughness, vec3 halfVector, vec3 normal, vec3 cameraDirection, vec3 lightDirection)
+{
+    float cameraTerm = (2 * clamp(dot(halfVector, normal), 0.0, 1.0) * clamp(dot(cameraDirection, normal), 0.0, 1.0)) / (clamp(dot(cameraDirection, halfVector), 0.0, 1.0));
+    float lightTerm = (2 * clamp(dot(halfVector, normal), 0.0, 1.0) * clamp(dot(lightDirection, normal), 0.0, 1.0)) / (clamp(dot(cameraDirection, halfVector), 0.0, 1.0));
+    float minimumTerm = min(cameraTerm, lightTerm);
+    return min(1, minimumTerm);
+}
+
+vec3 cookTorranceSpecular(float K, float roughness, vec3 halfVector, vec3 normal, vec3 cameraDirection, vec3 lightDirection, vec3 specularColor)
+{
+    float numerator = Dbeckmann(roughness, halfVector, normal) * Fresnel(halfVector, cameraDirection) * Gmicrofacet(roughness, halfVector, normal, cameraDirection, lightDirection);
+    float denominator = 4 * clamp(dot(cameraDirection, normal), 0.0, 1.0);
+    return ((1 - K) * specularColor * (numerator/denominator));
 }
