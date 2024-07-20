@@ -27,6 +27,7 @@ target_link_libraries(Project glfw)
 target_link_libraries(Project glm)
 target_link_libraries(Project Vulkan::Vulkan)
 target_include_directories(Project PRIVATE src/headers)
+set_target_properties(Project PROPERTIES COMPILE_OPTIONS -g)
 
 message("cmake system name = ${CMAKE_SYSTEM_NAME}")
 message("cmake host name = ${CMAKE_HOST_SYSTEM_NAME}")

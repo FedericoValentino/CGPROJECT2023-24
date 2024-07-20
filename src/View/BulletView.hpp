@@ -59,13 +59,13 @@ public:
         switch (bullet->getType())
         {
             case ENEMY :
-                newInfo->color = glm::vec4(1.0f, 0.0f, 0.0f, 3.0f);
+                newInfo->color = glm::vec4(1.0f, 0.0f, 0.0f, 1.0f);
                 break;
             case PLAYER :
-                newInfo->color = glm::vec4(0.0f, 1.0f, 0.0f, 3.0f);
+                newInfo->color = glm::vec4(0.0f, 1.0f, 0.0f, 1.0f);
                 break;
             case BOSS :
-                newInfo->color = glm::vec4(1.0f, 0.0f, 1.0f, 3.0f);
+                newInfo->color = glm::vec4(1.0f, 0.0f, 1.0f, 1.0f);
                 break;
             default :
                 break;

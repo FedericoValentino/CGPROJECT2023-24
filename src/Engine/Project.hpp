@@ -157,7 +157,7 @@ void Project::pipelinesAndDescriptorSetsInit() {
     planeLights->pipelineAndDSInit(this);
     bullets->pipelineAndDSInit(this, sizeof(BulletUniformBufferObject), sizeof(FlickeringObject));
     tiles->pipelineAndDSInit(this, sizeof(TileUniformBufferObject), sizeof(GlobalUniformBufferObject));
-    planes->pipelineAndDSInit(this, sizeof(UniformBufferObject), sizeof(GlobalUniformBufferObject));
+    planes->pipelineAndDSInit(this, sizeof(PlaneUniformBufferObject), sizeof(GlobalUniformBufferObject));
 }
 
 void Project::populateCommandBuffer(VkCommandBuffer commandBuffer, int i) {
@@ -230,18 +230,18 @@ void Project::updatePlayerUniform(const glm::mat4& S, int currentImage)
     planes->playerInfo->ubo.worldViewProj = S * planes->playerInfo->ubo.model; // S = View-Proj
     planes->playerInfo->ubo.normal = glm::inverse(planes->playerInfo->ubo.model);
 
-    planes->playerInfo->DS.map(currentImage, &planes->playerInfo->ubo, sizeof(planes->playerInfo->ubo), 0);
-
-    planes->playerInfo->DS.map(currentImage, &gubo, sizeof(GlobalUniformBufferObject), 2);
+    planes->pubo.ModelViewProj[0] = planes->playerInfo->ubo.worldViewProj;
+    planes->pubo.model[0] = planes->playerInfo->ubo.model;
+    planes->pubo.normal[0] = planes->playerInfo->ubo.normal;
 }
 
 void Project::updateEnemyUniform(const glm::mat4& S, int currentImage)
 {
     //buffer update sequence for planes
-    for(auto info : planes->enemyInfo)
+    for(int i = 0; i < planes->enemyInfo.size(); i++)
     {
+        auto info = planes->enemyInfo[i];
         auto pos = info->pEnemy->getPosition();
-        info->toDraw = !info->pEnemy->getDead();
 
         info->ubo.model = glm::mat4(1);
         info->ubo.model = glm::translate(info->ubo.model, pos.origin);
@@ -253,9 +253,11 @@ void Project::updateEnemyUniform(const glm::mat4& S, int currentImage)
         info->ubo.worldViewProj = S * info->ubo.model;
         info->ubo.normal = glm::inverse(glm::transpose(info->ubo.model));
 
-        info->DS.map(currentImage, &info->ubo, sizeof(UniformBufferObject), 0);
-        info->DS.map(currentImage, &gubo, sizeof(GlobalUniformBufferObject), 2);
+        planes->pubo.ModelViewProj[2+i] = info->ubo.worldViewProj;
+        planes->pubo.model[2+i] = info->ubo.model;
+        planes->pubo.normal[2+i] = info->ubo.normal;
     }
+
 }
 
 
@@ -274,10 +276,13 @@ void Project::updateBossUniform(const glm::mat4& S, int currentImage)
         planes->bossInfo->ubo.worldViewProj = S * planes->bossInfo->ubo.model;
         planes->bossInfo->ubo.normal = glm::inverse(planes->bossInfo->ubo.model);
 
-        planes->bossInfo->DS.map(currentImage, &planes->bossInfo->ubo, sizeof(planes->bossInfo->ubo), 0);
-
-        planes->bossInfo->DS.map(currentImage, &gubo, sizeof(GlobalUniformBufferObject), 2);
+        planes->pubo.ModelViewProj[1] = planes->bossInfo->ubo.worldViewProj;
+        planes->pubo.model[1] = planes->bossInfo->ubo.model;
+        planes->pubo.normal[1] = planes->bossInfo->ubo.normal;
     }
+
+    planes->DSPlane.map(currentImage, &planes->pubo, sizeof(PlaneUniformBufferObject), 0);
+    planes->DSPlane.map(currentImage, &gubo, sizeof(GlobalUniformBufferObject), 2);
 }
 
 
@@ -550,6 +555,21 @@ void Project::gameLogic()
 
     particles->particles.erase(itParticles, particles->particles.end());
 
+    //Erasing Dead Planes
+    auto itPlanes = std::remove_if(planes->enemyInfo.begin(), planes->enemyInfo.end(), [&](std::shared_ptr<PlaneInfo> pi)
+    {
+        if(pi->pEnemy->getDead())
+        {
+            for(int i = pi->indexInPubo; i < 20-1; i++)
+                planes->pubo.model[i] = planes->pubo.model[i+1];
+            return true;
+        }
+        else
+            return false;
+    });
+
+    planes->enemyInfo.erase(itPlanes, planes->enemyInfo.end());
+
     //Overwriting explosions
     for(int i = 0; i < gubo.explosionCounter; i++)
     {
@@ -597,9 +617,9 @@ void Project::gameLogic()
 
 
     //MAKE BULLETS MOVE
-    for(auto info : planes->enemyInfo)
+    for(auto info : partita->enemies)
     {
-        for(auto bullet : info->pEnemy->getBullets())
+        for(auto bullet : info->getBullets())
         {
             bullet->move(deltaT);
         }
@@ -668,10 +688,10 @@ void Project::spawnPlane()
             switch(plane->getType())
             {
                 case ENEMY:
-                    planes->newEnemy(plane, sizeof(UniformBufferObject), sizeof(GlobalUniformBufferObject));
+                    planes->newEnemy(plane);
                     break;
                 case BOSS:
-                    planes->newBoss(plane, sizeof(UniformBufferObject), sizeof(GlobalUniformBufferObject));
+                    planes->newBoss(plane);
                     break;
             }
         }

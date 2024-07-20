@@ -2,11 +2,11 @@
 
 
 layout(binding = 0) uniform UniformBufferObject {
-    mat4 mvpMat;
+    mat4 mvpMat[20];
     mat4 proj;
     mat4 view;
-    mat4 mMat;
-    mat4 nMat;
+    mat4 mMat[20];
+    mat4 nMat[20];
 } ubo;
 
 
@@ -24,10 +24,10 @@ const float gradient = 1.5;
 
 void main()
 {
-    vec4 worldPosition = ubo.mMat * vec4(pos, 1.0);
+    vec4 worldPosition = ubo.mMat[gl_InstanceIndex] * vec4(pos, 1.0);
     vec4 positionToCam = ubo.view * worldPosition;
-    gl_Position = ubo.mvpMat * vec4(pos, 1.0);
-    fragPos = (ubo.mMat * vec4(pos, 1.0)).xyz;
+    gl_Position = ubo.mvpMat[gl_InstanceIndex] * vec4(pos, 1.0);
+    fragPos = (ubo.mMat[gl_InstanceIndex] * vec4(pos, 1.0)).xyz;
     fragNorm = norm;
     fragUV = texCoord;
 
