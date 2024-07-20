@@ -90,6 +90,8 @@ private:
 
     void spawnPlane();
 
+    void setMapUniform();
+
     void updateMapUniform(const glm::mat4& S, int currentImage);
 
     void updatePlayerUniform(const glm::mat4& S, int currentImage);
@@ -178,51 +180,46 @@ void Project::setWindowParameters() {
     setsInPool = numObj;
 }
 
-void Project::updateMapUniform(const glm::mat4& S, int currentImage)
+void Project::setMapUniform()
 {
+
+    int offset = 0;
     //Map updates
     for(int i = 0; i < tiles->floorTiles.size(); i++)
     {
         auto info = tiles->floorTiles[i];
-        glm::vec3 tilePosition = glm::vec3(info->ubo.model[3][0], info->ubo.model[3][1], info->ubo.model[3][2]);
 
-        info->ubo.worldViewProj = S * info->ubo.model;
-
-        tiles->tuboFloor.worldViewProj[i] = info->ubo.worldViewProj;
-        tiles->tuboFloor.model[i] = info->ubo.model;
-        tiles->tuboFloor.normal[i] = info->ubo.normal;
+        tiles->tubo.model[i+offset] = info->ubo.model;
+        tiles->tubo.normal[i+offset] = info->ubo.normal;
     }
 
-    tiles->DSFloor.map(currentImage, &tiles->tuboFloor, sizeof(TileUniformBufferObject), 0);
-    tiles->DSFloor.map(currentImage, &gubo, sizeof(GlobalUniformBufferObject), 2);
+    offset += tiles->floorTiles.size();
 
     for(int i = 0; i < tiles->houseTiles.size(); i++)
     {
         auto info = tiles->houseTiles[i];
-        glm::vec3 tilePosition = glm::vec3(info->ubo.model[3][0], info->ubo.model[3][1], info->ubo.model[3][2]);
 
-        info->ubo.worldViewProj = S * info->ubo.model;
-        tiles->tuboHouse.worldViewProj[i] = info->ubo.worldViewProj;
-        tiles->tuboHouse.model[i] = info->ubo.model;
-        tiles->tuboHouse.normal[i] = info->ubo.normal;
+        tiles->tubo.model[i+offset] = info->ubo.model;
+        tiles->tubo.normal[i+offset] = info->ubo.normal;
     }
-
-    tiles->DSHouse.map(currentImage, &tiles->tuboHouse, sizeof(TileUniformBufferObject), 0);
-    tiles->DSHouse.map(currentImage, &gubo, sizeof(GlobalUniformBufferObject), 2);
+    offset += tiles->houseTiles.size();
 
     for(int i = 0; i < tiles->skyscraperTiles.size(); i++)
     {
         auto info = tiles->skyscraperTiles[i];
-        glm::vec3 tilePosition = glm::vec3(info->ubo.model[3][0], info->ubo.model[3][1], info->ubo.model[3][2]);
 
-        info->ubo.worldViewProj = S * info->ubo.model;
-        tiles->tuboSkyscraper.worldViewProj[i] = info->ubo.worldViewProj;
-        tiles->tuboSkyscraper.model[i] = info->ubo.model;
-        tiles->tuboSkyscraper.normal[i] = info->ubo.normal;
+        tiles->tubo.model[i+offset] = info->ubo.model;
+        tiles->tubo.normal[i+offset] = info->ubo.normal;
     }
 
-    tiles->DSSkyscraper.map(currentImage, &tiles->tuboSkyscraper, sizeof(TileUniformBufferObject), 0);
-    tiles->DSSkyscraper.map(currentImage, &gubo, sizeof(GlobalUniformBufferObject), 2);
+
+    for(int currentImage = 0; currentImage <= constant::MAX_FRAMES_IN_FLIGHT; currentImage++)
+        tiles->DSTiles.map(currentImage, &tiles->tubo, sizeof(TileUniformBufferObject), 0);
+}
+
+void Project::updateMapUniform(const glm::mat4& S, int currentImage)
+{
+    tiles->DSTiles.map(currentImage, &gubo, sizeof(GlobalUniformBufferObject), 2);
 }
 
 
@@ -403,6 +400,9 @@ void Project::updateLights()
  * @param currentImage
  */
 void Project::updateUniformBuffer(uint32_t currentImage) {
+
+    static bool mapUniformSet = false;
+
     std::array<glm::vec4,6> frustumPlanes;
 
     //update Starship world matrix
@@ -416,11 +416,7 @@ void Project::updateUniformBuffer(uint32_t currentImage) {
     bullets->buboBullet.view = view;
 
     //View - Proj for the map
-    tiles->tuboFloor.view = view;
-
-    tiles->tuboHouse.view = view;
-
-    tiles->tuboSkyscraper.view = view;
+    tiles->tubo.view = view;
 
     //View - Proj for planes
     for(auto info : planes->enemyInfo) {
@@ -435,6 +431,9 @@ void Project::updateUniformBuffer(uint32_t currentImage) {
 
     //for FrustumCulling
     extractFrustumPlanes(frustumPlanes, S);
+
+    if(!mapUniformSet)
+        setMapUniform();
 
     updateLights();
 

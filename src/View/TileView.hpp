@@ -6,7 +6,6 @@
 #include "../Model/Include/Partita.h"
 
 struct TileUniformBufferObject {
-    alignas(16) glm::mat4 worldViewProj[constant::MAPDIM*constant::MAPDIM];
     alignas(16) glm::mat4 proj = constant::Proj;
     alignas(16) glm::mat4 view;
     alignas(16) glm::mat4 model[constant::MAPDIM*constant::MAPDIM];
@@ -19,6 +18,12 @@ struct TileInfo{
     int col_;
     bool toDraw;
     UniformBufferObject ubo;
+};
+
+struct pushTile
+{
+    glm::mat4 view;
+    alignas(4) int type = 0;
 };
 
 class TileView {
@@ -41,12 +46,8 @@ public:
 
     BaseProject* app;
 
-    TileUniformBufferObject tuboFloor;
-    DescriptorSet DSFloor;
-    TileUniformBufferObject tuboHouse;
-    DescriptorSet DSHouse;
-    TileUniformBufferObject tuboSkyscraper;
-    DescriptorSet DSSkyscraper;
+    TileUniformBufferObject tubo;
+    DescriptorSet DSTiles;
 
     void newTile(int row, int col, int type)
     {
@@ -96,7 +97,9 @@ public:
                 // third  element : the pipeline stage where it will be used
                 {0, VK_DESCRIPTOR_TYPE_STORAGE_BUFFER, VK_SHADER_STAGE_VERTEX_BIT},
                 {1, VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, VK_SHADER_STAGE_FRAGMENT_BIT},
-                {2, VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, VK_SHADER_STAGE_ALL_GRAPHICS}});
+                {2, VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, VK_SHADER_STAGE_ALL_GRAPHICS},
+                {3, VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, VK_SHADER_STAGE_FRAGMENT_BIT},
+                {4, VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, VK_SHADER_STAGE_FRAGMENT_BIT}});
 
 
         this->P.init(bp, &VD, "../src/shaders/vert.spv", "../src/shaders/frag.spv", {&this->DSL});
@@ -111,35 +114,25 @@ public:
     }
 
     void pipelineAndDSInit(BaseProject* bp, int ubosize, int gubosize){
-        this->P.create(false, 0, VK_SHADER_STAGE_ALL);
+        this->P.create(true, sizeof(pushTile), VK_SHADER_STAGE_VERTEX_BIT);
 
-        DSFloor.init(bp, &this->DSL, {
+        DSTiles.init(bp, &this->DSL, {
                 {0, STORAGE, ubosize,  nullptr},
                 {1, TEXTURE, 0,        &this->Floor},
-                {2, UNIFORM, gubosize, nullptr}
-        });
-
-        DSHouse.init(bp, &this->DSL, {
-                {0, STORAGE, ubosize,  nullptr},
-                {1, TEXTURE, 0,        &this->House},
-                {2, UNIFORM, gubosize, nullptr}
-        });
-
-        DSSkyscraper.init(bp, &this->DSL, {
-                {0, STORAGE, ubosize,  nullptr},
-                {1, TEXTURE, 0,        &this->Skyscraper},
-                {2, UNIFORM, gubosize, nullptr}
+                {2, UNIFORM, gubosize, nullptr},
+                {3, TEXTURE, 0,        &this->House},
+                {4, TEXTURE, 0,        &this->Skyscraper},
         });
     }
 
     void populateCommandBuffer(VkCommandBuffer commandBuffer, int currentImage){
         this->P.bind(commandBuffer);
-
-
+        DSTiles.bind(commandBuffer, this->P, 0, currentImage);
 
         if(!floorTiles.empty())
         {
-            DSFloor.bind(commandBuffer, this->P, 0, currentImage);
+            pushTile push{tubo.view, FLOOR};
+            vkCmdPushConstants(commandBuffer, this->P.pipelineLayout, VK_SHADER_STAGE_VERTEX_BIT, 0, sizeof(pushTile), &push);
             this->floor.bind(commandBuffer);
 
             vkCmdDrawIndexed(commandBuffer,
@@ -148,21 +141,25 @@ public:
 
         if(!houseTiles.empty())
         {
-            DSHouse.bind(commandBuffer, this->P, 0, currentImage);
+            pushTile push{tubo.view, HOUSE};
+            vkCmdPushConstants(commandBuffer, this->P.pipelineLayout, VK_SHADER_STAGE_VERTEX_BIT, 0, sizeof(pushTile), &push);
+
             this->house.bind(commandBuffer);
 
             vkCmdDrawIndexed(commandBuffer,
-                             static_cast<uint32_t>(this->house.indices.size()), houseTiles.size(), 0, 0, 0);
+                             static_cast<uint32_t>(this->house.indices.size()), houseTiles.size(), 0, 0, floorTiles.size());
         }
 
 
         if(!skyscraperTiles.empty())
         {
-            DSSkyscraper.bind(commandBuffer, this->P, 0, currentImage);
+            pushTile push{tubo.view, SKYSCRAPER};
+            vkCmdPushConstants(commandBuffer, this->P.pipelineLayout, VK_SHADER_STAGE_VERTEX_BIT, 0, sizeof(pushTile), &push);
+
             this->skyscraper.bind(commandBuffer);
 
             vkCmdDrawIndexed(commandBuffer,
-                             static_cast<uint32_t>(this->skyscraper.indices.size()), skyscraperTiles.size(), 0, 0, 0);
+                             static_cast<uint32_t>(this->skyscraper.indices.size()), skyscraperTiles.size(), 0, 0, floorTiles.size() + houseTiles.size());
         }
 
 
@@ -182,9 +179,7 @@ public:
 
     void pipelineAndDSCleanup(){
         this->P.cleanup();
-        DSHouse.cleanup();
-        DSFloor.cleanup();
-        DSSkyscraper.cleanup();
+        DSTiles.cleanup();
     }
 
 

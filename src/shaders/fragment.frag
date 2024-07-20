@@ -6,11 +6,14 @@ layout(location = 0) in vec3 fragPos;
 layout(location = 1) in vec3 fragNorm;
 layout(location = 2) in vec2 fragUV;
 layout(location = 3) in float visibility;
+layout(location = 4) in flat int tileType;
 
 
 layout(location = 0) out vec4 outColor;
 
-layout(binding = 1) uniform sampler2D tex1;
+layout(binding = 1) uniform sampler2D floorTex;
+layout(binding = 3) uniform sampler2D houseTex;
+layout(binding = 4) uniform sampler2D skyscraperTex;
 
 struct directLight{
     vec4 color;
@@ -41,11 +44,26 @@ vec4 skycolor = vec4(0.012f,0.031f,0.11f, 1.0f);
 
 void main()
 {
+    vec4 color;
+
+    switch(tileType)
+    {
+        case 0:
+            color = texture(floorTex, fragUV);
+            break;
+        case 1:
+            color = texture(houseTex, fragUV);
+            break;
+        case 2:
+            color = texture(skyscraperTex, fragUV);
+            break;
+    }
+
+    vec3 specularReflection = {0.0, 0.0, 0.0};
     float k = 0.5f;
     float roughness = 0.5f;
     vec3 specularColor = {1.0, 1.0, 1.0};
     vec3 cookTorrance;
-    vec4 color = texture(tex1, fragUV);
     vec3 lightDirection = {0, 0, 0};
     vec3 cameraDirection = {0, 0, 0};
     vec3 halfVector = {0, 0, 0};

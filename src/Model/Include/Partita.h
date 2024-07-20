@@ -10,6 +10,8 @@
 #include "PlaneBuilder.hpp"
 #include "Constants.h"
 
+#define MAX_ENEMIES_IN_MAP 20
+
 
 enum GAMESTATE{
     GAMING,
