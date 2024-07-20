@@ -69,6 +69,12 @@ public:
 
     void pipelineAndDSInit(BaseProject* bp){
         this->P.create(false, 0, VK_SHADER_STAGE_ALL);
+        for(Particle &p: particles)
+        {
+            p.DS.init(app, &this->DSL, {
+                    {0, UNIFORM, sizeof(particleUniformBufferObject), nullptr}
+            });
+        }
     }
 
     void populateCommandBuffer(VkCommandBuffer commandBuffer, int currentImage){
