@@ -2,6 +2,7 @@
 #extension GL_ARB_separate_shader_objects : enable
 #include "utility.glsl"
 
+
 layout(location = 0) in vec3 fragPos;
 layout(location = 1) in vec3 fragNorm;
 layout(location = 2) in vec2 fragUV;
@@ -61,25 +62,47 @@ void main()
                 break;
     }
 
+    vec3 specularReflection = {0.0, 0.0, 0.0};
+    float k = 0.5f;
+    float g = 1.0f; // decay factor
+    float beta = 1.0f; // decay factor
+    float roughness = 0.5f;
+    vec3 specularColor = {1.0, 1.0, 1.0};
+    vec3 cookTorrance;
+    vec3 lightDirection = {0, 0, 0};
+    vec3 halfVector = {0, 0, 0};
+    vec3 cameraDirection = normalize(gubo.eyepos.xyz - fragPos);
+
+    vec3 eps = {0.1f,0.1f,0.1f}; // make the colour of the texture a little brighter
+    color.xyz = color.xyz + eps;
+
     //ambient light
-    vec3 diffuseLight = gubo.ambientLight.xyz * gubo.ambientLight.w;
+    vec3 ambientLight = gubo.ambientLight.xyz * gubo.ambientLight.w;
     vec3 surfaceNormal = normalize(fragNorm);
+    vec3 diffuseLight = color.xyz * ambientLight;
+
 
     //Directional Light
     float direction_diffuse = max(dot(surfaceNormal, normalize(-gubo.moon.direction.xyz)), 0);
-    diffuseLight += gubo.moon.color.xyz * gubo.moon.color.w * direction_diffuse;
-
+    lightDirection = -gubo.moon.direction.xyz;
+    halfVector = normalize(lightDirection + cameraDirection);
+    diffuseLight += gubo.moon.color.xyz * gubo.moon.color.w * ((k * color.xyz * direction_diffuse ) + cookTorranceSpecular(k, roughness, halfVector, surfaceNormal, cameraDirection, lightDirection, specularColor));
 
     //Point Lights
     for(int i=0; i<gubo.lightCounter; i++)
     {
-        diffuseLight += pointLightIntensityBlink(gubo.lights[i].size,
-                                            gubo.lights[i].position,
-                                            gubo.lights[i].color,
-                                            gubo.lights[i].time,
-                                            fragPos,
-                                            surfaceNormal);
+        lightDirection = normalize(gubo.lights[i].position.xyz - fragPos);
+        halfVector = normalize(lightDirection + cameraDirection);
+        float dist = distance(gubo.lights[i].position.xyz,fragPos);
+        diffuseLight += gubo.lights[i].color.xyz * gubo.lights[i].color.w * pow(g/dist,beta) *
+        ( k * color.xyz * pointLightIntensityBlink(gubo.lights[i].size,
+                                                    gubo.lights[i].position,
+                                                    gubo.lights[i].color,
+                                                    gubo.lights[i].time,
+                                                    fragPos,
+                                                    surfaceNormal) + cookTorranceSpecular(k, roughness, halfVector, surfaceNormal, cameraDirection, lightDirection, specularColor));
     }
+/*
     for(int i = 0;i < gubo.pointLightsAirplaneCounter;++i)
     {
         diffuseLight += pointLightIntensityBlink(gubo.pointLightsAirplane[i].size,
@@ -104,7 +127,7 @@ void main()
                                        gubo.spotlight.spotlightCosIn,
                                        gubo.spotlight.spotlightCosOut,
                                        vec4(fragPos - gubo.spotlight.spotlightPosition.xyz , 1.0f));
-
-    outColor = vec4(diffuseLight * color.xyz, 1.0);
+*/
+    outColor = vec4(diffuseLight, 1.0);
     outColor = mix(skycolor, outColor, visibility);
 }

@@ -136,7 +136,7 @@ void Project::localInit() {
     //Light updates
     //TODO moon.color.w was 0.02f
     gubo.ambientLight = glm::vec4(1.0f, 1.0f, 1.0f, 0.02f);
-    gubo.moon.direction = glm::vec4(glm::vec3(0.0f) - glm::vec3(40.0f), 1.0f);
+    gubo.moon.direction = glm::vec4(0.0f,-40.0f,0.0f,1.0f);
     gubo.moon.color = glm::vec4(0.965f,0.945f,0.835f, 0.02f);
     gubo.pointLightsAirplaneCounter = 0.0f;
     gubo.spotlight.spotlightColor = glm::vec4(0.0f);
@@ -518,7 +518,7 @@ void Project::gameLogic()
         if (info->pBullet->toClear) {
             info->ubo.model = glm::scale(info->ubo.model, glm::vec3(10.0f));
             particles->newParticle(info->ubo.model);
-            gubo.explosions[gubo.explosionCounter] = pointLightObject{glm::vec4(1.0, 0.0, 0.0, 3.0),
+            gubo.explosions[gubo.explosionCounter] = pointLightObject{glm::vec4(1.0, 0.5, 0.0, 3.0),
                                                                       glm::vec4(info->pBullet->getPosition3D().origin, 1.0f),
                                                                       0.0f,
                                                                       3.0f};

@@ -62,104 +62,105 @@ void main()
     vec3 specularReflection = {0.0, 0.0, 0.0};
     float k = 0.5f;
     float g = 1.0f; // decay factor
-    float beta = 1.0f; // decay factor
+    float beta = 1.5f; // decay factor
     float roughness = 0.5f;
     vec3 specularColor = {1.0, 1.0, 1.0};
     vec3 cookTorrance;
     vec3 lightDirection = {0, 0, 0};
     vec3 halfVector = {0, 0, 0};
     vec3 cameraDirection = normalize(gubo.eyepos.xyz - fragPos);
-    //vec3 specularReflection = {0.0, 0.0, 0.0};
 
     //ambient light
     vec3 diffuseLight = gubo.ambientLight.xyz * gubo.ambientLight.w;
     vec3 surfaceNormal = normalize(fragNorm);
-    cookTorrance = diffuseLight;
+    cookTorrance = color.xyz * diffuseLight;
 
     //Directional Light
     float direction_diffuse = max(dot(surfaceNormal, normalize(-gubo.moon.direction.xyz)), 0);
     lightDirection = -gubo.moon.direction.xyz;
     halfVector = normalize(lightDirection + cameraDirection);
-    cookTorrance += gubo.moon.color.xyz * gubo.moon.color.w * ((k * color.xyz * direction_diffuse ) + (1-k) * cookTorranceSpecular(k, roughness, halfVector, surfaceNormal, cameraDirection, lightDirection, specularColor));
+    cookTorrance += gubo.moon.color.xyz * gubo.moon.color.w * ((k * color.xyz * direction_diffuse ) + cookTorranceSpecular(k, roughness, halfVector, surfaceNormal, cameraDirection, lightDirection, specularColor));
+
+        //Point Lights
+        for(int i=0; i<gubo.lightCounter; i++)
+        {
+            lightDirection = normalize(gubo.lights[i].position.xyz - fragPos);
+            halfVector = normalize(lightDirection + cameraDirection);
+            float dist = distance(gubo.lights[i].position.xyz,fragPos);
+            cookTorrance += gubo.lights[i].color.xyz * gubo.lights[i].color.w * pow(g/dist,beta) *
+            ( k * color.xyz * pointLightIntensityBlink(gubo.lights[i].size,
+                                                                    gubo.lights[i].position,
+                                                                    gubo.lights[i].color,
+                                                                    gubo.lights[i].time,
+                                                                    fragPos,
+                                                                    surfaceNormal) + cookTorranceSpecular(k, roughness, halfVector, surfaceNormal, cameraDirection, lightDirection, specularColor));
+
+            /*specularReflection += phongSpecularNonMetals(fragPos,
+                                                gubo.lights[i].position,
+                                                gubo.eyepos.xyz,
+                                                surfaceNormal,
+                                                160, gubo.lights[i].color.xyz);*/
+        }
 
 
-    //Point Lights
-    for(int i=0; i<gubo.lightCounter; i++)
-    {
-        lightDirection = normalize(gubo.lights[i].position.xyz - fragPos);
-        halfVector = normalize(lightDirection + cameraDirection);
-        float dist = distance(gubo.lights[i].position.xyz,fragPos);
-        cookTorrance += gubo.lights[i].color.xyz * gubo.lights[i].color.w * pow(g/dist,beta) *
-        ( k * color.xyz * pointLightIntensityBlink(gubo.lights[i].size,
-                                                                gubo.lights[i].position,
-                                                                gubo.lights[i].color,
-                                                                gubo.lights[i].time,
-                                                                fragPos,
-                                                                surfaceNormal) + (1-k) *
-                                                                                cookTorranceSpecular(k, roughness, halfVector, surfaceNormal, cameraDirection, lightDirection, specularColor));
-
-        /*specularReflection += phongSpecularNonMetals(fragPos,
-                                            gubo.lights[i].position,
-                                            gubo.eyepos.xyz,
-                                            surfaceNormal,
-                                            160, gubo.lights[i].color.xyz);*/
-    }
-    /*
     for(int i = 0; i < gubo.pointLightsAirplaneCounter; ++i)
     {
         lightDirection = normalize(gubo.pointLightsAirplane[i].position.xyz - fragPos);
-        cameraDirection = normalize(gubo.eyepos.xyz - fragPos);
         halfVector = normalize(lightDirection + cameraDirection);
-        cookTorrance += (k * color.xyz * pointLightIntensityBlink(gubo.pointLightsAirplane[i].size,
+        float dist = distance(gubo.pointLightsAirplane[i].position.xyz,fragPos);
+        cookTorrance += gubo.pointLightsAirplane[i].color.xyz * gubo.pointLightsAirplane[i].color.w * pow(g/dist,beta) *
+                        ((k * color.xyz * pointLightIntensityBlink(gubo.pointLightsAirplane[i].size,
                                             gubo.pointLightsAirplane[i].position,
                                             gubo.pointLightsAirplane[i].color,
                                             gubo.pointLightsAirplane[i].time,
                                             fragPos,
                                             surfaceNormal)) +
-                        cookTorranceSpecular(k, roughness, halfVector, surfaceNormal, cameraDirection, lightDirection, specularColor);
+                        cookTorranceSpecular(k, roughness, halfVector, surfaceNormal, cameraDirection, lightDirection, specularColor));
 
         /*specularReflection += phongSpecularNonMetals(fragPos,
                                                      gubo.pointLightsAirplane[i].position,
                                                      gubo.eyepos.xyz,
                                                      surfaceNormal,
-                                                     160, gubo.pointLightsAirplane[i].color.xyz);
+                                                     160, gubo.pointLightsAirplane[i].color.xyz); */
     }
-*/
-/*
+
+
     for(int i = 0; i < gubo.explosionCounter; ++i)
     {
         lightDirection = normalize(gubo.explosions[i].position.xyz - fragPos);
-        cameraDirection = normalize(gubo.eyepos.xyz - fragPos);
         halfVector = normalize(lightDirection + cameraDirection);
-        cookTorrance += (k * color.xyz * pointLightIntensity(gubo.explosions[i].size,
+        float dist = distance(gubo.explosions[i].position.xyz,fragPos);
+        cookTorrance += gubo.explosions[i].color.xyz * gubo.explosions[i].color.w * pow(10.0f/dist,1.0f) *
+        ((k * color.xyz * pointLightIntensity(gubo.explosions[i].size,
                                             gubo.explosions[i].position,
                                             gubo.explosions[i].color,
                                             fragPos,
                                             surfaceNormal)) +
-                        cookTorranceSpecular(k, roughness, halfVector, surfaceNormal, cameraDirection, lightDirection, specularColor);
+                        cookTorranceSpecular(k, roughness, halfVector, surfaceNormal, cameraDirection, lightDirection, specularColor));
 
         /*specularReflection += phongSpecularNonMetals(fragPos,
                                                      gubo.explosions[i].position,
                                                      gubo.eyepos.xyz,
                                                      surfaceNormal,
                                                      160,
-                                                     gubo.explosions[i].color.xyz);
+                                                     gubo.explosions[i].color.xyz);*/
     }
-*/
-    /*
+
+
     //Spot Light
     if(gubo.spotlight.spotlightColor != vec4(0.0f, 0.0f, 0.0f, 0.0f))
     {
         lightDirection = normalize(gubo.spotlight.spotlightPosition.xyz - fragPos);
-        cameraDirection = normalize(gubo.eyepos.xyz - fragPos);
         halfVector = normalize(lightDirection + cameraDirection);
-        cookTorrance += (k * color.xyz * spotlightIntensity(gubo.spotlight.spotlightPosition,
+        float dist = distance(gubo.spotlight.spotlightPosition.xyz,fragPos);
+        cookTorrance += gubo.spotlight.spotlightColor.xyz * gubo.spotlight.spotlightColor.w * clamp((lightDirection*gubo.spotlight.spotlightDirection.xyz-gubo.spotlight.spotlightCosOut)/(gubo.spotlight.spotlightCosIn - gubo.spotlight.spotlightCosOut),0.0f,1.0f) *
+            ((k * color.xyz * spotlightIntensity(gubo.spotlight.spotlightPosition,
                                         gubo.spotlight.spotlightDirection,
                                         gubo.spotlight.spotlightColor,
                                         gubo.spotlight.spotlightCosIn,
                                         gubo.spotlight.spotlightCosOut,
                                         vec4(fragPos - gubo.spotlight.spotlightPosition.xyz, 1.0f))) +
-                        cookTorranceSpecular(k, roughness, halfVector, surfaceNormal, cameraDirection, lightDirection, specularColor);
+                        cookTorranceSpecular(k, roughness, halfVector, surfaceNormal, cameraDirection, lightDirection, specularColor));
     }
 
     /*if(gubo.spotlight.spotlightColor != vec4(0.0f, 0.0f, 0.0f, 0.0f))
@@ -172,4 +173,5 @@ void main()
 
     outColor = vec4(cookTorrance, 1.0);
     outColor = mix(skycolor, outColor, visibility);
+    outColor = clamp(outColor,0.0f,1.0f);
 }

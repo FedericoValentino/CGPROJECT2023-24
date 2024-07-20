@@ -86,27 +86,27 @@ vec3 phongSpecularMetals(vec3 objectPos, vec4 lightPos, vec3 cameraPos, vec3 nor
 //Cook Torrance Specular related shit
 float Dbeckmann(float roughness, vec3 halfVector, vec3 normal)
 {
-    float expNumerator = pow(clamp(dot(halfVector, normal), 0.0, 1.0), 2) - 1;
-    float expDenominator = pow(clamp(dot(halfVector, normal), 0.0, 1.0), 2) * pow(roughness, 2);
+    float expNumerator = pow(clamp(dot(halfVector, normal), 0.0f, 1.0f), 2) - 1;
+    float expDenominator = pow(clamp(dot(halfVector, normal), 0.001f, 1.0f), 2) * roughness * roughness;
     float numerator = exp(expNumerator/expDenominator);
-    float denominator = PI * pow(roughness, 2) * pow(clamp(dot(halfVector, normal), 0.0, 1.0), 4);
+    float denominator = PI * roughness * roughness * pow(clamp(dot(halfVector, normal), 0.001f, 1.0f), 4);
     return numerator/denominator;
 }
 
 float Fresnel(vec3 halfVector, vec3 cameraDirection)
 {
-    float refractiveIndex = 0.0;
-    float Fo = pow((1 - refractiveIndex)/(1 + refractiveIndex), 2);
-    float fifthPower = pow(1 - clamp(dot(cameraDirection, halfVector), 0.0, 1.0), 5);
-    float F = Fo + ((1 - Fo) * fifthPower);
+    float refractiveIndex = 1.5;
+    float Fo = pow((1 - refractiveIndex) / (1 + refractiveIndex), 2);
+    float fifthPower = pow(1 - clamp(dot(cameraDirection, halfVector), 0.0f, 1.0f), 5);
+    float F = Fo + (1 - Fo) * fifthPower;
     return F;
 }
 
 
 float Gmicrofacet(float roughness, vec3 halfVector, vec3 normal, vec3 cameraDirection, vec3 lightDirection)
 {
-    float cameraTerm = (2 * clamp(dot(halfVector, normal), 0.0, 1.0) * clamp(dot(cameraDirection, normal), 0.0, 1.0)) / (clamp(dot(cameraDirection, halfVector), 0.0, 1.0));
-    float lightTerm = (2 * clamp(dot(halfVector, normal), 0.0, 1.0) * clamp(dot(lightDirection, normal), 0.0, 1.0)) / (clamp(dot(cameraDirection, halfVector), 0.0, 1.0));
+    float cameraTerm = 2 * clamp(dot(halfVector, normal), 0.0f, 1.0f) * clamp(dot(cameraDirection, normal), 0.0f, 1.0f) / clamp(dot(cameraDirection, halfVector), 0.001f, 1.0f);
+    float lightTerm = 2 * clamp(dot(halfVector, normal), 0.0f, 1.0f) * clamp(dot(lightDirection, normal), 0.0f, 1.0f) / clamp(dot(cameraDirection, halfVector), 0.001f, 1.0f);
     float minimumTerm = min(cameraTerm, lightTerm);
     return min(1, minimumTerm);
 }
