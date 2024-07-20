@@ -438,7 +438,8 @@ void Project::updateUniformBuffer(uint32_t currentImage) {
 
     //updateEnemyLights();
 
-    setMapUniform();
+    if(!mapUniformSet)
+        setMapUniform();
 
     updateMapUniform(S, currentImage);
 
