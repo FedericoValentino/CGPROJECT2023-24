@@ -211,15 +211,12 @@ void Project::setMapUniform()
         tiles->tubo.model[i+offset] = info->ubo.model;
         tiles->tubo.normal[i+offset] = info->ubo.normal;
     }
-
-
-    for(int currentImage = 0; currentImage <= constant::MAX_FRAMES_IN_FLIGHT; currentImage++)
-        tiles->DSTiles.map(currentImage, &tiles->tubo, sizeof(TileUniformBufferObject), 0);
 }
 
 void Project::updateMapUniform(const glm::mat4& S, int currentImage)
 {
     tiles->DSTiles.map(currentImage, &gubo, sizeof(GlobalUniformBufferObject), 2);
+    tiles->DSTiles.map(currentImage, &tiles->tubo, sizeof(TileUniformBufferObject), 0);
 }
 
 
@@ -421,7 +418,7 @@ void Project::updateUniformBuffer(uint32_t currentImage) {
     bullets->buboBullet.view = view;
 
     //View - Proj for the map
-    tiles->tubo.view = view;
+    tiles->view = view;
 
     //View - Proj for planes
     for(auto info : planes->enemyInfo) {
@@ -437,12 +434,11 @@ void Project::updateUniformBuffer(uint32_t currentImage) {
     //for FrustumCulling
     extractFrustumPlanes(frustumPlanes, S);
 
-    if(!mapUniformSet)
-        setMapUniform();
-
     updateLights();
 
     //updateEnemyLights();
+
+    setMapUniform();
 
     updateMapUniform(S, currentImage);
 

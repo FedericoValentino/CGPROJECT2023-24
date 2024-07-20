@@ -131,10 +131,10 @@ public:
 
     void populateCommandBuffer(VkCommandBuffer commandBuffer, int currentImage){
         this->P.bind(commandBuffer);
+        DSPlane.bind(commandBuffer, this->P, 0, currentImage);
         if(!enemyInfo.empty())
         {
             this->baseEnemy.bind(commandBuffer);
-            DSPlane.bind(commandBuffer, this->P, 0, currentImage);
             pushPlane push{ENEMY};
             vkCmdPushConstants(commandBuffer, this->P.pipelineLayout, VK_SHADER_STAGE_FRAGMENT_BIT, 0, sizeof(pushPlane), &push);
             vkCmdDrawIndexed(commandBuffer,static_cast<uint32_t>(this->baseEnemy.indices.size()), enemyInfo.size(), 0, 0, 2);
@@ -143,7 +143,6 @@ public:
         if(bossSpawned)
         {
             this->Boss.bind(commandBuffer);
-            DSPlane.bind(commandBuffer, this->P, 0, currentImage);
             pushPlane push{BOSS};
             vkCmdPushConstants(commandBuffer, this->P.pipelineLayout, VK_SHADER_STAGE_FRAGMENT_BIT, 0, sizeof(pushPlane), &push);
             vkCmdDrawIndexed(commandBuffer,static_cast<uint32_t>(this->Boss.indices.size()), 1, 0, 0, 1);
@@ -152,7 +151,6 @@ public:
         if(playerInfo->toDraw)
         {
             this->player.bind(commandBuffer);
-            DSPlane.bind(commandBuffer, this->P, 0, currentImage);
             pushPlane push{PLAYER};
             vkCmdPushConstants(commandBuffer, this->P.pipelineLayout, VK_SHADER_STAGE_FRAGMENT_BIT, 0, sizeof(pushPlane), &push);
             vkCmdDrawIndexed(commandBuffer,static_cast<uint32_t>(this->player.indices.size()), 1, 0, 0, 0);
