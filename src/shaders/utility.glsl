@@ -15,7 +15,7 @@ struct SpotLight{
 };
 
 
-
+// lambert diffuse with intensity degradation
 vec3 pointLightIntensityBlink(float frequencyIn, vec4 position, vec4 color, float time, vec3 pos, vec3 normal)
 {
     float frequency = frequencyIn;
