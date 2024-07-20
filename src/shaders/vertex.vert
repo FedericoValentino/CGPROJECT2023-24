@@ -4,7 +4,6 @@
 
 layout(binding = 0) buffer UniformBufferObject {
     mat4 proj;
-    mat4 view;
     mat4 mMat[MAPDIM*MAPDIM];
     mat4 nMat[MAPDIM*MAPDIM];
 } ubo;

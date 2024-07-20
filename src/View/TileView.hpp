@@ -7,7 +7,6 @@
 
 struct TileUniformBufferObject {
     alignas(16) glm::mat4 proj = constant::Proj;
-    alignas(16) glm::mat4 view;
     alignas(16) glm::mat4 model[constant::MAPDIM*constant::MAPDIM];
     alignas(16) glm::mat4 normal[constant::MAPDIM*constant::MAPDIM];
 };
@@ -48,6 +47,8 @@ public:
 
     TileUniformBufferObject tubo;
     DescriptorSet DSTiles;
+
+    glm::mat4 view;
 
     void newTile(int row, int col, int type)
     {
@@ -131,7 +132,7 @@ public:
 
         if(!floorTiles.empty())
         {
-            pushTile push{tubo.view, FLOOR};
+            pushTile push{view, FLOOR};
             vkCmdPushConstants(commandBuffer, this->P.pipelineLayout, VK_SHADER_STAGE_VERTEX_BIT, 0, sizeof(pushTile), &push);
             this->floor.bind(commandBuffer);
 
@@ -141,7 +142,7 @@ public:
 
         if(!houseTiles.empty())
         {
-            pushTile push{tubo.view, HOUSE};
+            pushTile push{view, HOUSE};
             vkCmdPushConstants(commandBuffer, this->P.pipelineLayout, VK_SHADER_STAGE_VERTEX_BIT, 0, sizeof(pushTile), &push);
 
             this->house.bind(commandBuffer);
@@ -153,7 +154,7 @@ public:
 
         if(!skyscraperTiles.empty())
         {
-            pushTile push{tubo.view, SKYSCRAPER};
+            pushTile push{view, SKYSCRAPER};
             vkCmdPushConstants(commandBuffer, this->P.pipelineLayout, VK_SHADER_STAGE_VERTEX_BIT, 0, sizeof(pushTile), &push);
 
             this->skyscraper.bind(commandBuffer);
