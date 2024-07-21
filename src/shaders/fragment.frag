@@ -40,6 +40,14 @@ layout(binding = 2) uniform GlobalUniformBufferObject {
     int explosionCounter;
 } gubo;
 
+layout(binding = 5) uniform FloorBuffer {
+    vec4 spotlightPosition[MAXFLOORSPOTLIGHTS];
+    vec4 spotlightDirection;
+    vec4 spotlightColor;
+    float spotLightCosIn;
+    float spotLightCosOut;
+} floorBuffer;
+
 vec4 skycolor = vec4(0.012f,0.031f,0.11f, 1.0f);
 
 void main()
@@ -167,6 +175,20 @@ void main()
                                                  surfaceNormal,
                                                  160, gubo.spotlight.spotlightColor.xyz);
 */
+    for(int i = 0; i<MAXFLOORSPOTLIGHTS;++i)
+    {
+        lightDirection = normalize(floorBuffer.spotlightPosition[i].xyz - fragPos);
+        halfVector = normalize(lightDirection + cameraDirection);
+        float dist = distance(floorBuffer.spotlightPosition[i].xyz,fragPos);
+        cookTorrance += spotlightIntensity(floorBuffer.spotlightPosition[i],
+        floorBuffer.spotlightDirection,
+        floorBuffer.spotlightColor,
+        floorBuffer.spotLightCosIn,
+        floorBuffer.spotLightCosOut,
+        vec4(-lightDirection, 1.0f)) * (k * color.xyz * clamp(dot(fragNorm,lightDirection),0.0f,1.0f)
+        + cookTorranceSpecular(k, roughness, halfVector, surfaceNormal, cameraDirection, lightDirection, specularColor));
+    }
+
 
     outColor = vec4(cookTorrance, 1.0);
     outColor = mix(skycolor, outColor, visibility);

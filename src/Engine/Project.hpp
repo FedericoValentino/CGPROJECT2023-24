@@ -11,7 +11,7 @@
 #include "../View/AirplaneLights.hpp"
 #include <memory.h>
 #include <thread>
-
+#include <random>
 
 struct directLightObject{
     glm::vec4 color;
@@ -113,6 +113,11 @@ private:
 
 void Project::localInit() {
 
+    std::random_device rd; // Ottieni un seme casuale
+    std::mt19937 gen(rd()); // Generatore di numeri casuali
+    double p = 0.5; // Probabilità di successo
+    std::bernoulli_distribution d(p);
+
     this->partita = std::make_shared<Partita>();
     partita->generateWorld();
 
@@ -125,11 +130,17 @@ void Project::localInit() {
     this->tiles = std::make_shared<TileView>();
     tiles->init(this);
 
+    size_t counter = 0;
     for(int row = 0; row < constant::MAPDIM; row++)
     {
         for(int col = 0; col < constant::MAPDIM; col++)
         {
             tiles->newTile(row, col, partita->map[row][col]->height);
+            if(counter<constant::MAXFLOORSPOTLIGHTS && d(gen) && partita->map[row][col]->height == 0) // enter when the type is floor with probability 0.5
+            {
+                this->tiles->floorObjectBuilder();
+                ++counter;
+            }
         }
     }
 
@@ -139,7 +150,7 @@ void Project::localInit() {
     gubo.moon.direction = glm::vec4(0.0f,-40.0f,0.0f,1.0f);
     gubo.moon.color = glm::vec4(0.965f,0.945f,0.835f, 0.02f);
     gubo.pointLightsAirplaneCounter = 0.0f;
-    gubo.spotlight.spotlightColor = glm::vec4(0.0f);
+    gubo.spotlight.spotlightColor = glm::vec4(0.0f); // spotLight del dirigibile
 
 
     //TODO Change pointers
@@ -217,6 +228,7 @@ void Project::updateMapUniform(const glm::mat4& S, int currentImage)
 {
     tiles->DSTiles.map(currentImage, &gubo, sizeof(GlobalUniformBufferObject), 2);
     tiles->DSTiles.map(currentImage, &tiles->tubo, sizeof(TileUniformBufferObject), 0);
+    tiles->DSTiles.map(currentImage,&tiles->floorLights,sizeof(SpotLightsFloorBuffer),5);
 }
 
 

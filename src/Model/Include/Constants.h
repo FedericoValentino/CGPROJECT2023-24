@@ -10,6 +10,7 @@ namespace constant{
     inline constexpr float RADIUS_COLLISION = 5.5f;
     inline constexpr unsigned int MAPDIM = 25;
     inline constexpr size_t MAXBULLETS = 400;
+    inline constexpr unsigned int MAXFLOORSPOTLIGHTS = 20;
     extern const int MAX_FRAMES_IN_FLIGHT;
     extern const float MOVE_SPEED;
     extern const float ROT_SPEED;
