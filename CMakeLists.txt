@@ -2,10 +2,15 @@ cmake_minimum_required(VERSION 3.5)
 project(CGPRJ2023-24)
 
 set(CMAKE_CXX_STANDARD 17)
+set(CMAKE_MODULE_PATH ${CMAKE_SOURCE_DIR}/cmake_modules)
+
+set(SDL2_PATH "${CMAKE_SOURCE_DIR}/src/headers/SDL2-2.30.5/x86_64-w64-mingw32")
+
 
 find_package(Vulkan REQUIRED)
 find_package(SDL2 REQUIRED)
 
+include_directories(${SDL_INCLUDE_DIR})
 add_subdirectory(src/headers/glfw-3.4)
 add_subdirectory(src/headers/glm)
 add_subdirectory(src/headers/soloud/contrib)
@@ -26,6 +31,7 @@ add_executable(Project src/main.cpp
         src/Model/src/Constants.cpp
         src/Model/Include/Constants.h
         src/Engine/SoundEngine.hpp)
+target_link_libraries(Project ${SDL2_LIBRARY})
 target_link_libraries(Project soloud)
 target_link_libraries(Project glfw)
 target_link_libraries(Project glm)
