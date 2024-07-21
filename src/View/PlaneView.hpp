@@ -145,7 +145,7 @@ public:
             }
         }
 
-        if(bossSpawned)
+        if(bossSpawned && !bossInfo->pEnemy->getDead())
         {
             this->Boss.bind(commandBuffer);
             pushPlane push{1,BOSS};

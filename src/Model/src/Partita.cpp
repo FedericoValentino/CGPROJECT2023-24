@@ -161,7 +161,11 @@ void Partita::checkCollision(float deltaT) {
     float radius = 4 * (constant::MAPDIM);
     for(auto enemy : enemies)
         if(player->checkDistance3D(enemy->getPosition().origin, player->getPosition().origin, PLAYER) && !enemy->getDead())
+        {
             state = END;
+            enemy->kill();
+            player->kill();
+        }
 
 
     //Check collision of Enemy with Skyscraper;

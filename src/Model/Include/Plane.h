@@ -65,6 +65,7 @@ public:
     bool getDead() const;
     PLANETYPE_UTILITY getType();
     void timePasses(const float deltaT);
+    void kill();
 
     void setAvoidBuilding(bool avoiding);
 };

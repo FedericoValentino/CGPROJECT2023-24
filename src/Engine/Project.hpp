@@ -230,7 +230,7 @@ void Project::updateMapUniform(const glm::mat4& S, int currentImage)
 void Project::updatePlayerUniform(const glm::mat4& S, int currentImage)
 {
     //Player Updates
-    planes->playerInfo->toDraw = true;
+    planes->playerInfo->toDraw = !partita->getPlayer()->getDead();
     planes->playerInfo->ubo.worldViewProj = S * planes->playerInfo->ubo.model; // S = View-Proj
     planes->playerInfo->ubo.normal = glm::inverse(planes->playerInfo->ubo.model);
 
@@ -518,26 +518,34 @@ void Project::gameLogic()
     }
 
     //CHECK COLLISION
-    partita->checkCollision(deltaT);
+    if(partita->state != END)
+        partita->checkCollision(deltaT);
+
     if(partita->state == END)
     {
+        static auto start = std::chrono::high_resolution_clock::now();
+
+        auto end = std::chrono::high_resolution_clock::now();
+
+        float duration = std::chrono::duration<float, std::chrono::seconds::period>(end - start).count();
+
         if(quitTimer == 0.0f && partita->bossDead)
         {
             soundEngine.playZeppelinExpl();
+            soundEngine.playVictory();
         }
         else if(quitTimer == 0.0f)
+        {
             soundEngine.playComicalExplosion();
-
-        quitTimer += deltaT;
-
-        if(quitTimer >= Sound::getSoundLength(soundEngine.zeppelinExploding) && partita->bossDead)
             soundEngine.playVictory();
-        else if(quitTimer >= Sound::getSoundLength(soundEngine.zeppelinExploding))
-            soundEngine.playComicalExplosion();
+        }
+        quitTimer++;
 
-        if(quitTimer >= Sound::getSoundLength(soundEngine.zeppelinExploding) + Sound::getSoundLength(soundEngine.victory) ||
-                quitTimer >= Sound::getSoundLength(soundEngine.comicalExplosion) + Sound::getSoundLength(soundEngine.comicalExplosion))
+        if(duration >= Sound::getSoundLength(soundEngine.zeppelinExploding) + Sound::getSoundLength(soundEngine.victory) ||
+                duration >= Sound::getSoundLength(soundEngine.comicalExplosion) + Sound::getSoundLength(soundEngine.comicalExplosion))
+        {
             glfwSetWindowShouldClose(window, GL_TRUE);
+        }
     }
 
     //RIMUOVI ROBA(DA AGGIORNARE ANCHE IL COUNTER ENEMIES SU CUI SI BASANO LE LUCI DEGLI AEREI)
@@ -611,32 +619,35 @@ void Project::gameLogic()
 
 
     //MAKE ENEMIES SHOOT
-    for(auto info : planes->enemyInfo)
+    if(partita->state != END)
     {
-        if(!info->pEnemy->getDead())
+        for(auto info : planes->enemyInfo)
         {
-            auto b = info->pEnemy->shoot(partita->player->getPosition(), deltaT);
-            if (b)
+            if(!info->pEnemy->getDead())
+            {
+                auto b = info->pEnemy->shoot(partita->player->getPosition(), deltaT);
+                if (b)
+                    bullets->newBullet(b);
+            }
+        }
+        //MAKE PLAYER SHOOT
+        if(shoot)
+        {
+            auto b = partita->player->shoot({}, deltaT);
+            if(b)
                 bullets->newBullet(b);
         }
-    }
-    //MAKE PLAYER SHOOT
-    if(shoot)
-    {
-        auto b = partita->player->shoot({}, deltaT);
-        if(b)
-            bullets->newBullet(b);
-    }
 
 
-    //MAKE BOSS SHOOT
-    if(partita->bossSpawned)
-    {
-        if(!planes->bossInfo->pEnemy->getDead())
+        //MAKE BOSS SHOOT
+        if(partita->bossSpawned)
         {
-            auto b = planes->bossInfo->pEnemy->shoot(planes->playerInfo->pEnemy->getPosition(), deltaT);
-            if (b)
-                bullets->newBullet(b);
+            if(!planes->bossInfo->pEnemy->getDead())
+            {
+                auto b = planes->bossInfo->pEnemy->shoot(planes->playerInfo->pEnemy->getPosition(), deltaT);
+                if (b)
+                    bullets->newBullet(b);
+            }
         }
     }
 
@@ -666,7 +677,6 @@ void Project::gameLogic()
 
     //SPAWN
     spawnPlane();
-
 
     //MUOVI PLAYER
     auto pl_pos = partita->getPlayer()->position;

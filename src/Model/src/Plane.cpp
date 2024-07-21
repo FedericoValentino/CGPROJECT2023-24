@@ -196,6 +196,12 @@ void Plane::setAvoidBuilding(bool avoiding)
     avoidBuilding = avoiding;
 }
 
+void Plane::kill()
+{
+    this->hp = 0;
+    this->dead = true;
+}
+
 
 
 

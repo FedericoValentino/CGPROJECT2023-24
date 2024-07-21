@@ -148,4 +148,3 @@ void Enemy::changeDirection(const Position3D& inputPosition, float deltaT)
 
     //printf("Height not avoiding %f\n", position.origin.y);
 }
-
