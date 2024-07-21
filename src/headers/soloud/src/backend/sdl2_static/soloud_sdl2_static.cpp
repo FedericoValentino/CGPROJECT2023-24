@@ -36,8 +36,11 @@ namespace SoLoud
 }
 
 #else
-
+#ifdef _WIN64
 #include <SDL.h>
+#else
+#include <SDL2/SDL.h>
+#endif
 #include <math.h>
 
 namespace SoLoud
