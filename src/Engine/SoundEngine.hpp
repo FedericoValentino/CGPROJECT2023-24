@@ -3,47 +3,59 @@
 #include "../headers/soloud/include/soloud.h"
 #include "../headers/soloud/include/soloud_wav.h"
 
+struct sound
+{
+    SoLoud::Wav soundSample;
+    double length;
+};
+
 class Sound
 {
     friend class Project;
     SoLoud::Soloud gSoloud; // SoLoud engine
-    SoLoud::Wav intro;
-    SoLoud::Wav comicalExplosion;
-    SoLoud::Wav zeppelinExploding;
-    SoLoud::Wav victory;
+    sound intro;
+    sound comicalExplosion;
+    sound zeppelinExploding;
+    sound victory;
 
 public:
     void init() {
         gSoloud.init(); // Initialize SoLoud
-        intro.load("../src/Sounds/Game-Start.wav");
-        comicalExplosion.load("../src/Sounds/ComicalExplosion.wav");
-        zeppelinExploding.load("../src/Sounds/ZeppExplosion1.wav");
-        victory.load("../src/Sounds/Victory1.wav");
+        intro.soundSample.load("../src/Sounds/Game-Start.wav");
+        comicalExplosion.soundSample.load("../src/Sounds/ComicalExplosion.wav");
+        zeppelinExploding.soundSample.load("../src/Sounds/ZeppExplosion1.wav");
+        victory.soundSample.load("../src/Sounds/Victory1.wav");
+
+        intro.length = intro.soundSample.getLength();
+        comicalExplosion.length = comicalExplosion.soundSample.getLength();
+        zeppelinExploding.length = zeppelinExploding.soundSample.getLength();
+        victory.length = victory.soundSample.getLength();
+
     }
 
     void playIntro()
     {
-        gSoloud.play(intro); // Play the wave
+        gSoloud.play(intro.soundSample); // Play the wave
     }
 
     void playComicalExplosion()
     {
-        gSoloud.play(comicalExplosion);
+        gSoloud.play(comicalExplosion.soundSample);
     }
 
     void playZeppelinExpl()
     {
-        gSoloud.play(zeppelinExploding);
+        gSoloud.play(zeppelinExploding.soundSample);
     }
 
     void playVictory()
     {
-        gSoloud.play(victory);
+        gSoloud.play(victory.soundSample);
     }
 
-    static double getSoundLength(SoLoud::Wav sound)
+    static double getSoundLength(const sound& s)
     {
-        return sound.getLength();
+        return s.length;
     }
 
     ~Sound()

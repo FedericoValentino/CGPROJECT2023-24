@@ -522,7 +522,9 @@ void Project::gameLogic()
     if(partita->state == END)
     {
         if(quitTimer == 0.0f && partita->bossDead)
+        {
             soundEngine.playZeppelinExpl();
+        }
         else if(quitTimer == 0.0f)
             soundEngine.playComicalExplosion();
 
@@ -533,8 +535,8 @@ void Project::gameLogic()
         else if(quitTimer >= Sound::getSoundLength(soundEngine.zeppelinExploding))
             soundEngine.playComicalExplosion();
 
-        if((quitTimer >= Sound::getSoundLength(soundEngine.zeppelinExploding) + Sound::getSoundLength(soundEngine.victory) ||
-                (quitTimer >= Sound::getSoundLength(soundEngine.comicalExplosion) + Sound::getSoundLength(soundEngine.comicalExplosion))))
+        if(quitTimer >= Sound::getSoundLength(soundEngine.zeppelinExploding) + Sound::getSoundLength(soundEngine.victory) ||
+                quitTimer >= Sound::getSoundLength(soundEngine.comicalExplosion) + Sound::getSoundLength(soundEngine.comicalExplosion))
             glfwSetWindowShouldClose(window, GL_TRUE);
     }
 
