@@ -14,6 +14,7 @@ find_package(SDL2 REQUIRED)
 if(${WIN32})
     include_directories(${SDL_INCLUDE_DIR})
 endif()
+
 add_subdirectory(src/headers/glfw-3.4)
 add_subdirectory(src/headers/glm)
 add_subdirectory(src/headers/soloud/contrib)
@@ -40,7 +41,9 @@ target_link_libraries(Project glfw)
 target_link_libraries(Project glm)
 target_link_libraries(Project Vulkan::Vulkan)
 target_include_directories(Project PRIVATE src/headers)
+
 set_target_properties(Project PROPERTIES COMPILE_OPTIONS -g)
+set_target_properties(Project PROPERTIES RUNTIME_OUTPUT_DIRECTORY "${CMAKE_SOURCE_DIR}/Build")
 
 message("cmake system name = ${CMAKE_SYSTEM_NAME}")
 message("cmake host name = ${CMAKE_HOST_SYSTEM_NAME}")

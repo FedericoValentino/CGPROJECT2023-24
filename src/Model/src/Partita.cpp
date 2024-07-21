@@ -238,7 +238,10 @@ void Partita::checkCollision(float deltaT) {
                 player->clearBullet(p);
                 if(enemy->getDead()) {
                     killCounter++;
+                    if(enemy->getType() == BOSS)
+                        bossDead = true;
                 }
+
             }
         }
         if(dist > radius)

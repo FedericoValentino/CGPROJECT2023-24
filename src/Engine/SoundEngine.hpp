@@ -5,19 +5,45 @@
 
 class Sound
 {
+    friend class Project;
     SoLoud::Soloud gSoloud; // SoLoud engine
-    SoLoud::Wav gWave;      // One wave file
+    SoLoud::Wav intro;
+    SoLoud::Wav comicalExplosion;
+    SoLoud::Wav zeppelinExploding;
+    SoLoud::Wav victory;
 
 public:
-    void init()
-    {
+    void init() {
         gSoloud.init(); // Initialize SoLoud
-        gWave.load("../src/Sounds/Game-Start.wav"); // Load a wave
+        intro.load("../src/Sounds/Game-Start.wav");
+        comicalExplosion.load("../src/Sounds/ComicalExplosion.wav");
+        zeppelinExploding.load("../src/Sounds/ZeppExplosion1.wav");
+        victory.load("../src/Sounds/Victory1.wav");
     }
 
-    void play()
+    void playIntro()
     {
-        gSoloud.play(gWave); // Play the wave
+        gSoloud.play(intro); // Play the wave
+    }
+
+    void playComicalExplosion()
+    {
+        gSoloud.play(comicalExplosion);
+    }
+
+    void playZeppelinExpl()
+    {
+        gSoloud.play(zeppelinExploding);
+    }
+
+    void playVictory()
+    {
+        gSoloud.play(victory);
+    }
+
+    static double getSoundLength(SoLoud::Wav sound)
+    {
+        return sound.getLength();
     }
 
     ~Sound()

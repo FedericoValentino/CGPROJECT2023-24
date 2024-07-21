@@ -791,21 +791,21 @@ soloud.setRelativePlaySpeed(handle, 0.9f);// Play a bit slower; 1.0f is normal</
 <p>You need at least the SoLoud engine core, and one or more of the audio source variables. If you&#39;re using five different sound effect wav files, you need five SoLoud::Wav objects. You can play one object any number of times, even on top of itself.</p>
 <p>Where to place these is up to you. Globals work, as do allocation from heap, including in a class as members, etc. Stack is probably a bad idea, but I&#39;m not stopping you.</p>
 <pre><code>SoLoud::Soloud gSoloud; // SoLoud engine
-SoLoud::Wav gWave;      // One wave file</code></pre>
+SoLoud::Wav intro;      // One wave file</code></pre>
 <h4 id="initialize-soloud">Initialize SoLoud</h4>
 <p>In your application, once you have your framework up (for instance after your SDL_Init call), include a call to initialize SoLoud.</p>
 <pre><code>gSoloud.init(); // Initialize SoLoud</code></pre>
 <p>The call has a bunch of optional parameters if you&#39;d rather pick the replay back-end and its parameters yourself; the default should work for most cases.</p>
 <h4 id="set-up-sound-sources">Set up sound sources</h4>
 <p>This step varies from one audio source to another, but basically you&#39;ll load your wave files here.</p>
-<pre><code>gWave.load(&quot;pew_pew.wav&quot;); // Load a wave</code></pre>
+<pre><code>intro.load(&quot;pew_pew.wav&quot;); // Load a wave</code></pre>
 <h4 id="play-sounds">Play sounds</h4>
 <p>Now you&#39;re ready to play the sounds. Place playing commands wherever you need sound to be played.</p>
-<pre><code>gSoloud.play(gWave); // Play the wave</code></pre>
+<pre><code>gSoloud.play(intro); // Play the wave</code></pre>
 <p>Note that you can play the same sound several times, and it doesn&#39;t cut itself off (but if that&#39;s what you want, there&#39;s an option for that too).</p>
 <h4 id="take-control-of-the-sound">Take control of the sound</h4>
 <p>You can adjust various things about the sound you&#39;re playing if you take the handle.</p>
-<pre><code>int x = gSoloud.play(gWave); // Grab the handle
+<pre><code>int x = gSoloud.play(intro); // Grab the handle
 gSoloud.setPan(x, -0.2f);    // Use handle to adjust panning</code></pre>
 <p>Read the soloud.h header file (or this documentation) for further things you can do.</p>
 <h4 id="cleanup">Cleanup</h4>

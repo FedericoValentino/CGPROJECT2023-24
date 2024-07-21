@@ -52,6 +52,7 @@ struct GlobalUniformBufferObject {
 
 class Project : public BaseProject
 {
+
 private:
 
     std::shared_ptr<Partita> partita;
@@ -485,9 +486,10 @@ void Project::onWindowResize(int w, int h)
 
 void Project::gameLogic()
 {
+    static float quitTimer = 0.0f;
     static bool played = false;
     if(!played) {
-        soundEngine.play();
+        soundEngine.playIntro();
         played = true;
     }
 
@@ -519,9 +521,21 @@ void Project::gameLogic()
     partita->checkCollision(deltaT);
     if(partita->state == END)
     {
-        std::cout << "Boss defeated" << std::endl;
-        std::this_thread::sleep_for(std::chrono::seconds(3));
-        glfwSetWindowShouldClose(window, GL_TRUE);
+        if(quitTimer == 0.0f && partita->bossDead)
+            soundEngine.playZeppelinExpl();
+        else if(quitTimer == 0.0f)
+            soundEngine.playComicalExplosion();
+
+        quitTimer += deltaT;
+
+        if(quitTimer >= Sound::getSoundLength(soundEngine.zeppelinExploding) && partita->bossDead)
+            soundEngine.playVictory();
+        else if(quitTimer >= Sound::getSoundLength(soundEngine.zeppelinExploding))
+            soundEngine.playComicalExplosion();
+
+        if((quitTimer >= Sound::getSoundLength(soundEngine.zeppelinExploding) + Sound::getSoundLength(soundEngine.victory) ||
+                (quitTimer >= Sound::getSoundLength(soundEngine.comicalExplosion) + Sound::getSoundLength(soundEngine.comicalExplosion))))
+            glfwSetWindowShouldClose(window, GL_TRUE);
     }
 
     //RIMUOVI ROBA(DA AGGIORNARE ANCHE IL COUNTER ENEMIES SU CUI SI BASANO LE LUCI DEGLI AEREI)
@@ -569,6 +583,7 @@ void Project::gameLogic()
     {
         if(pi->pEnemy->getDead())
         {
+            soundEngine.playComicalExplosion();
             for(int i = pi->indexInPubo; i < 20-1; i++)
                 planes->pubo.model[i] = planes->pubo.model[i+1];
             return true;
