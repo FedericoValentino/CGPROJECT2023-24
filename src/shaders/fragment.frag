@@ -46,6 +46,7 @@ layout(binding = 5) uniform FloorBuffer {
     vec4 spotlightColor;
     float spotLightCosIn;
     float spotLightCosOut;
+    int counter;
 } floorBuffer;
 
 vec4 skycolor = vec4(0.012f,0.031f,0.11f, 1.0f);
@@ -175,7 +176,9 @@ void main()
                                                  surfaceNormal,
                                                  160, gubo.spotlight.spotlightColor.xyz);
 */
-    for(int i = 0; i<MAXFLOORSPOTLIGHTS;++i)
+    // SpotLights
+    // Lambert + Phong(Cook Torrence is too expensive)
+    for(int i = 0; i<floorBuffer.counter;++i)
     {
         lightDirection = normalize(floorBuffer.spotlightPosition[i].xyz - fragPos);
         halfVector = normalize(lightDirection + cameraDirection);
@@ -185,8 +188,11 @@ void main()
         floorBuffer.spotlightColor,
         floorBuffer.spotLightCosIn,
         floorBuffer.spotLightCosOut,
-        vec4(-lightDirection, 1.0f)) * (k * color.xyz * clamp(dot(fragNorm,lightDirection),0.0f,1.0f)
-        + cookTorranceSpecular(k, roughness, halfVector, surfaceNormal, cameraDirection, lightDirection, specularColor));
+        vec4(-lightDirection, 1.0f)) * (color.xyz * color.w * clamp(dot(lightDirection,fragNorm),0,1) + phongSpecularNonMetals(fragPos,
+                                                                                                    floorBuffer.spotlightPosition[i],
+                                                                                                    gubo.eyepos.xyz,
+                                                                                                    surfaceNormal,
+                                                                                                     160, floorBuffer.spotlightColor.xyz));
     }
 
 

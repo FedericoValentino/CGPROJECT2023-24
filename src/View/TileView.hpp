@@ -15,9 +15,10 @@ struct SpotLightsFloorBuffer{
     glm::vec4 spotlightPosition[constant::MAXFLOORSPOTLIGHTS];
     glm::vec4 spotlightDirection = glm::vec4(0.0f,-1.0f,0.0f,1.0f);
     glm::vec4 spotlightColor = glm::vec4(1.0, 1.0, 0.0, 1.0);
-    float spotLightCosIn = 0.99;
-    float spotLightCosOut = 0.97;
-    float pad[2];
+    float spotLightCosIn = 0.97;
+    float spotLightCosOut = 0.94;
+    int counter = 0;
+    float pad[1];
 };
 
 
@@ -62,7 +63,7 @@ public:
 
     glm::mat4 view;
 
-    void newTile(int row, int col, int type)
+    const glm::mat4& newTile(int row, int col, int type)
     {
         std::shared_ptr<TileInfo> newInfo = std::make_shared<TileInfo>();
 
@@ -86,15 +87,27 @@ public:
                 skyscraperTiles.push_back(newInfo);
                 break;
         }
+        return newInfo->ubo.model;
     }
 
-    void floorObjectBuilder() {
-        static size_t i = 0;
-        const glm::mat4& model = floorTiles.back()->ubo.model;
+    // check the "size" sorrounding square
+    bool canSetTrue(const std::vector<std::vector<bool>>& matrix, int x, int y, int size) {
+        int halfSize = size / 2;
+        for (int i = std::max(0, x - halfSize); i <= std::min((int)matrix.size() - 1, x + halfSize); ++i) {
+            for (int j = std::max(0, y - halfSize); j <= std::min((int)matrix[0].size() - 1, y + halfSize); ++j) {
+                if (matrix[i][j]) {
+                    return false;
+                }
+            }
+        }
+        return true;
+    }
+
+    void floorObjectBuilder(const glm::mat4& model) {
         const glm::vec3& lightPos = glm::vec3(model[3][0],model[3][1],model[3][2]);
 
-        floorLights.spotlightPosition[i] = glm::vec4(lightPos + glm::vec3(0.0f,3.0f,0.0f),1.0f);
-        i++;
+        floorLights.spotlightPosition[floorLights.counter] = glm::vec4(lightPos + glm::vec3(0.0f,6.0f,0.0f),1.0f);
+        floorLights.counter++;
     }
 
     void init(BaseProject* bp)

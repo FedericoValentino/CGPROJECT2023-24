@@ -113,11 +113,6 @@ private:
 
 void Project::localInit() {
 
-    std::random_device rd; // Ottieni un seme casuale
-    std::mt19937 gen(rd()); // Generatore di numeri casuali
-    double p = 0.5; // Probabilità di successo
-    std::bernoulli_distribution d(p);
-
     this->partita = std::make_shared<Partita>();
     partita->generateWorld();
 
@@ -130,19 +125,29 @@ void Project::localInit() {
     this->tiles = std::make_shared<TileView>();
     tiles->init(this);
 
+    std::vector<std::vector<bool>> checker(constant::MAPDIM, std::vector<bool>(constant::MAPDIM, false));
+
+    std::random_device rd;
+    std::mt19937 gen(rd());
+    float p = 0.3f;
+    std::bernoulli_distribution dist(p);
+
     size_t counter = 0;
     for(int row = 0; row < constant::MAPDIM; row++)
     {
         for(int col = 0; col < constant::MAPDIM; col++)
         {
-            tiles->newTile(row, col, partita->map[row][col]->height);
-            if(counter<constant::MAXFLOORSPOTLIGHTS && d(gen) && partita->map[row][col]->height == 0) // enter when the type is floor with probability 0.5
-            {
-                this->tiles->floorObjectBuilder();
-                ++counter;
+            const glm::mat4& model = tiles->newTile(row, col, partita->map[row][col]->height);
+
+            if (counter < constant::MAXFLOORSPOTLIGHTS && partita->map[row][col]->height == 0 && tiles->canSetTrue(checker, row, col,7) && dist(gen)) {
+                checker[row][col] = true;
+                tiles->floorObjectBuilder(model);
+                counter++;
             }
         }
     }
+
+
 
     //Light updates
     //TODO moon.color.w was 0.02f
