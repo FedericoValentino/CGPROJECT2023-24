@@ -24,6 +24,7 @@ struct PlaneInfo
 
 struct pushPlane
 {
+    alignas(4) int planeIndex;
     alignas(4) int planeType;
 };
 
@@ -119,7 +120,7 @@ public:
     }
 
     void pipelineAndDSInit(BaseProject* bp, int ubosize, int gubosize){
-        this->P.create(true, sizeof(pushPlane), VK_SHADER_STAGE_FRAGMENT_BIT);
+        this->P.create(true, sizeof(pushPlane), VK_SHADER_STAGE_VERTEX_BIT);
         this->DSPlane.init(bp, &this->DSL, {
                 {0, UNIFORM, ubosize, nullptr},
                 {1, TEXTURE, 0, &this->playerTexture},
@@ -134,25 +135,29 @@ public:
         DSPlane.bind(commandBuffer, this->P, 0, currentImage);
         if(!enemyInfo.empty())
         {
-            this->baseEnemy.bind(commandBuffer);
-            pushPlane push{ENEMY};
-            vkCmdPushConstants(commandBuffer, this->P.pipelineLayout, VK_SHADER_STAGE_FRAGMENT_BIT, 0, sizeof(pushPlane), &push);
-            vkCmdDrawIndexed(commandBuffer,static_cast<uint32_t>(this->baseEnemy.indices.size()), enemyInfo.size(), 0, 0, 2);
+            for(int i = 0; i < enemyInfo.size(); i++)
+            {
+                int index = 2+i;
+                this->baseEnemy.bind(commandBuffer);
+                pushPlane push{index,ENEMY};
+                vkCmdPushConstants(commandBuffer, this->P.pipelineLayout, VK_SHADER_STAGE_VERTEX_BIT, 0, sizeof(pushPlane), &push);
+                vkCmdDrawIndexed(commandBuffer,static_cast<uint32_t>(this->baseEnemy.indices.size()), 1, 0, 0, 0);
+            }
         }
 
         if(bossSpawned)
         {
             this->Boss.bind(commandBuffer);
-            pushPlane push{BOSS};
-            vkCmdPushConstants(commandBuffer, this->P.pipelineLayout, VK_SHADER_STAGE_FRAGMENT_BIT, 0, sizeof(pushPlane), &push);
-            vkCmdDrawIndexed(commandBuffer,static_cast<uint32_t>(this->Boss.indices.size()), 1, 0, 0, 1);
+            pushPlane push{1,BOSS};
+            vkCmdPushConstants(commandBuffer, this->P.pipelineLayout, VK_SHADER_STAGE_VERTEX_BIT, 0, sizeof(pushPlane), &push);
+            vkCmdDrawIndexed(commandBuffer,static_cast<uint32_t>(this->Boss.indices.size()), 1, 0, 0, 0);
         }
 
         if(playerInfo->toDraw)
         {
             this->player.bind(commandBuffer);
-            pushPlane push{PLAYER};
-            vkCmdPushConstants(commandBuffer, this->P.pipelineLayout, VK_SHADER_STAGE_FRAGMENT_BIT, 0, sizeof(pushPlane), &push);
+            pushPlane push{0,PLAYER};
+            vkCmdPushConstants(commandBuffer, this->P.pipelineLayout, VK_SHADER_STAGE_VERTEX_BIT, 0, sizeof(pushPlane), &push);
             vkCmdDrawIndexed(commandBuffer,static_cast<uint32_t>(this->player.indices.size()), 1, 0, 0, 0);
         }
     }
