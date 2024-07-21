@@ -627,7 +627,10 @@ void Project::gameLogic()
             {
                 auto b = info->pEnemy->shoot(partita->player->getPosition(), deltaT);
                 if (b)
+                {
                     bullets->newBullet(b);
+                    soundEngine.playEnemyGun();
+                }
             }
         }
         //MAKE PLAYER SHOOT
@@ -635,7 +638,10 @@ void Project::gameLogic()
         {
             auto b = partita->player->shoot({}, deltaT);
             if(b)
+            {
                 bullets->newBullet(b);
+                soundEngine.playPlayerGun();
+            }
         }
 
 
@@ -646,7 +652,10 @@ void Project::gameLogic()
             {
                 auto b = planes->bossInfo->pEnemy->shoot(planes->playerInfo->pEnemy->getPosition(), deltaT);
                 if (b)
+                {
                     bullets->newBullet(b);
+                    soundEngine.playEnemyGun();
+                }
             }
         }
     }
