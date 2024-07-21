@@ -536,13 +536,13 @@ void Project::gameLogic()
         }
         else if(quitTimer == 0.0f)
         {
-            soundEngine.playComicalExplosion();
-            soundEngine.playVictory();
+            soundEngine.playPlayerExplosion();
+            soundEngine.playGameOver();
         }
         quitTimer++;
 
         if(duration >= Sound::getSoundLength(soundEngine.zeppelinExploding) + Sound::getSoundLength(soundEngine.victory) ||
-                duration >= Sound::getSoundLength(soundEngine.comicalExplosion) + Sound::getSoundLength(soundEngine.comicalExplosion))
+                duration >= Sound::getSoundLength(soundEngine.playerExplosion) + Sound::getSoundLength(soundEngine.gameOver))
         {
             glfwSetWindowShouldClose(window, GL_TRUE);
         }
@@ -556,6 +556,7 @@ void Project::gameLogic()
         if (info->pBullet->toClear) {
             info->ubo.model = glm::scale(info->ubo.model, glm::vec3(10.0f));
             particles->newParticle(info->ubo.model);
+            soundEngine.playbulletImpact();
             gubo.explosions[gubo.explosionCounter] = pointLightObject{glm::vec4(1.0, 0.5, 0.0, 3.0),
                                                                       glm::vec4(info->pBullet->getPosition3D().origin, 1.0f),
                                                                       0.0f,
@@ -654,7 +655,7 @@ void Project::gameLogic()
                 if (b)
                 {
                     bullets->newBullet(b);
-                    soundEngine.playEnemyGun();
+                    soundEngine.playZeppelinGun();
                 }
             }
         }

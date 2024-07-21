@@ -202,11 +202,15 @@ void Partita::checkCollision(float deltaT) {
                 else if(dist > radius)
                 {
                     enemy->clearBullet(bullet);
+                    //Sound::playbulletImpact();
                 }
                 for(auto skyscraper : skyscrapers)
                 {
-                    if(skyscraper->checkCollision(bullet->getPosition3D().origin.x, bullet->getPosition3D().origin.z,constant::RADIUS_COLLISION) && bullet->getPosition3D().origin.y <= 11.40f)
+                    if(skyscraper->checkCollision(bullet->getPosition3D().origin.x, bullet->getPosition3D().origin.z,constant::RADIUS_COLLISION) && bullet->getPosition3D().origin.y <= 11.40f) {
                         enemy->clearBullet(bullet);
+                        //Sound::playbulletImpact();
+                    }
+
                 }
             }
         }
@@ -220,8 +224,10 @@ void Partita::checkCollision(float deltaT) {
                 for (auto skyscraper: skyscrapers) {
                     if (skyscraper->checkCollision(bullet->getPosition3D().origin.x, bullet->getPosition3D().origin.z,
                                                    constant::RADIUS_COLLISION) &&
-                        bullet->getPosition3D().origin.y <= 11.40f)
+                        bullet->getPosition3D().origin.y <= 11.40f) {
                         enemy->clearBullet(bullet);
+                        //Sound::playbulletImpact();
+                    }
                 }
             }
         }
@@ -254,8 +260,10 @@ void Partita::checkCollision(float deltaT) {
         }
         for(auto skyscraper : skyscrapers)
         {
-            if(skyscraper->checkCollision(p->getPosition3D().origin.x, p->getPosition3D().origin.z,constant::RADIUS_COLLISION))
+            if(skyscraper->checkCollision(p->getPosition3D().origin.x, p->getPosition3D().origin.z,constant::RADIUS_COLLISION)) {
                 player->clearBullet(p);
+                //Sound::playbulletImpact();
+            }
         }
     }
 

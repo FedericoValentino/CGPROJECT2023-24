@@ -9,6 +9,7 @@
 #include "Tiles.h"
 #include "PlaneBuilder.hpp"
 #include "Constants.h"
+#include "../../Engine/SoundEngine.hpp"
 
 #define MAX_ENEMIES_IN_MAP 20
 
