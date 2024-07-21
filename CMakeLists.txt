@@ -4,9 +4,11 @@ project(CGPRJ2023-24)
 set(CMAKE_CXX_STANDARD 17)
 
 find_package(Vulkan REQUIRED)
+find_package(SDL2 REQUIRED)
 
 add_subdirectory(src/headers/glfw-3.4)
 add_subdirectory(src/headers/glm)
+add_subdirectory(src/headers/soloud/contrib)
 
 
 add_executable(Project src/main.cpp
@@ -22,7 +24,9 @@ add_executable(Project src/main.cpp
         src/Model/src/Plane.cpp
         src/Model/Include/PlaneType.h
         src/Model/src/Constants.cpp
-        src/Model/Include/Constants.h)
+        src/Model/Include/Constants.h
+        src/Engine/SoundEngine.hpp)
+target_link_libraries(Project soloud)
 target_link_libraries(Project glfw)
 target_link_libraries(Project glm)
 target_link_libraries(Project Vulkan::Vulkan)

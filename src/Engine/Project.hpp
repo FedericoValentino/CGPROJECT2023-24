@@ -1,6 +1,8 @@
 #ifndef PROJECT_H
 #define PROJECT_H
 
+
+#include "SoundEngine.hpp"
 #include "ControlWrapper.cpp"
 #include "Starter.hpp"
 #include "../View/PlaneView.hpp"
@@ -60,6 +62,8 @@ private:
     std::shared_ptr<AirplaneLights> planeLights;
     GlobalUniformBufferObject gubo;
 
+    Sound soundEngine;
+
     int numObj = 100;
     float Ar;
 
@@ -112,6 +116,8 @@ private:
 };
 
 void Project::localInit() {
+
+    soundEngine.init();
 
     this->partita = std::make_shared<Partita>();
     partita->generateWorld();
@@ -479,6 +485,12 @@ void Project::onWindowResize(int w, int h)
 
 void Project::gameLogic()
 {
+    static bool played = false;
+    if(!played) {
+        soundEngine.play();
+        played = true;
+    }
+
     m = glm::vec3(0.0f);
     r = glm::vec3(0.0f);
 
