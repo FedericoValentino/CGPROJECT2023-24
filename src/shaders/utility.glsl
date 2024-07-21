@@ -95,8 +95,8 @@ float Dbeckmann(float roughness, vec3 halfVector, vec3 normal)
 
 float Fresnel(vec3 halfVector, vec3 cameraDirection)
 {
-    float refractiveIndex = 0.5;
-    float Fo = pow((1 - refractiveIndex) / (1 + refractiveIndex), 2);
+    float refractiveIndex = 1.5;
+    float Fo = pow(abs((1 - refractiveIndex) / (1 + refractiveIndex)), 2);
     float fifthPower = pow(1 - clamp(dot(cameraDirection, halfVector), 0.0f, 1.0f), 5);
     float F = Fo + (1 - Fo) * fifthPower;
     return F;
