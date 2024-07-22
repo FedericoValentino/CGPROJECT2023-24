@@ -64,7 +64,6 @@ target_link_libraries(Project
 target_include_directories(Project PRIVATE src/headers)
 
 # Set target properties
-set_target_properties(Project PROPERTIES COMPILE_OPTIONS -g)
 set_target_properties(Project PROPERTIES RUNTIME_OUTPUT_DIRECTORY "${CMAKE_SOURCE_DIR}/Build")
 
 # Print CMake system information

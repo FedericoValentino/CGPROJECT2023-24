@@ -480,7 +480,7 @@ protected:
 
     void initVulkan() {
 		createInstance();				
-		setupDebugMessenger();
+		//setupDebugMessenger();
 		createSurface();				
 		pickPhysicalDevice();			
 		createLogicalDevice();			
@@ -523,13 +523,15 @@ std::cout << "Starting createInstance()\n"  << std::flush;
 
 		createInfo.enabledLayerCount = 0;
 
+
 		auto extensions = getRequiredExtensions();
 		createInfo.enabledExtensionCount =
 			static_cast<uint32_t>(extensions.size());
 		createInfo.ppEnabledExtensionNames = extensions.data();		
 
 		createInfo.flags |= VK_INSTANCE_CREATE_ENUMERATE_PORTABILITY_BIT_KHR;
-		
+
+        /*
 		if (!checkValidationLayerSupport()) {
 			throw std::runtime_error("validation layers requested, but not available!");
 		}
@@ -542,7 +544,8 @@ std::cout << "Starting createInstance()\n"  << std::flush;
 			populateDebugMessengerCreateInfo(debugCreateInfo);
 			createInfo.pNext = (VkDebugUtilsMessengerCreateInfoEXT*)
 									&debugCreateInfo;
-		
+         */
+
 		VkResult result = vkCreateInstance(&createInfo, nullptr, &instance);
 		
 		if(result != VK_SUCCESS) {
@@ -560,7 +563,7 @@ std::cout << "Starting createInstance()\n"  << std::flush;
 		std::vector<const char*> extensions(glfwExtensions,
 			glfwExtensions + glfwExtensionCount);
 			
-		extensions.push_back(VK_EXT_DEBUG_UTILS_EXTENSION_NAME);		
+		//extensions.push_back(VK_EXT_DEBUG_UTILS_EXTENSION_NAME);
 
 		if(checkIfItHasExtension(VK_KHR_PORTABILITY_ENUMERATION_EXTENSION_NAME)) {
 			extensions.push_back(VK_KHR_PORTABILITY_ENUMERATION_EXTENSION_NAME);
@@ -608,32 +611,6 @@ std::cout << "Starting createInstance()\n"  << std::flush;
 			}
 		}
 		return found;
-	}
-	
-	bool checkValidationLayerSupport() {
-		uint32_t layerCount;
-		vkEnumerateInstanceLayerProperties(&layerCount, nullptr);
-
-		std::vector<VkLayerProperties> availableLayers(layerCount);
-		vkEnumerateInstanceLayerProperties(&layerCount,
-					availableLayers.data());
-
-		for (const char* layerName : validationLayers) {
-			bool layerFound = false;
-			
-			for (const auto& layerProperties : availableLayers) {
-				if (strcmp(layerName, layerProperties.layerName) == 0) {
-					layerFound = true;
-					break;
-				}
-			}
-		
-			if (!layerFound) {
-				return false;
-			}
-		}
-		
-		return true;    
 	}
 
     void populateDebugMessengerCreateInfo(
@@ -897,10 +874,12 @@ std::cout << "Starting createInstance()\n"  << std::flush;
 				static_cast<uint32_t>(deviceExtensions.size());
 		createInfo.ppEnabledExtensionNames = deviceExtensions.data();
 
+        /*
 			createInfo.enabledLayerCount = 
 					static_cast<uint32_t>(validationLayers.size());
 			createInfo.ppEnabledLayerNames = validationLayers.data();
-		
+		*/
+
 		VkResult result = vkCreateDevice(physicalDevice, &createInfo, nullptr, &device);
 		
 		if (result != VK_SUCCESS) {
@@ -3433,7 +3412,6 @@ void DescriptorSet::init(BaseProject *bp, DescriptorSetLayout *DSL,
         BP->descriptorPool.push_back(pool);
         BP->createDescriptorPool(BP->poolSize/BP->setsInPool);
     }
-    printf("Current Pool Size = %d\n", BP->poolSize);
 }
 
 void DescriptorSet::cleanup() {

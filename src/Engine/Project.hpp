@@ -578,7 +578,6 @@ void Project::gameLogic()
                                                                       glm::vec4(info->pBullet->getPosition3D().origin, 1.0f),
                                                                       0.0f,
                                                                       3.0f};
-            printf("New Light\n");
             gubo.explosionCounter++;
 
             return true;
