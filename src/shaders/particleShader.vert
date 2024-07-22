@@ -15,9 +15,15 @@ layout(binding = 0) uniform particleUniformBufferObject
 layout(location = 1) out int instanceID;
 
 // Grid position are in clipped space
-vec3 particle[6] = vec3[] (
-    vec3(-0.1, -0.1, 0), vec3(0.1, 0.1, 0), vec3(0.1, -0.1, 0),
-    vec3(0.1, 0.1, 0), vec3(-0.1, -0.1, 0), vec3(-0.1, 0.1, 0)
+vec3 particle[24] = vec3[] (
+    vec3(0, 0, 0), vec3(0, 0.1, 0), vec3(0.04, 0.04, 0),
+    vec3(0, 0, 0), vec3(0.1, 0, 0), vec3(0.04, 0.04, 0),
+    vec3(0, 0, 0), vec3(0, 0.1, 0), vec3(0.04, -0.04, 0),
+    vec3(0, 0, 0), vec3(0, -0.1, 0), vec3(0.04, -0.04, 0),
+    vec3(0, 0, 0), vec3(0, -0.1, 0), vec3(-0.04, -0.04, 0),
+    vec3(0, 0, 0), vec3(-0.1, 0, 0), vec3(-0.04, -0.04, 0),
+    vec3(0, 0, 0), vec3(-0.1, 0, 0), vec3(-0.04, 0.04, 0),
+    vec3(0, 0, 0), vec3(0.1, 0, 0), vec3(-0.04, 0.04, 0)
 );
 
 mat4 BuildTranslation(vec3 delta)
