@@ -181,7 +181,7 @@ void Project::localInit() {
 }
 
 void Project::pipelinesAndDescriptorSetsInit() {
-    terrain->pipelineAndDSInit(this);
+    terrain->pipelineAndDSInit(this, sizeof(GlobalUniformBufferObject));
     particles->pipelineAndDSInit(this);
     planeLights->pipelineAndDSInit(this);
     bullets->pipelineAndDSInit(this, sizeof(BulletUniformBufferObject), sizeof(FlickeringObject));
@@ -472,6 +472,8 @@ void Project::updateUniformBuffer(uint32_t currentImage) {
     extractFrustumPlanes(frustumPlanes, S);
 
     updateLights();
+
+    terrain->DS.map(currentImage, &gubo, sizeof(GlobalUniformBufferObject), 1);
 
     //updateEnemyLights();
 

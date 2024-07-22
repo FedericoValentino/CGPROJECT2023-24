@@ -1,4 +1,5 @@
 #version 450
+#include "utility.glsl"
 
 layout(set = 0, binding = 0) uniform ViewUniforms {
     mat4 view;
@@ -12,42 +13,63 @@ layout(location = 1) in vec3 nearPoint;
 layout(location = 2) in vec3 farPoint;
 layout(location = 0) out vec4 outColor;
 
-vec4 grid(vec3 fragPos3D, float scale, bool drawAxis) {
-    vec2 coord = fragPos3D.xz * scale;
-    vec2 derivative = fwidth(coord);
-    vec2 grid = abs(fract(coord - 0.5) - 0.5) / derivative;
-    float line = min(grid.x, grid.y);
-    float minimumz = min(derivative.y, 1);
-    float minimumx = min(derivative.x, 1);
-    vec4 color = vec4(0.2, 0.2, 0.2, 1.0 - min(line, 1.0));
-    // z axis
-    if(fragPos3D.x > -0.1 * minimumx && fragPos3D.x < 0.1 * minimumx)
-    color.z = 1.0;
-    // x axis
-    if(fragPos3D.z > -0.1 * minimumz && fragPos3D.z < 0.1 * minimumz)
-    color.x = 1.0;
-    return color;
-}
+struct directLight{
+    vec4 color;
+    vec4 direction;
+};
+
+struct pointLight{
+    vec4 color;
+    vec4 position;
+    float time;
+    float size;
+};
+
+
+layout(binding = 1) uniform GlobalUniformBufferObject {
+    pointLight lights[MAXBULLETS];
+    pointLight pointLightsAirplane[10 * MAX_PLANE];
+    pointLight explosions[MAXBULLETS];
+    SpotLight spotlight;
+    vec4 ambientLight;
+    vec4 eyepos;
+    directLight moon;
+    int lightCounter;
+    int pointLightsAirplaneCounter;
+    int explosionCounter;
+} gubo;
+
+
 float computeDepth(vec3 pos) {
     vec4 clip_space_pos = view.proj * view.view * vec4(pos.xyz, 1.0);
     return (clip_space_pos.z / clip_space_pos.w);
 }
-float computeLinearDepth(vec3 pos) {
-    vec4 clip_space_pos = view.proj * view.view * vec4(pos.xyz, 1.0);
-    float clip_space_depth = (clip_space_pos.z / clip_space_pos.w) * 2.0 - 1.0; // put back between -1 and 1
-    float linearDepth = (2.0 * near * far) / (far + near - clip_space_depth * (far - near)); // get linear value between 0.01 and 100
-    return linearDepth / far; // normalize
-}
+
+const float density = 0.01;
+const float gradient = 1.5;
+vec4 skycolor = vec4(0.012f,0.031f,0.11f, 1.0f);
+
 void main() {
+    vec3 diffuseLight = gubo.ambientLight.xyz * gubo.ambientLight.w;
+    vec3 surfaceNormal = normalize(vec3(0.0, 1.0f, 0.0f));
+    float direction_diffuse = max(dot(surfaceNormal, normalize(-gubo.moon.direction.xyz)), 0);
+
+    diffuseLight += direction_diffuse;
+
+
     float t = -nearPoint.y / (farPoint.y - nearPoint.y);
     vec3 fragPos3D = nearPoint + t * (farPoint - nearPoint);
 
+    vec4 positionToCam = view.view * vec4(fragPos3D, 1.0f);
+
+    float distance = length(positionToCam.xyz);
+    float visibility = exp(-pow((distance * density), gradient));
+    visibility = clamp(visibility, 0.0, 1.0);
+
     gl_FragDepth = computeDepth(fragPos3D);
 
-    float linearDepth = computeLinearDepth(fragPos3D);
-    float fading = max(0, (0.5 - linearDepth));
-
     outColor = vec4(0.067f, 0.445, 0.0f, 1.0f); // adding multiple resolution for the grid
-    outColor.a *= fading;
+    outColor = diffuseLight * outColor;
+    outColor = mix(skycolor, outColor, visibility);
 }
 

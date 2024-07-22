@@ -27,17 +27,19 @@ public:
         this->app = bp;
 
         this->DSL.init(bp, {
-                {0, VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, VK_SHADER_STAGE_VERTEX_BIT | VK_SHADER_STAGE_FRAGMENT_BIT}});
+                {0, VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, VK_SHADER_STAGE_VERTEX_BIT | VK_SHADER_STAGE_FRAGMENT_BIT},
+                {1, VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, VK_SHADER_STAGE_FRAGMENT_BIT}});
 
         this->VD.init(bp, {}, {});
 
         this->P.init(bp, &VD, "../src/shaders/terrainShaderVert.spv", "../src/shaders/terrainShaderFrag.spv", {&this->DSL});
     }
 
-    void pipelineAndDSInit(BaseProject* bp){
+    void pipelineAndDSInit(BaseProject* bp, int gubosize){
         this->P.create(false, 0, VK_SHADER_STAGE_ALL);
         this->DS.init(bp, &this->DSL, {
-                {0, UNIFORM, sizeof(terrainUBO), nullptr}
+                {0, UNIFORM, sizeof(terrainUBO), nullptr},
+                {1, UNIFORM, gubosize, nullptr}
         });
     }
 
