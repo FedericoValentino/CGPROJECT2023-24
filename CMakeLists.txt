@@ -4,19 +4,14 @@ project(CGPRJ2023-24)
 # Set C++ standard
 set(CMAKE_CXX_STANDARD 17)
 
-# Find SDL2
-find_package(SDL2 REQUIRED)
-
 # Find Vulkan
 find_package(Vulkan REQUIRED)
-
-# Include directories for SDL2
-include_directories(${SDL2_INCLUDE_DIRS})
 
 # Conditional compilation based on operating system
 if(WIN32)
     # Windows-specific settings
     set(SDL2_PATH "${CMAKE_SOURCE_DIR}/src/headers/SDL2-2.30.5/x86_64-w64-mingw32")
+    find_package(SDL2 REQUIRED)
     include_directories(${SDL2_PATH}/include)
     link_directories(${SDL2_PATH}/lib)
 
