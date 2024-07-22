@@ -414,7 +414,6 @@ void Project::updateEnemyLights(){
 
 void Project::updateLights()
 {
-<<<<<<< HEAD
     gubo.moon.color = isNight ? glm::vec4(1.0f, 1.0f, 1.0f, 0.02f) : constant::moonColor;
     gubo.sky = isNight ? glm::vec4(0.012f,0.031f,0.11f, 1.0f) : constant::initialBackgroundColor;
 
@@ -425,14 +424,6 @@ void Project::updateLights()
 
     gubo.lightCounter = 0;
     for (int i = 0; i < bullets->bulletInfo.size(); i++) {
-=======
-
-      gubo.moon.color = isNight ? glm::vec4(1.0f,0.0f,0.0f,0.01f) : constant::moonColor;
-      gubo.sky = isNight ? glm::vec4(1.0f,0.0f,0.0f,0.01f) : constant::initialBackgroundColor;
-      gubo.lightCounter = 0;
-
-      for (int i = 0; i < bullets->bulletInfo.size(); i++) {
->>>>>>> minor fix to enemy movement
 
         bullets->fo.flick[i].color = bullets->bulletInfo[i]->color;
 
@@ -761,8 +752,9 @@ void Project::gameLogic()
     spawnPlane();
 
     //MUOVI PLAYER
+    auto pl_pos = partita->getPlayer()->position;
     //update Plane position & orientation
-    Position3D pl_pos = updatePlaneMatrix(partita->getPlayer()->position, deltaT, r);
+    pl_pos = updatePlaneMatrix(pl_pos, deltaT, r);
     partita->player->setOrientation(pl_pos.rotation);
     partita->player->setPosition(pl_pos.origin);
 
@@ -789,10 +781,6 @@ void Project::gameLogic()
 
     numberOfEnemies = std::count_if(planes->enemyInfo.begin(),planes->enemyInfo.end(),
                                     [](auto info){return !info->pEnemy->getDead();});
-    
-    //SunCycle
-    //sunCycle();
-
 }
 
 void Project::spawnPlane()

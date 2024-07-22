@@ -89,8 +89,6 @@ void Plane::changePosition(const Position3D& inputPosition, float deltaT)
     float z =  glm::cos(position.rotation.y) * translationSpeed * deltaT;
     glm::mat4 T = glm::translate(glm::mat4(1), glm::vec3(x, -y, z));
     position.origin= T * glm::vec4(position.origin,1.0f);
-    if(position.origin.y < 8.4f)
-        position.origin.y = 8.4f;
 }
 
 
