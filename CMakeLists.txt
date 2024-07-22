@@ -10,6 +10,7 @@ find_package(Vulkan REQUIRED)
 # Conditional compilation based on operating system
 if(WIN32)
     # Windows-specific settings
+    set(CMAKE_MODULE_PATH ${CMAKE_SOURCE_DIR}/cmake_modules)
     set(SDL2_PATH "${CMAKE_SOURCE_DIR}/src/headers/SDL2-2.30.5/x86_64-w64-mingw32")
     find_package(SDL2 REQUIRED)
     include_directories(${SDL2_PATH}/include)
