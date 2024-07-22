@@ -155,7 +155,7 @@ void main()
 
 
     //Zeppelin spot Light
-    if(gubo.spotlight.spotlightColor != vec4(0.0f, 0.0f, 0.0f, 0.0f))
+    if(gubo.spotlight.spotlightColor != vec4(0.0f, 0.0f, 0.0f, 0.0f) && distance(gubo.spotlight.spotlightPosition.xyz,fragPos) < 50.0f)
     {
         lightDirection = normalize(gubo.spotlight.spotlightPosition.xyz - fragPos);
         halfVector = normalize(lightDirection + cameraDirection);
@@ -178,22 +178,23 @@ void main()
 */
     // Environment SpotLights
     // Lambert + Phong(Cook Torrence is too expensive)
-    for(int i = 0; i<floorBuffer.counter;++i)
-    {
-        lightDirection = normalize(floorBuffer.spotlightPosition[i].xyz - fragPos);
-        halfVector = normalize(lightDirection + cameraDirection);
-        float dist = distance(floorBuffer.spotlightPosition[i].xyz,fragPos);
-        cookTorrance += spotlightIntensity(floorBuffer.spotlightPosition[i],
-        floorBuffer.spotlightDirection,
-        floorBuffer.spotlightColor,
-        floorBuffer.spotLightCosIn,
-        floorBuffer.spotLightCosOut,
-        vec4(-lightDirection, 1.0f)) * (color.xyz * color.w * clamp(dot(lightDirection,fragNorm),0,1) /*+ phongSpecularNonMetals(fragPos,
-                                                                                                    floorBuffer.spotlightPosition[i],
-                                                                                                    gubo.eyepos.xyz,
-                                                                                                    surfaceNormal,
-                                                                                                     160, floorBuffer.spotlightColor.xyz)*/);
-    }
+
+    for (int i = 0; i < floorBuffer.counter; ++i)
+     {
+         if(distance(floorBuffer.spotlightPosition[i].xyz,fragPos) < 15.0f)
+         {
+             lightDirection = normalize(floorBuffer.spotlightPosition[i].xyz - fragPos);
+             halfVector = normalize(lightDirection + cameraDirection);
+             float dist = distance(floorBuffer.spotlightPosition[i].xyz, fragPos);
+             cookTorrance += spotlightIntensity(floorBuffer.spotlightPosition[i],
+                                                floorBuffer.spotlightDirection,
+                                                floorBuffer.spotlightColor,
+                                                floorBuffer.spotLightCosIn,
+                                                floorBuffer.spotLightCosOut,
+                                                vec4(-lightDirection, 1.0f)) * (color.xyz * color.w * clamp(dot(lightDirection, fragNorm), 0, 1));
+         }
+     }
+
 
 
     outColor = vec4(cookTorrance, 1.0);
