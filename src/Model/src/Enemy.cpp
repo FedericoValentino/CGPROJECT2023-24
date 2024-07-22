@@ -27,9 +27,9 @@ std::shared_ptr<Bullet> Enemy::shoot(const Position3D& inputPosition, const floa
     float distance;
     std::shared_ptr<Bullet> b = nullptr;
     glm::vec3 dir = glm::vec3(glm::sin(position.rotation.y), 0.0f, glm::cos(position.rotation.y));
-    if(glm::intersectRaySphere(position.origin, dir, inputPosition.origin, pow(1.0f, 2.0f), distance)
+    if(glm::intersectRaySphere(position.origin, dir, inputPosition.origin, pow(3.0f, 2.0f), distance)
         && checkDistance3D(inputPosition.origin, position.origin, ENEMY)
-        && (elapsedTime > 2.0f || bullets->empty()))
+        && (elapsedTime > 2.0f || (bullets->empty() && elapsedTime > 2.0f)))
     {
         b = std::make_shared<Bullet>(position,ENEMY,false);
         bullets->insert(b);

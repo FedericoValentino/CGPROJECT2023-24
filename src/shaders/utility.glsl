@@ -114,6 +114,6 @@ float Gmicrofacet(float roughness, vec3 halfVector, vec3 normal, vec3 cameraDire
 vec3 cookTorranceSpecular(float K, float roughness, float refraction, vec3 halfVector, vec3 normal, vec3 cameraDirection, vec3 lightDirection, vec3 specularColor)
 {
     float numerator = Dbeckmann(roughness, halfVector, normal) * Fresnel(refraction, halfVector, cameraDirection) * Gmicrofacet(roughness, halfVector, normal, cameraDirection, lightDirection);
-    float denominator = 4 * clamp(dot(cameraDirection, normal), 0.0, 1.0);
+    float denominator = 4 * clamp(dot(cameraDirection, normal), 0.001, 1.0);
     return ((1 - K) * specularColor * (numerator/denominator));
 }

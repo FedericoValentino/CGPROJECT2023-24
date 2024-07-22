@@ -56,8 +56,6 @@ bool Plane::checkDistance3D(const glm::vec3& center,const glm::vec3& point, PLAN
         case PLAYER:
             radius = 2.0f;
             break;
-        case COLLISION_SKY:
-            radius = 10.0f;
         default:
             break;
     }
