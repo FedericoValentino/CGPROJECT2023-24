@@ -1856,7 +1856,7 @@ std::cout << "Starting createInstance()\n"  << std::flush;
 		}
 	}
 
-    void getSixAxis(float &deltaT, float &time, glm::vec3 &m, glm::vec3 &r, bool& shoot,bool& isFirstPerson)
+    void getSixAxis(float &deltaT, float &time, glm::vec3 &m, glm::vec3 &r, bool& shoot,bool& isFirstPerson,bool&isNight)
     {
         static auto startTime = std::chrono::high_resolution_clock::now();
         static float lastTime = 0.0f;
@@ -1921,6 +1921,13 @@ std::cout << "Starting createInstance()\n"  << std::flush;
         if (glfwGetKey(window, GLFW_KEY_C)) {
             if (time - lastCTime >= minElapsedTimeBeforeC) {
                 isFirstPerson = !isFirstPerson;
+                lastCTime = time;
+            }
+        }
+
+        if (glfwGetKey(window, GLFW_KEY_N)) {
+            if (time - lastCTime >= minElapsedTimeBeforeC) {
+                isNight = !isNight;
                 lastCTime = time;
             }
         }

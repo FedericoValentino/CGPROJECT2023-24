@@ -7,7 +7,7 @@ layout(set = 0, binding = 0) uniform ViewUniforms {
     vec3 pos;
 } view;
 
-float near = 0.01; //0.01
+float near = 0.1; //0.1
 float far = 150; //100
 layout(location = 1) in vec3 nearPoint;
 layout(location = 2) in vec3 farPoint;

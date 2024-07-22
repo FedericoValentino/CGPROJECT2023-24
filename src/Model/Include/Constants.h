@@ -11,6 +11,8 @@ namespace constant{
     inline constexpr unsigned int MAPDIM = 25;
     inline constexpr size_t MAXBULLETS = 400;
     inline constexpr unsigned int MAXFLOORSPOTLIGHTS = 40;
+    inline constexpr glm::vec4 initialBackgroundColor = {0.863,0.761,0.918, 1.0f};
+    inline constexpr glm::vec4 moonColor = {0.0, 0.0, 0.0, 1.0f};
     extern const int MAX_FRAMES_IN_FLIGHT;
     extern const float MOVE_SPEED;
     extern const float ROT_SPEED;

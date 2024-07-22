@@ -46,7 +46,7 @@ struct GlobalUniformBufferObject {
     pointLightObject explosions[constant::MAXBULLETS];
     spotLightObject spotlight;
     glm::vec4 ambientLight;
-    glm::vec4 sky;
+    glm::vec4 sky = constant::initialBackgroundColor;
     glm::vec4 eyepos;
     directLightObject moon;
     alignas(4) int lightCounter = 0;
@@ -91,6 +91,7 @@ private:
     glm::vec3 m = glm::vec3(0.0f);
     glm::vec3 r = glm::vec3(0.0f);
     bool isFirstPerson = false;
+    bool isNight = false;
 
     void localInit() final;
 
@@ -250,7 +251,10 @@ void Project::setWindowParameters() {
     windowTitle = "TIMEPILOT 0.1";
     windowResizable = GLFW_TRUE;
     //initialBackgroundColor = {0.012f,0.031f,0.11f, 1.0f};
-    initialBackgroundColor = {0.863,0.761,0.918, 1.0f};
+    initialBackgroundColor = {constant::initialBackgroundColor.x,
+                              constant::initialBackgroundColor.y,
+                              constant::initialBackgroundColor.z,
+                              constant::initialBackgroundColor.w};
 
     uniformBlocksInPool = numObj*2;
     texturesInPool = numObj;
@@ -441,6 +445,11 @@ void Project::updateEnemyLights(){
 
 void Project::updateLights()
 {
+    if(isNight)
+    {
+      gubo.moon.color = isNight ? glm::vec4(1.0f,0.0f,0.0f,0.01f) : constant::moonColor;
+      gubo.sky = isNight ? glm::vec4(1.0f,0.0f,0.0f,0.01f) : constant::initialBackgroundColor;
+    }
     gubo.lightCounter = 0;
     for (int i = 0; i < bullets->bulletInfo.size(); i++) {
 
@@ -579,7 +588,7 @@ void Project::gameLogic()
 
 
     bool shoot = false;
-    getSixAxis(deltaT, time, m, r, shoot,isFirstPerson);
+    getSixAxis(deltaT, time, m, r, shoot,isFirstPerson,isNight);
 
     //INCREMENT INTERNAL CLOCK
     for(auto info : planes->enemyInfo)
