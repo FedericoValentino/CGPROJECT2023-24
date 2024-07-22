@@ -94,10 +94,9 @@ float Dbeckmann(float roughness, vec3 halfVector, vec3 normal)
     return numerator/denominator;
 }
 
-float Fresnel(vec3 halfVector, vec3 cameraDirection)
+float Fresnel(float refraction, vec3 halfVector, vec3 cameraDirection)
 {
-    float refractiveIndex = 1.5;
-    float Fo = pow(abs((1 - refractiveIndex) / (1 + refractiveIndex)), 2);
+    float Fo = pow(abs((1 - refraction) / (1 + refraction)), 2);
     float fifthPower = pow(1 - clamp(dot(cameraDirection, halfVector), 0.0f, 1.0f), 5);
     float F = Fo + (1 - Fo) * fifthPower;
     return F;
@@ -112,9 +111,9 @@ float Gmicrofacet(float roughness, vec3 halfVector, vec3 normal, vec3 cameraDire
     return min(1, minimumTerm);
 }
 
-vec3 cookTorranceSpecular(float K, float roughness, vec3 halfVector, vec3 normal, vec3 cameraDirection, vec3 lightDirection, vec3 specularColor)
+vec3 cookTorranceSpecular(float K, float roughness, float refraction, vec3 halfVector, vec3 normal, vec3 cameraDirection, vec3 lightDirection, vec3 specularColor)
 {
-    float numerator = Dbeckmann(roughness, halfVector, normal) * Fresnel(halfVector, cameraDirection) * Gmicrofacet(roughness, halfVector, normal, cameraDirection, lightDirection);
+    float numerator = Dbeckmann(roughness, halfVector, normal) * Fresnel(refraction, halfVector, cameraDirection) * Gmicrofacet(roughness, halfVector, normal, cameraDirection, lightDirection);
     float denominator = 4 * clamp(dot(cameraDirection, normal), 0.0, 1.0);
     return ((1 - K) * specularColor * (numerator/denominator));
 }

@@ -45,25 +45,39 @@ vec4 skycolor = vec4(0.012f,0.031f,0.11f, 1.0f);
 void main()
 {
     vec4 color;
+    float k;
+    float roughness;
+    float refraction;
+    vec3 specularColor = vec3(0.0f, 0.0f, 0.0f);
     switch(planeType)
     {
             case 0:
                 color = texture(playerTexture, fragUV);
+                k = 0.5f;
+                roughness = 0.5f;
+                refraction = 1.2f;
+                specularColor = color.xyz;
                 break;
             case 1:
                 color = texture(enemyTexture, fragUV);
+                k = 0.4f;
+                roughness = 0.2f;
+                refraction = 1.2f;
+                specularColor = color.xyz;
                 break;
             case 2:
                 color = texture(bossTexture, fragUV);
+                k = 0.4f;
+                roughness = 0.3f;
+                refraction = 1.4f;
+                specularColor = color.xyz;
                 break;
     }
 
     vec3 specularReflection = {0.0, 0.0, 0.0};
-    float k = 0.5f;
+
     float g = 1.0f; // decay factor
     float beta = 1.0f; // decay factor
-    float roughness = 0.5f;
-    vec3 specularColor = {1.0, 1.0, 1.0};
     vec3 cookTorrance;
     vec3 lightDirection = {0, 0, 0};
     vec3 halfVector = {0, 0, 0};
@@ -82,7 +96,7 @@ void main()
     float direction_diffuse = max(dot(surfaceNormal, normalize(-gubo.moon.direction.xyz)), 0);
     lightDirection = -gubo.moon.direction.xyz;
     halfVector = normalize(lightDirection + cameraDirection);
-    diffuseLight += gubo.moon.color.xyz * gubo.moon.color.w * ((k * color.xyz * direction_diffuse ) + cookTorranceSpecular(k, roughness, halfVector, surfaceNormal, cameraDirection, lightDirection, specularColor));
+    diffuseLight += gubo.moon.color.xyz * gubo.moon.color.w * ((k * color.xyz * direction_diffuse ) + cookTorranceSpecular(k, roughness, refraction, halfVector, surfaceNormal, cameraDirection, lightDirection, specularColor));
 
     //Point Lights
     for(int i=0; i<gubo.lightCounter; i++)
@@ -96,7 +110,7 @@ void main()
                                                     gubo.lights[i].color,
                                                     gubo.lights[i].time,
                                                     fragPos,
-                                                    surfaceNormal) + cookTorranceSpecular(k, roughness, halfVector, surfaceNormal, cameraDirection, lightDirection, specularColor));
+                                                    surfaceNormal) + cookTorranceSpecular(k, roughness, refraction, halfVector, surfaceNormal, cameraDirection, lightDirection, specularColor));
     }
 
 
@@ -105,12 +119,12 @@ void main()
         lightDirection = normalize(gubo.explosions[i].position.xyz - fragPos);
         halfVector = normalize(lightDirection + cameraDirection);
         float dist = distance(gubo.explosions[i].position.xyz,fragPos);
-        diffuseLight += gubo.explosions[i].color.xyz * gubo.explosions[i].color.w * pow(g/dist,beta) *
+        diffuseLight += gubo.explosions[i].color.xyz * gubo.explosions[i].color.w * pow(100.0f/dist,beta) *
         ( k * color.xyz * pointLightIntensity(gubo.explosions[i].size,
                                             gubo.explosions[i].position,
                                             gubo.explosions[i].color,
                                             fragPos,
-                                            surfaceNormal) + cookTorranceSpecular(k, roughness, halfVector, surfaceNormal, cameraDirection, lightDirection, specularColor));
+                                            surfaceNormal) + cookTorranceSpecular(k, roughness, refraction, halfVector, surfaceNormal, cameraDirection, lightDirection, specularColor));
     }
 
     lightDirection = normalize(gubo.spotlight.spotlightPosition.xyz - fragPos);
@@ -122,7 +136,7 @@ void main()
                                         gubo.spotlight.spotlightCosIn,
                                         gubo.spotlight.spotlightCosOut,
                                         vec4(-lightDirection, 1.0f))
-    * (k * color.xyz * clamp(dot(fragNorm,lightDirection),0.0f,1.0f) + cookTorranceSpecular(k, roughness, halfVector, surfaceNormal, cameraDirection, lightDirection, specularColor));
+    * (k * color.xyz * clamp(dot(fragNorm,lightDirection),0.0f,1.0f) + cookTorranceSpecular(k, refraction, roughness, halfVector, surfaceNormal, cameraDirection, lightDirection, specularColor));
 
     outColor = vec4(diffuseLight, 1.0);
     outColor = mix(skycolor, outColor, visibility);
