@@ -171,6 +171,7 @@ void Project::localInit() {
             }
         }
     }
+    tiles->floorLightsCounter = tiles->floorLights.counter;
 
 
 
@@ -451,6 +452,8 @@ void Project::updateLights()
         gubo.spotlight.spotlightColor = glm::vec4(0.0f, 0.0f, 0.0f, 0.0f);
         partita->state = END;
     }
+
+    tiles->floorLights.counter = isNight ? tiles->floorLightsCounter : 0;
 }
 
 /**

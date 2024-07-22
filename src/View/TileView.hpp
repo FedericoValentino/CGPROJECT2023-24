@@ -62,6 +62,7 @@ public:
     DescriptorSet DSLights;
 
     glm::mat4 view;
+    int floorLightsCounter = 0;
 
     const glm::mat4& newTile(int row, int col, int type)
     {
