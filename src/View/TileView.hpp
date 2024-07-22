@@ -14,9 +14,9 @@ struct TileUniformBufferObject {
 struct SpotLightsFloorBuffer{
     glm::vec4 spotlightPosition[constant::MAXFLOORSPOTLIGHTS];
     glm::vec4 spotlightDirection = glm::vec4(0.0f,-1.0f,0.0f,1.0f);
-    glm::vec4 spotlightColor = glm::vec4(1.0, 1.0, 0.0, 1.0);
-    float spotLightCosIn = 0.97;
-    float spotLightCosOut = 0.94;
+    glm::vec4 spotlightColor = glm::vec4(0.91,0.871,0.42, 0.05);
+    float spotLightCosIn = 0.95;
+    float spotLightCosOut = 0.70;
     int counter = 0;
     float pad[1];
 };

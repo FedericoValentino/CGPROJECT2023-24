@@ -154,7 +154,7 @@ void main()
     }
 
 
-    //Spot Light
+    //Zeppelin spot Light
     if(gubo.spotlight.spotlightColor != vec4(0.0f, 0.0f, 0.0f, 0.0f))
     {
         lightDirection = normalize(gubo.spotlight.spotlightPosition.xyz - fragPos);
@@ -176,7 +176,7 @@ void main()
                                                  surfaceNormal,
                                                  160, gubo.spotlight.spotlightColor.xyz);
 */
-    // SpotLights
+    // Environment SpotLights
     // Lambert + Phong(Cook Torrence is too expensive)
     for(int i = 0; i<floorBuffer.counter;++i)
     {
