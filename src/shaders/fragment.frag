@@ -33,6 +33,7 @@ layout(binding = 2) uniform GlobalUniformBufferObject {
     pointLight explosions[MAXBULLETS];
     SpotLight spotlight;
     vec4 ambientLight;
+    vec4 sky;
     vec4 eyepos;
     directLight moon;
     int lightCounter;
@@ -48,8 +49,6 @@ layout(binding = 5) uniform FloorBuffer {
     float spotLightCosOut;
     int counter;
 } floorBuffer;
-
-vec4 skycolor = vec4(0.863,0.761,0.918, 1.0);
 
 void main()
 {
@@ -190,8 +189,6 @@ void main()
                                                  160, gubo.spotlight.spotlightColor.xyz);
 */
     // Environment SpotLights
-    // Lambert + Phong(Cook Torrence is too expensive)
-
     for (int i = 0; i < floorBuffer.counter; ++i)
      {
          if(distance(floorBuffer.spotlightPosition[i].xyz,fragPos) < 15.0f)
@@ -211,6 +208,6 @@ void main()
 
 
     outColor = vec4(cookTorrance, 1.0);
-    outColor = mix(skycolor, outColor, visibility);
+    outColor = mix(gubo.sky, outColor, visibility);
     outColor = clamp(outColor,0.0f,1.0f);
 }

@@ -59,11 +59,6 @@ struct dayCycleinfo {
     glm::vec4 noonColor = {0.11,0.635,0.89, 1.0f};
     glm::vec4 sunsetColor = {0.984,0.565,0.384, 1.0f};
     glm::vec4 nightColor = {0.18,0.267, 0.51, 1.0f};
-
-    float dawnTime = 0.0f;
-    float noonTime = 7.55f;
-    float sunsetTime = 15.0f;
-    float nightTime = 22.65f;
 };
 
 class Project : public BaseProject
@@ -132,8 +127,6 @@ private:
     void updateLights();
 
     void updateEnemyLights();
-
-    void sunCycle();
 };
 
 void Project::localInit() {
@@ -184,7 +177,7 @@ void Project::localInit() {
     //Light updates
     //TODO moon.color.w was 0.02f
     //gubo.ambientLight = glm::vec4(1.0f, 1.0f, 1.0f, 0.02f);
-    gubo.ambientLight = glm::vec4(0.933,0.365,0.424, 0.3f);
+    gubo.ambientLight = glm::vec4(1.0,1.0,1.0, 0.02f);
     gubo.moon.direction = glm::vec4(-10.0f,-40.0f,0.0f,1.0f);
     //gubo.moon.color = glm::vec4(0.965f,0.945f,0.835f, 0.02f);             original night
     //gubo.moon.color = glm::vec4(0.984,0.565,0.384, 0.7f);                 sunset
@@ -201,30 +194,6 @@ void Project::localInit() {
 
     bullets = std::make_shared<BulletView>();
     bullets->init(this);
-}
-
-float LERP(float x, float x0, float y0, float x1, float y1)
-{
-    assert(x1 != x0);
-    float numerator = (y0 * (x1 - x)) + (y1 * (x - x0));
-    float denominator = x1 - x0;
-    return numerator/denominator;
-}
-
-void Project::sunCycle()
-{
-        time += deltaT;
-        float redch;
-        float greench;
-        float bluech;
-
-        redch = 0.5 * (sin(0.052 * 2 * time) + 1);
-        greench = 0.5 * (sin(0.052 * 2 * time) + 1);
-        bluech = 0.5 * (0.86 * sin(0.052 * 2 * time) + 1);
-
-        gubo.moon.color.x = redch;
-        gubo.moon.color.y = greench;
-        gubo.moon.color.z = bluech;
 }
 
 void Project::pipelinesAndDescriptorSetsInit() {
@@ -445,11 +414,14 @@ void Project::updateEnemyLights(){
 
 void Project::updateLights()
 {
-    if(isNight)
-    {
-      gubo.moon.color = isNight ? glm::vec4(1.0f,0.0f,0.0f,0.01f) : constant::moonColor;
-      gubo.sky = isNight ? glm::vec4(1.0f,0.0f,0.0f,0.01f) : constant::initialBackgroundColor;
-    }
+    gubo.moon.color = isNight ? glm::vec4(1.0f, 1.0f, 1.0f, 0.02f) : constant::moonColor;
+    gubo.sky = isNight ? glm::vec4(0.012f,0.031f,0.11f, 1.0f) : constant::initialBackgroundColor;
+
+    initialBackgroundColor = {gubo.sky.x,
+                              gubo.sky.y,
+                              gubo.sky.z,
+                              gubo.sky.w};
+
     gubo.lightCounter = 0;
     for (int i = 0; i < bullets->bulletInfo.size(); i++) {
 
@@ -807,9 +779,6 @@ void Project::gameLogic()
 
     numberOfEnemies = std::count_if(planes->enemyInfo.begin(),planes->enemyInfo.end(),
                                     [](auto info){return !info->pEnemy->getDead();});
-
-    //SunCycle
-    sunCycle();
 }
 
 void Project::spawnPlane()

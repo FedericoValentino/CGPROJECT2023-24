@@ -32,6 +32,7 @@ layout(binding = 1) uniform GlobalUniformBufferObject {
     pointLight explosions[MAXBULLETS];
     SpotLight spotlight;
     vec4 ambientLight;
+    vec4 sky;
     vec4 eyepos;
     directLight moon;
     int lightCounter;
@@ -47,7 +48,7 @@ float computeDepth(vec3 pos) {
 
 const float density = 0.01;
 const float gradient = 1.5;
-vec4 skycolor = vec4(0.863,0.761,0.918, 1.0f);
+
 
 void main() {
     vec3 diffuseLight = gubo.ambientLight.xyz * gubo.ambientLight.w;
@@ -70,6 +71,6 @@ void main() {
 
     outColor = vec4(0.067f, 0.445, 0.0f, 1.0f); // adding multiple resolution for the grid
     outColor = vec4(diffuseLight * outColor.xyz, 1.0);
-    outColor = mix(skycolor, outColor, visibility);
+    outColor = mix(gubo.sky, outColor, visibility);
 }
 

@@ -33,6 +33,7 @@ layout(binding = 2) uniform GlobalUniformBufferObject {
     pointLight explosions[MAXBULLETS];
     SpotLight spotlight;
     vec4 ambientLight;
+    vec4 sky;
     vec4 eyepos;
     directLight moon;
     int lightCounter;
@@ -40,7 +41,7 @@ layout(binding = 2) uniform GlobalUniformBufferObject {
     int explosionCounter;
 } gubo;
 
-vec4 skycolor = vec4(0.012f,0.031f,0.11f, 1.0f);
+
 
 void main()
 {
@@ -139,7 +140,7 @@ void main()
     * (k * color.xyz * clamp(dot(fragNorm, lightDirection), 0.0f, 1.0f) + cookTorranceSpecular(k, refraction, roughness, halfVector, surfaceNormal, cameraDirection, lightDirection, specularColor));
 
     outColor = vec4(diffuseLight, 1.0);
-    outColor = mix(skycolor, outColor, visibility);
+    outColor = mix(gubo.sky, outColor, visibility);
     outColor = clamp(outColor, 0.0f, 1.0f);
 
 }
