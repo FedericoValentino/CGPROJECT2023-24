@@ -19,8 +19,8 @@ layout (location = 2) out vec2 fragUV;
 layout (location = 3) out float visibility;
 layout(location = 4) out int tileType;
 
-const float density = 0.01;
-const float gradient = 1.5;
+const float density = 0.009;
+const float gradient = 2.7;
 
 layout( push_constant ) uniform constants
 {

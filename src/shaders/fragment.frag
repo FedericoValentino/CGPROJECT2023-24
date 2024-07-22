@@ -49,7 +49,7 @@ layout(binding = 5) uniform FloorBuffer {
     int counter;
 } floorBuffer;
 
-vec4 skycolor = vec4(0.012f,0.031f,0.11f, 1.0f);
+vec4 skycolor = vec4(0.906,0.345,0.243, 1.0);
 
 void main()
 {

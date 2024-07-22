@@ -47,7 +47,7 @@ float computeDepth(vec3 pos) {
 
 const float density = 0.01;
 const float gradient = 1.5;
-vec4 skycolor = vec4(0.012f,0.031f,0.11f, 1.0f);
+vec4 skycolor = vec4(0.906,0.345,0.243, 1.0f);
 
 void main() {
     vec3 diffuseLight = gubo.ambientLight.xyz * gubo.ambientLight.w;
@@ -69,7 +69,7 @@ void main() {
     gl_FragDepth = computeDepth(fragPos3D);
 
     outColor = vec4(0.067f, 0.445, 0.0f, 1.0f); // adding multiple resolution for the grid
-    outColor = diffuseLight * outColor;
+    outColor = vec4(diffuseLight * outColor.xyz, 1.0);
     outColor = mix(skycolor, outColor, visibility);
 }
 

@@ -72,6 +72,7 @@ private:
 
     float deltaT;
     float time;
+    float clock;
     int numberOfEnemies = 0;
     glm::vec3 m = glm::vec3(0.0f);
     glm::vec3 r = glm::vec3(0.0f);
@@ -116,6 +117,8 @@ private:
     void updateLights();
 
     void updateEnemyLights();
+
+    void sunCycle();
 };
 
 void Project::localInit() {
@@ -163,11 +166,14 @@ void Project::localInit() {
 
     //Light updates
     //TODO moon.color.w was 0.02f
-    gubo.ambientLight = glm::vec4(1.0f, 1.0f, 1.0f, 0.02f);
-    gubo.moon.direction = glm::vec4(0.0f,-40.0f,0.0f,1.0f);
-    gubo.moon.color = glm::vec4(0.965f,0.945f,0.835f, 0.02f);
+    //gubo.ambientLight = glm::vec4(1.0f, 1.0f, 1.0f, 0.02f);
+    gubo.ambientLight = glm::vec4(0.933,0.365,0.424, 0.3f);
+    gubo.moon.direction = glm::vec4(-10.0f,-40.0f,0.0f,1.0f);
+    //gubo.moon.color = glm::vec4(0.965f,0.945f,0.835f, 0.02f);
+    gubo.moon.color = glm::vec4(0.984,0.565,0.384, 0.7f);
     gubo.pointLightsAirplaneCounter = 0.0f;
     gubo.spotlight.spotlightColor = glm::vec4(0.0f); // spotLight del dirigibile
+    this->clock = 0.0f;
 
 
     //TODO Change pointers
@@ -178,6 +184,16 @@ void Project::localInit() {
 
     bullets = std::make_shared<BulletView>();
     bullets->init(this);
+}
+
+void Project::sunCycle()
+{
+    time += deltaT * 1000;
+    float redch = gubo.moon.color.x;
+    float greench;
+    float bluech;
+
+
 }
 
 void Project::pipelinesAndDescriptorSetsInit() {
@@ -203,7 +219,8 @@ void Project::setWindowParameters() {
     windowHeight = 720;
     windowTitle = "TIMEPILOT 0.1";
     windowResizable = GLFW_TRUE;
-    initialBackgroundColor = {0.012f,0.031f,0.11f, 1.0f};
+    //initialBackgroundColor = {0.012f,0.031f,0.11f, 1.0f};
+    initialBackgroundColor = {0.906,0.345,0.243, 1.0f};
 
     uniformBlocksInPool = numObj*2;
     texturesInPool = numObj;
