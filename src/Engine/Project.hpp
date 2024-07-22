@@ -11,6 +11,7 @@
 #include "../View/BulletView.hpp"
 #include "../Model/Include/Partita.h"
 #include "../View/AirplaneLights.hpp"
+#include "../View/Terrain.hpp"
 #include <memory.h>
 #include <thread>
 #include <random>
@@ -61,6 +62,7 @@ private:
     std::shared_ptr<BulletView> bullets;
     std::shared_ptr<ParticleSystem> particles;
     std::shared_ptr<AirplaneLights> planeLights;
+    std::shared_ptr<TerrainView> terrain;
     GlobalUniformBufferObject gubo;
 
     Sound soundEngine;
@@ -123,6 +125,9 @@ void Project::localInit() {
     this->partita = std::make_shared<Partita>();
     partita->generateWorld();
 
+    this->terrain = std::make_shared<TerrainView>();
+    terrain->init(this);
+
     this->particles = std::make_shared<ParticleSystem>();
     particles->init(this);
 
@@ -176,6 +181,7 @@ void Project::localInit() {
 }
 
 void Project::pipelinesAndDescriptorSetsInit() {
+    terrain->pipelineAndDSInit(this);
     particles->pipelineAndDSInit(this);
     planeLights->pipelineAndDSInit(this);
     bullets->pipelineAndDSInit(this, sizeof(BulletUniformBufferObject), sizeof(FlickeringObject));
@@ -184,6 +190,7 @@ void Project::pipelinesAndDescriptorSetsInit() {
 }
 
 void Project::populateCommandBuffer(VkCommandBuffer commandBuffer, int i) {
+    terrain->populateCommandBuffer(commandBuffer, i);
     particles->populateCommandBuffer(commandBuffer, i);
     //planeLights->populateCommandBuffer(commandBuffer,i);
     planes->populateCommandBuffer(commandBuffer, i);
@@ -444,6 +451,12 @@ void Project::updateUniformBuffer(uint32_t currentImage) {
     //View - Proj for the map
     tiles->view = view;
 
+    //View - Proj for grid
+    terrain->ubo.View = view;
+    terrain->ubo.pos = glm::vec3(1.0f);
+    terrain->DS.map(currentImage, &terrain->ubo, sizeof(terrainUBO), 0);
+
+
     //View - Proj for planes
     for(auto info : planes->enemyInfo) {
         info->ubo.view = view;
@@ -481,6 +494,7 @@ void Project::updateUniformBuffer(uint32_t currentImage) {
 }
 
 void Project::pipelinesAndDescriptorSetsCleanup() {
+    terrain->pipelineAndDSClenup();
     particles->pipelineAndDSCleanup();
     planeLights->pipelineAndDSCleanup();
     tiles->pipelineAndDSCleanup();
@@ -489,6 +503,7 @@ void Project::pipelinesAndDescriptorSetsCleanup() {
 }
 
 void Project::localCleanup() {
+    terrain->cleanup();
     bullets->cleanup();
     particles->cleanup();
     planeLights->cleanup();
