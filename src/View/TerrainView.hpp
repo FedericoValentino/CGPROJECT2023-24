@@ -1,5 +1,5 @@
-#ifndef CGPRJ2023_24_TERRAIN_HPP
-#define CGPRJ2023_24_TERRAIN_HPP
+#ifndef CGPRJ2023_24_TERRAINVIEW_HPP
+#define CGPRJ2023_24_TERRAINVIEW_HPP
 
 #include "../Engine/Starter.hpp"
 
@@ -8,6 +8,10 @@ struct terrainUBO
     glm::mat4 View;
     glm::mat4 Proj = constant::Proj;
     glm::vec3 pos;
+};
+
+struct pushTerrain{
+    glm::vec4 terrainColor;
 };
 
 class TerrainView{
@@ -19,6 +23,8 @@ public:
     terrainUBO ubo;
 
     BaseProject* app;
+
+    glm::vec4 color;
 
 
 
@@ -36,7 +42,7 @@ public:
     }
 
     void pipelineAndDSInit(BaseProject* bp, int gubosize){
-        this->P.create(false, 0, VK_SHADER_STAGE_ALL);
+        this->P.create(true, sizeof(pushTerrain), VK_SHADER_STAGE_FRAGMENT_BIT);
         this->DS.init(bp, &this->DSL, {
                 {0, UNIFORM, sizeof(terrainUBO), nullptr},
                 {1, UNIFORM, gubosize, nullptr}
@@ -46,6 +52,8 @@ public:
     void populateCommandBuffer(VkCommandBuffer commandBuffer, int currentImage){
         this->P.bind(commandBuffer);
         this->DS.bind(commandBuffer, this->P, 0, currentImage);
+        pushTerrain push{color};
+        vkCmdPushConstants(commandBuffer, this->P.pipelineLayout, VK_SHADER_STAGE_FRAGMENT_BIT, 0, sizeof(pushTerrain), &push);
         vkCmdDraw(commandBuffer, 6, 1, 0, 0);
     }
 
@@ -61,4 +69,4 @@ public:
 
 
 };
-#endif //CGPRJ2023_24_TERRAIN_HPP
+#endif //CGPRJ2023_24_TERRAINVIEW_HPP

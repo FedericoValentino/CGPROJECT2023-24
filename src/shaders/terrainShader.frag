@@ -13,6 +13,11 @@ layout(location = 1) in vec3 nearPoint;
 layout(location = 2) in vec3 farPoint;
 layout(location = 0) out vec4 outColor;
 
+layout( push_constant ) uniform constants
+{
+    vec4 terrainColor;
+} tile;
+
 struct directLight{
     vec4 color;
     vec4 direction;
@@ -69,8 +74,8 @@ void main() {
 
     gl_FragDepth = computeDepth(fragPos3D);
 
-    outColor = vec4(0.067f, 0.445, 0.0f, 1.0f); // adding multiple resolution for the grid
-    outColor = vec4(diffuseLight * outColor.xyz, 1.0);
+    vec4 color = tile.terrainColor;
+    outColor = vec4(diffuseLight * color.xyz, 1.0);
     outColor = mix(gubo.sky, outColor, visibility);
 }
 

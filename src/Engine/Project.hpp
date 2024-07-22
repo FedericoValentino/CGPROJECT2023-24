@@ -11,7 +11,7 @@
 #include "../View/BulletView.hpp"
 #include "../Model/Include/Partita.h"
 #include "../View/AirplaneLights.hpp"
-#include "../View/Terrain.hpp"
+#include "../View/TerrainView.hpp"
 #include <memory.h>
 #include <thread>
 #include <random>
@@ -482,6 +482,8 @@ void Project::updateUniformBuffer(uint32_t currentImage) {
     //View - Proj for grid
     terrain->ubo.View = view;
     terrain->ubo.pos = glm::vec3(1.0f);
+
+    terrain->color = isNight ? glm::vec4(0.004,0.078,0.016, 0.2) : glm::vec4(0.067f, 0.445, 0.0f, 1.0f);
     terrain->DS.map(currentImage, &terrain->ubo, sizeof(terrainUBO), 0);
 
 
