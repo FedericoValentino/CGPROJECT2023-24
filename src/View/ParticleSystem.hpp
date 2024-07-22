@@ -83,7 +83,7 @@ public:
         for(Particle p : particles)
         {
             p.DS.bind(commandBuffer, this->P, 0, currentImage);
-            vkCmdDraw(commandBuffer, 6, MAXPARTICLES, 0, 0);
+            vkCmdDraw(commandBuffer, 24, MAXPARTICLES, 0, 0);
         }
 
     }
