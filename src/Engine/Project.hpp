@@ -402,14 +402,14 @@ void Project::updateLights()
 
     if(partita->bossSpawned && !planes->bossInfo->pEnemy->getDead())
     {
-        gubo.spotlight.spotlightColor = glm::vec4(0.5f, 0.0f, 0.5f, 1.0f);
+        gubo.spotlight.spotlightColor = glm::vec4(0.431,0.051,0.204,0.4f);
         gubo.spotlight.spotlightPosition = glm::vec4(planes->bossInfo->pEnemy->getPosition().origin, 1.0f);
         gubo.spotlight.spotlightDirection = glm::vec4(glm::sin(planes->bossInfo->pEnemy->getPosition().rotation.y)*0.5,
                                                       -1.0f,
                                                       glm::cos(planes->bossInfo->pEnemy->getPosition().rotation.y)*0.5,
                                                       1.0f);
         gubo.spotlight.spotLightCosIn = 0.99f;
-        gubo.spotlight.spotLightCosOut = 0.95f;
+        gubo.spotlight.spotLightCosOut = 0.80f;
     }
     if(partita->bossSpawned && planes->bossInfo->pEnemy->getDead())
     {
