@@ -1,4 +1,4 @@
-cd C:\Users\Pudduh\CLionProjects\CGPROJECT2023-24\src\shaders
+cd src\shaders
 
 glslc plane.vert -o planeVert.spv
 glslc plane.frag -o planeFrag.spv

@@ -188,11 +188,11 @@ void main()
         floorBuffer.spotlightColor,
         floorBuffer.spotLightCosIn,
         floorBuffer.spotLightCosOut,
-        vec4(-lightDirection, 1.0f)) * (color.xyz * color.w * clamp(dot(lightDirection,fragNorm),0,1) + phongSpecularNonMetals(fragPos,
+        vec4(-lightDirection, 1.0f)) * (color.xyz * color.w * clamp(dot(lightDirection,fragNorm),0,1) /*+ phongSpecularNonMetals(fragPos,
                                                                                                     floorBuffer.spotlightPosition[i],
                                                                                                     gubo.eyepos.xyz,
                                                                                                     surfaceNormal,
-                                                                                                     160, floorBuffer.spotlightColor.xyz));
+                                                                                                     160, floorBuffer.spotlightColor.xyz)*/);
     }
 
 

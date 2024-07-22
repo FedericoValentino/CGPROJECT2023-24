@@ -65,7 +65,7 @@ public:
         int handle = gSoloud.play(comicalExplosion.soundSample);
         int random = rand()%30 - 1;
         if(random != 5)
-            gSoloud.setVolume(handle, 0.5f);
+            gSoloud.setVolume(handle, 0.3f);
 
         else
         {
@@ -110,7 +110,7 @@ public:
     void playZeppelinGun()
     {
         int handle = gSoloud.play(zeppelinGun.soundSample);
-        gSoloud.setVolume(handle, 0.6);
+        gSoloud.setVolume(handle, 0.3);
     }
 
     void playbulletImpact()
