@@ -5,6 +5,7 @@
 #define MAXPARTICLES 20
 #define PI 3.1415926538
 #define MAX_ENEMIES_IN_MAP 20
+#define MAXFLOORSPOTLIGHTS 40
 
 struct SpotLight{
     vec4 spotlightPosition;            	// postion of the spotlight

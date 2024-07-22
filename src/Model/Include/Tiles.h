@@ -11,6 +11,10 @@ enum HEIGHT{
     SKYSCRAPER
 };
 
+struct UniformBufferObjectTilesSpotLights{
+
+};
+
 
 struct Tiles {
     int height;
