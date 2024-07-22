@@ -47,7 +47,7 @@ float computeDepth(vec3 pos) {
 
 const float density = 0.01;
 const float gradient = 1.5;
-vec4 skycolor = vec4(0.906,0.345,0.243, 1.0f);
+vec4 skycolor = vec4(0.863,0.761,0.918, 1.0f);
 
 void main() {
     vec3 diffuseLight = gubo.ambientLight.xyz * gubo.ambientLight.w;

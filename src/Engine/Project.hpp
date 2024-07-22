@@ -16,6 +16,8 @@
 #include <thread>
 #include <random>
 
+using namespace std;
+
 struct directLightObject{
     glm::vec4 color;
     glm::vec4 direction;
@@ -44,11 +46,24 @@ struct GlobalUniformBufferObject {
     pointLightObject explosions[constant::MAXBULLETS];
     spotLightObject spotlight;
     glm::vec4 ambientLight;
+    glm::vec4 sky;
     glm::vec4 eyepos;
     directLightObject moon;
     alignas(4) int lightCounter = 0;
     alignas(4) int pointLightsAirplaneCounter = 0; // number of enemies
     alignas(4) int explosionCounter = 0;
+};
+
+struct dayCycleinfo {
+    glm::vec4 dawnColor = {0.863,0.761,0.918, 1.0f};
+    glm::vec4 noonColor = {0.11,0.635,0.89, 1.0f};
+    glm::vec4 sunsetColor = {0.984,0.565,0.384, 1.0f};
+    glm::vec4 nightColor = {0.18,0.267, 0.51, 1.0f};
+
+    float dawnTime = 0.0f;
+    float noonTime = 7.55f;
+    float sunsetTime = 15.0f;
+    float nightTime = 22.65f;
 };
 
 class Project : public BaseProject
@@ -72,7 +87,6 @@ private:
 
     float deltaT;
     float time;
-    float clock;
     int numberOfEnemies = 0;
     glm::vec3 m = glm::vec3(0.0f);
     glm::vec3 r = glm::vec3(0.0f);
@@ -140,6 +154,8 @@ void Project::localInit() {
     this->tiles = std::make_shared<TileView>();
     tiles->init(this);
 
+    gubo.sky = glm::vec4(0.863,0.761,0.918, 1.0f);
+
     std::vector<std::vector<bool>> checker(constant::MAPDIM, std::vector<bool>(constant::MAPDIM, false));
 
     std::random_device rd;
@@ -169,11 +185,11 @@ void Project::localInit() {
     //gubo.ambientLight = glm::vec4(1.0f, 1.0f, 1.0f, 0.02f);
     gubo.ambientLight = glm::vec4(0.933,0.365,0.424, 0.3f);
     gubo.moon.direction = glm::vec4(-10.0f,-40.0f,0.0f,1.0f);
-    //gubo.moon.color = glm::vec4(0.965f,0.945f,0.835f, 0.02f);
-    gubo.moon.color = glm::vec4(0.984,0.565,0.384, 0.7f);
+    //gubo.moon.color = glm::vec4(0.965f,0.945f,0.835f, 0.02f);             original night
+    //gubo.moon.color = glm::vec4(0.984,0.565,0.384, 0.7f);                 sunset
+    gubo.moon.color = glm::vec4(0.0, 0.0, 0.0, 1.0f);
     gubo.pointLightsAirplaneCounter = 0.0f;
     gubo.spotlight.spotlightColor = glm::vec4(0.0f); // spotLight del dirigibile
-    this->clock = 0.0f;
 
 
     //TODO Change pointers
@@ -186,14 +202,28 @@ void Project::localInit() {
     bullets->init(this);
 }
 
+float LERP(float x, float x0, float y0, float x1, float y1)
+{
+    assert(x1 != x0);
+    float numerator = (y0 * (x1 - x)) + (y1 * (x - x0));
+    float denominator = x1 - x0;
+    return numerator/denominator;
+}
+
 void Project::sunCycle()
 {
-    time += deltaT * 1000;
-    float redch = gubo.moon.color.x;
-    float greench;
-    float bluech;
+        time += deltaT;
+        float redch;
+        float greench;
+        float bluech;
 
+        redch = 0.5 * (sin(0.052 * 2 * time) + 1);
+        greench = 0.5 * (sin(0.052 * 2 * time) + 1);
+        bluech = 0.5 * (0.86 * sin(0.052 * 2 * time) + 1);
 
+        gubo.moon.color.x = redch;
+        gubo.moon.color.y = greench;
+        gubo.moon.color.z = bluech;
 }
 
 void Project::pipelinesAndDescriptorSetsInit() {
@@ -220,7 +250,7 @@ void Project::setWindowParameters() {
     windowTitle = "TIMEPILOT 0.1";
     windowResizable = GLFW_TRUE;
     //initialBackgroundColor = {0.012f,0.031f,0.11f, 1.0f};
-    initialBackgroundColor = {0.906,0.345,0.243, 1.0f};
+    initialBackgroundColor = {0.863,0.761,0.918, 1.0f};
 
     uniformBlocksInPool = numObj*2;
     texturesInPool = numObj;
@@ -768,6 +798,9 @@ void Project::gameLogic()
 
     numberOfEnemies = std::count_if(planes->enemyInfo.begin(),planes->enemyInfo.end(),
                                     [](auto info){return !info->pEnemy->getDead();});
+
+    //SunCycle
+    sunCycle();
 }
 
 void Project::spawnPlane()
