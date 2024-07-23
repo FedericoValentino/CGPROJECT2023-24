@@ -31,10 +31,10 @@ layout( push_constant ) uniform constants
 
 void main()
 {
-    vec4 worldPosition = ubo.mMat[plane.planeIndex] * vec4(pos, 1.0);
+    vec4 worldPosition = ubo.mMat[gl_InstanceIndex] * vec4(pos, 1.0);
     vec4 positionToCam = ubo.view * worldPosition;
-    gl_Position = ubo.mvpMat[plane.planeIndex] * vec4(pos, 1.0);
-    fragPos = (ubo.mMat[plane.planeIndex] * vec4(pos, 1.0)).xyz;
+    gl_Position = ubo.mvpMat[gl_InstanceIndex] * vec4(pos, 1.0);
+    fragPos = (ubo.mMat[gl_InstanceIndex] * vec4(pos, 1.0)).xyz;
     fragNorm = norm;
     fragUV = texCoord;
 

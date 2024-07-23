@@ -204,6 +204,7 @@ public:
                              static_cast<uint32_t>(this->skyscraper.indices.size()), visibleSkyscraper, 0, 0, visibleFloor+visibleHouse);
         }
 
+        //printf("Drawing %d objects\n", visibleFloor+visibleHouse+visibleSkyscraper);
 
 
     }

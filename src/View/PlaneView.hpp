@@ -43,6 +43,8 @@ public:
     Texture enemyTexture;
     Texture bossTexture;
 
+    int visibleEnemies;
+
     std::vector<std::shared_ptr<PlaneInfo>> enemyInfo;
     std::shared_ptr<PlaneInfo> bossInfo;
     bool bossSpawned;
@@ -135,14 +137,10 @@ public:
         DSPlane.bind(commandBuffer, this->P, 0, currentImage);
         if(!enemyInfo.empty())
         {
-            for(int i = 0; i < enemyInfo.size(); i++)
-            {
-                int index = 2+i;
-                this->baseEnemy.bind(commandBuffer);
-                pushPlane push{index,ENEMY};
-                vkCmdPushConstants(commandBuffer, this->P.pipelineLayout, VK_SHADER_STAGE_VERTEX_BIT, 0, sizeof(pushPlane), &push);
-                vkCmdDrawIndexed(commandBuffer,static_cast<uint32_t>(this->baseEnemy.indices.size()), 1, 0, 0, 0);
-            }
+            this->baseEnemy.bind(commandBuffer);
+            pushPlane push{2,ENEMY};
+            vkCmdPushConstants(commandBuffer, this->P.pipelineLayout, VK_SHADER_STAGE_VERTEX_BIT, 0, sizeof(pushPlane), &push);
+            vkCmdDrawIndexed(commandBuffer,static_cast<uint32_t>(this->baseEnemy.indices.size()), visibleEnemies, 0, 0, 2);
         }
 
         if(bossSpawned && !bossInfo->pEnemy->getDead())
@@ -150,7 +148,7 @@ public:
             this->Boss.bind(commandBuffer);
             pushPlane push{1,BOSS};
             vkCmdPushConstants(commandBuffer, this->P.pipelineLayout, VK_SHADER_STAGE_VERTEX_BIT, 0, sizeof(pushPlane), &push);
-            vkCmdDrawIndexed(commandBuffer,static_cast<uint32_t>(this->Boss.indices.size()), 1, 0, 0, 0);
+            vkCmdDrawIndexed(commandBuffer,static_cast<uint32_t>(this->Boss.indices.size()), 1, 0, 0, 1);
         }
 
         if(playerInfo->toDraw)

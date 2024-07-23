@@ -9,7 +9,7 @@ namespace constant{
     const float ROT_SPEED = glm::radians(120.0f);
     const float FOVy = glm::radians(105.0f);
     const float nearPlane = 0.1f;
-    const float farPlane = 150.f;
+    const float farPlane = 100.f;
     const float camHeight = 20.0f;
     const float camDistZ = -10.0f;
     const float Ar = 5.0f / 3.0f;

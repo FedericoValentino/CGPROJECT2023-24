@@ -232,7 +232,7 @@ void Project::setMapUniform()
     {
         auto info = tiles->floorTiles[i];
         glm::vec3 position = glm::vec3(info->ubo.model[3][0], info->ubo.model[3][1], info->ubo.model[3][2]);
-        bool toDraw = sphereInFrustum(frustumPlanes, position, 10);
+        bool toDraw = sphereInFrustum(frustumPlanes, position, 3);
 
         if(toDraw) {
             tiles->tubo.model[offset] = info->ubo.model;
@@ -246,7 +246,7 @@ void Project::setMapUniform()
     {
         auto info = tiles->houseTiles[i];
         glm::vec3 position = glm::vec3(info->ubo.model[3][0], info->ubo.model[3][1], info->ubo.model[3][2]);
-        bool toDraw = sphereInFrustum(frustumPlanes, position, 10);
+        bool toDraw = sphereInFrustum(frustumPlanes, position, 3);
 
         if(toDraw) {
             tiles->tubo.model[offset] = info->ubo.model;
@@ -261,7 +261,7 @@ void Project::setMapUniform()
         auto info = tiles->skyscraperTiles[i];
 
         glm::vec3 position = glm::vec3(info->ubo.model[3][0], info->ubo.model[3][1], info->ubo.model[3][2]);
-        bool toDraw = sphereInFrustum(frustumPlanes, position, 10);
+        bool toDraw = sphereInFrustum(frustumPlanes, position, 3);
 
         if(toDraw) {
             tiles->tubo.model[offset] = info->ubo.model;
@@ -294,6 +294,8 @@ void Project::updatePlayerUniform(const glm::mat4& S, int currentImage)
 
 void Project::updateEnemyUniform(const glm::mat4& S, int currentImage)
 {
+
+    planes->visibleEnemies = 0;
     //buffer update sequence for planes
     for(int i = 0; i < planes->enemyInfo.size(); i++)
     {
@@ -310,9 +312,15 @@ void Project::updateEnemyUniform(const glm::mat4& S, int currentImage)
         info->ubo.worldViewProj = S * info->ubo.model;
         info->ubo.normal = glm::inverse(glm::transpose(info->ubo.model));
 
-        planes->pubo.ModelViewProj[2+i] = info->ubo.worldViewProj;
-        planes->pubo.model[2+i] = info->ubo.model;
-        planes->pubo.normal[2+i] = info->ubo.normal;
+        bool toDraw = sphereInFrustum(frustumPlanes, pos.origin, 3.0f);
+
+        if(toDraw)
+        {
+            planes->pubo.ModelViewProj[2 + planes->visibleEnemies] = info->ubo.worldViewProj;
+            planes->pubo.model[2 + planes->visibleEnemies] = info->ubo.model;
+            planes->pubo.normal[2 + planes->visibleEnemies] = info->ubo.normal;
+            planes->visibleEnemies++;
+        }
     }
 
 }
