@@ -33,7 +33,7 @@ std::shared_ptr<Bullet> Boss::shoot(const Position3D& inputPosition, const float
                                             atan2(shootingVector.rotation.x, shootingVector.rotation.z),
                                             0.0f);
         if (checkDistance3D(inputPosition.origin, position.origin, BOSS)
-            && (elapsedTime > 1.0f || (bullets->empty() && elapsedTime > 1.0f))) {
+            && (elapsedTime > 2.0f || (bullets->empty() && elapsedTime > 2.0f))) {
             bullet = std::make_shared<Bullet>(shootingVector, BOSS, false);
             bullets->insert(bullet);
             elapsedTime = 0;

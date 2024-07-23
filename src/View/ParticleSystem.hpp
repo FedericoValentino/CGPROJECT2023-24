@@ -5,18 +5,20 @@
 
 #define MAXPARTICLES 20
 
-struct particleUniformBufferObject
-{
+struct Particle{
     glm::mat4 ViewProj;
     glm::mat4 Model;
     glm::vec4 directions[MAXPARTICLES];
-    alignas(4) float time;
+    float time;
 };
 
-struct Particle{
-    particleUniformBufferObject pubo;
-    DescriptorSet DS;
+struct ParticleUniformBufferObject{
+    glm::mat4 ViewProj;
+    glm::mat4 Model[MAXPARTICLES];
+    glm::vec4 directions[MAXPARTICLES*MAXPARTICLES];
+    float time[MAXPARTICLES];
 };
+
 
 class ParticleSystem{
 public:
@@ -24,8 +26,12 @@ public:
     DescriptorSetLayout DSL;
     VertexDescriptor VD;
 
+    DescriptorSet DSParticle;
+
     std::vector<Particle> particles;
     std::vector<Particle> noLongerDrawn;
+
+    ParticleUniformBufferObject pubo;
 
     BaseProject* app;
 
@@ -34,20 +40,18 @@ public:
 
         Particle particle;
 
-        particle.pubo.Model = model;
-        particle.pubo.time = 0.0f;
+        particle.Model = model;
+        particle.time = 0.0f;
         for(int i = 0; i < MAXPARTICLES; i++)
         {
-            particle.pubo.directions[i].x = -1 + 2*(float)rand()/(float)RAND_MAX;
-            particle.pubo.directions[i].y = -1 + 2*(float)rand()/(float)RAND_MAX;
-            particle.pubo.directions[i].z = -1 + 2*(float)rand()/(float)RAND_MAX;
-            particle.pubo.directions[i].w = 1.0f;
+            particle.directions[i].x = -1 + 2*(float)rand()/(float)RAND_MAX;
+            particle.directions[i].y = -1 + 2*(float)rand()/(float)RAND_MAX;
+            particle.directions[i].z = -1 + 2*(float)rand()/(float)RAND_MAX;
+            particle.directions[i].w = 1.0f;
 
-            glm::normalize(particle.pubo.directions[i]);
+            glm::normalize(particle.directions[i]);
         }
-        particle.DS.init(app, &this->DSL, {
-                {0, UNIFORM, sizeof(particleUniformBufferObject), nullptr}
-        });
+
         particles.push_back(particle);
     }
 
@@ -63,28 +67,27 @@ public:
 
         this->P.init(bp, &VD, "../src/shaders/particleShaderVert.spv", "../src/shaders/particleShaderFrag.spv", {&this->DSL});
 
-        this->P.setAdvancedFeatures(VK_COMPARE_OP_LESS, VK_POLYGON_MODE_FILL, VK_CULL_MODE_NONE, false);
+        this->P.setAdvancedFeatures(VK_COMPARE_OP_LESS, VK_POLYGON_MODE_LINE, VK_CULL_MODE_NONE, false);
 
     }
 
     void pipelineAndDSInit(BaseProject* bp){
         this->P.create(false, 0, VK_SHADER_STAGE_ALL);
-        for(Particle &p: particles)
-        {
-            p.DS.init(app, &this->DSL, {
-                    {0, UNIFORM, sizeof(particleUniformBufferObject), nullptr}
-            });
-        }
+
+        this->DSParticle.init(app, &this->DSL, {
+                {0, UNIFORM, sizeof(ParticleUniformBufferObject), nullptr}
+        });
+
     }
 
     void populateCommandBuffer(VkCommandBuffer commandBuffer, int currentImage){
         this->P.bind(commandBuffer);
-
-        for(Particle p : particles)
+        if(!particles.empty())
         {
-            p.DS.bind(commandBuffer, this->P, 0, currentImage);
-            vkCmdDraw(commandBuffer, 24, MAXPARTICLES, 0, 0);
+            DSParticle.bind(commandBuffer, this->P, 0, currentImage);
+            vkCmdDraw(commandBuffer, 24, MAXPARTICLES * particles.size(), 0, 0);
         }
+
 
     }
 
@@ -95,11 +98,7 @@ public:
 
     void pipelineAndDSCleanup(){
         this->P.cleanup();
-        for(Particle p : particles)
-        {
-            p.DS.cleanup();
-        }
-
+        DSParticle.cleanup();
     }
 
 

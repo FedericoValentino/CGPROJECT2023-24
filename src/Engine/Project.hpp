@@ -381,11 +381,17 @@ void Project::updateBulletsUniform(const glm::mat4& S, int currentImage)
 
 void Project::updateParticlesUniforms(const glm::mat4& S, int currentImage)
 {
-    for(auto& p : particles->particles)
+    particles->pubo.ViewProj = S;
+    for(int i = 0; i < particles->particles.size(); i++)
     {
-        p.pubo.ViewProj = S;
-        p.DS.map(currentImage, &p.pubo, sizeof(particleUniformBufferObject), 0);
+        particles->pubo.Model[i] = particles->particles[i].Model;
+        particles->pubo.time[i] = particles->particles[i].time;
+        for(int j = 0; j < MAXPARTICLES; j++)
+        {
+            particles->pubo.directions[i * MAXPARTICLES + j] = particles->particles[i].directions[j];
+        }
     }
+    particles->DSParticle.map(currentImage, &particles->pubo, sizeof(ParticleUniformBufferObject), 0);
 }
 
 void Project::updateLights()
@@ -457,6 +463,8 @@ void Project::updateUniformBuffer(uint32_t currentImage) {
     //View - Proj for grid
     terrain->ubo.View = view;
     terrain->ubo.pos = glm::vec3(1.0f);
+
+    particles->pubo.ViewProj = S;
 
     terrain->color = isNight ? glm::vec4(0.004,0.078,0.016, 0.2) : glm::vec4(0.067f, 0.445, 0.0f, 1.0f);
     terrain->DS.map(currentImage, &terrain->ubo, sizeof(terrainUBO), 0);
@@ -544,7 +552,7 @@ void Project::gameLogic() {
         planes->bossInfo->pEnemy->timePasses(deltaT);
 
     for (auto &p: particles->particles)
-        p.pubo.time += deltaT;
+        p.time += deltaT;
 
     for (int i = 0; i < gubo.explosionCounter; i++) {
         gubo.explosions[i].time += deltaT;
@@ -605,14 +613,18 @@ void Project::gameLogic() {
 
     //Erasing Particles and DS cleanup
     auto itParticles = std::remove_if(particles->particles.begin(), particles->particles.end(), [&](Particle p) {
-        vkDeviceWaitIdle(device);
-        if (p.pubo.time > 0.5f) {
-            p.DS.cleanup();
+        if (p.time > 0.5f) {
             return true;
         } else {
             return false;
         }
     });
+
+
+    for (auto q = particles->particles.begin(); q != itParticles; ++q)
+    {
+        particles->noLongerDrawn.push_back(*q);
+    }
 
     particles->particles.erase(itParticles, particles->particles.end());
 

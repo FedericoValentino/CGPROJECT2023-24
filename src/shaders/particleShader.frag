@@ -8,14 +8,14 @@ layout(location = 1) in flat int instanceID;
 layout(binding = 0) uniform particleUniformBufferObject
 {
     mat4 ViewProj;
-    mat4 Model;
-    vec4 directions[MAXPARTICLES];
-    float time;
+    mat4 Model[MAXPARTICLES];
+    vec4 directions[MAXPARTICLES*MAXPARTICLES];
+    float time[MAXPARTICLES];
 }pubo;
 
 void main() {
 
-    float fireVal = cos(pubo.time + instanceID);
+    float fireVal = cos(pubo.time[instanceID] + instanceID);
     if(fireVal < -0.5)
     {
         outColor = vec4(vec3(0.643,0.055,0.016), 1.0);
