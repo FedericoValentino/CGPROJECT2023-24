@@ -11,16 +11,6 @@ struct TileUniformBufferObject {
     alignas(16) glm::mat4 normal[constant::MAPDIM*constant::MAPDIM];
 };
 
-struct SpotLightsFloorBuffer{
-    glm::vec4 spotlightPosition[constant::MAXFLOORSPOTLIGHTS];
-    glm::vec4 spotlightDirection = glm::vec4(0.0f,-1.0f,0.0f,1.0f);
-    glm::vec4 spotlightColor = glm::vec4(0.878,0.565,0.227, 0.01);
-    float spotLightCosIn = 0.98;
-    float spotLightCosOut = 0.50;
-    int counter = 0;
-    float pad[1];
-};
-
 
 struct TileInfo{
     int row_;
@@ -53,7 +43,6 @@ public:
     std::vector<std::shared_ptr<TileInfo>> floorTiles;
     std::vector<std::shared_ptr<TileInfo>> houseTiles;
     std::vector<std::shared_ptr<TileInfo>> skyscraperTiles;
-    SpotLightsFloorBuffer floorLights;
 
     BaseProject* app;
 
@@ -89,26 +78,6 @@ public:
                 break;
         }
         return newInfo->ubo.model;
-    }
-
-    // check the "size" sorrounding square
-    bool canSetTrue(const std::vector<std::vector<bool>>& matrix, int x, int y, int size) {
-        int halfSize = size / 2;
-        for (int i = std::max(0, x - halfSize); i <= std::min((int)matrix.size() - 1, x + halfSize); ++i) {
-            for (int j = std::max(0, y - halfSize); j <= std::min((int)matrix[0].size() - 1, y + halfSize); ++j) {
-                if (matrix[i][j]) {
-                    return false;
-                }
-            }
-        }
-        return true;
-    }
-
-    void floorObjectBuilder(const glm::mat4& model) {
-        const glm::vec3& lightPos = glm::vec3(model[3][0],model[3][1],model[3][2]);
-
-        floorLights.spotlightPosition[floorLights.counter] = glm::vec4(lightPos + glm::vec3(0.0f,6.0f,0.0f),1.0f);
-        floorLights.counter++;
     }
 
     void init(BaseProject* bp)
@@ -159,7 +128,6 @@ public:
                 {2, UNIFORM, gubosize, nullptr},
                 {3, TEXTURE, 0,        &this->House},
                 {4, TEXTURE, 0,        &this->Skyscraper},
-                {5, UNIFORM,sizeof(SpotLightsFloorBuffer),nullptr}
         });
     }
 

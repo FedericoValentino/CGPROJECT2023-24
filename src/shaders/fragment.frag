@@ -188,24 +188,6 @@ void main()
                                                  surfaceNormal,
                                                  160, gubo.spotlight.spotlightColor.xyz);
 */
-    // Environment SpotLights
-    for (int i = 0; i < floorBuffer.counter; ++i)
-     {
-         if(distance(floorBuffer.spotlightPosition[i].xyz,fragPos) < 15.0f)
-         {
-             lightDirection = normalize(floorBuffer.spotlightPosition[i].xyz - fragPos);
-             halfVector = normalize(lightDirection + cameraDirection);
-             float dist = distance(floorBuffer.spotlightPosition[i].xyz, fragPos);
-             cookTorrance += spotlightIntensity(floorBuffer.spotlightPosition[i],
-                                                floorBuffer.spotlightDirection,
-                                                floorBuffer.spotlightColor,
-                                                floorBuffer.spotLightCosIn,
-                                                floorBuffer.spotLightCosOut,
-                                                vec4(-lightDirection, 1.0f)) * (color.xyz * color.w * clamp(dot(lightDirection, fragNorm), 0, 1));
-         }
-     }
-
-
 
     outColor = vec4(cookTorrance, 1.0);
     outColor = mix(gubo.sky, outColor, visibility);

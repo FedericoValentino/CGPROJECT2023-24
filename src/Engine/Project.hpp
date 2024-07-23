@@ -150,12 +150,6 @@ void Project::localInit() {
 
     gubo.sky = glm::vec4(0.863,0.761,0.918, 1.0f);
 
-    std::vector<std::vector<bool>> checker(constant::MAPDIM, std::vector<bool>(constant::MAPDIM, false));
-
-    std::random_device rd;
-    std::mt19937 gen(rd());
-    float p = 0.3f;
-    std::bernoulli_distribution dist(p);
 
     size_t counter = 0;
     for(int row = 0; row < constant::MAPDIM; row++)
@@ -163,15 +157,9 @@ void Project::localInit() {
         for(int col = 0; col < constant::MAPDIM; col++)
         {
             const glm::mat4& model = tiles->newTile(row, col, partita->map[row][col]->height);
-
-            if (counter < constant::MAXFLOORSPOTLIGHTS && partita->map[row][col]->height == 0 && tiles->canSetTrue(checker, row, col,7) && dist(gen)) {
-                checker[row][col] = true;
-                tiles->floorObjectBuilder(model);
-                counter++;
-            }
         }
     }
-    tiles->floorLightsCounter = tiles->floorLights.counter;
+
 
 
 
@@ -268,7 +256,6 @@ void Project::updateMapUniform(const glm::mat4& S, int currentImage)
 {
     tiles->DSTiles.map(currentImage, &gubo, sizeof(GlobalUniformBufferObject), 2);
     tiles->DSTiles.map(currentImage, &tiles->tubo, sizeof(TileUniformBufferObject), 0);
-    tiles->DSTiles.map(currentImage,&tiles->floorLights,sizeof(SpotLightsFloorBuffer),5);
 }
 
 
@@ -453,7 +440,6 @@ void Project::updateLights()
         partita->state = END;
     }
 
-    tiles->floorLights.counter = isNight ? tiles->floorLightsCounter : 0;
 }
 
 /**
