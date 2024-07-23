@@ -33,7 +33,6 @@ struct pointLight{
 
 layout(binding = 1) uniform GlobalUniformBufferObject {
     pointLight lights[MAXBULLETS];
-    pointLight pointLightsAirplane[10 * MAX_PLANE];
     pointLight explosions[MAXBULLETS];
     SpotLight spotlight;
     vec4 ambientLight;
@@ -41,7 +40,6 @@ layout(binding = 1) uniform GlobalUniformBufferObject {
     vec4 eyepos;
     directLight moon;
     int lightCounter;
-    int pointLightsAirplaneCounter;
     int explosionCounter;
 } gubo;
 

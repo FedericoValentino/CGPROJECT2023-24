@@ -10,7 +10,6 @@
 #include "../View/ParticleSystem.hpp"
 #include "../View/BulletView.hpp"
 #include "../Model/Include/Partita.h"
-#include "../View/AirplaneLights.hpp"
 #include "../View/TerrainView.hpp"
 #include <memory.h>
 #include <thread>
@@ -42,7 +41,6 @@ struct spotLightObject{
 
 struct GlobalUniformBufferObject {
     pointLightObject pointLights[constant::MAXBULLETS];
-    pointLightObject pointLightsAirplane[10 * Partita::MAX_PLANE]; // Enemy lights;
     pointLightObject explosions[constant::MAXBULLETS];
     spotLightObject spotlight;
     glm::vec4 ambientLight;
@@ -50,7 +48,6 @@ struct GlobalUniformBufferObject {
     glm::vec4 eyepos;
     directLightObject moon;
     alignas(4) int lightCounter = 0;
-    alignas(4) int pointLightsAirplaneCounter = 0; // number of enemies
     alignas(4) int explosionCounter = 0;
 };
 
@@ -71,7 +68,6 @@ private:
     std::shared_ptr<TileView> tiles;
     std::shared_ptr<BulletView> bullets;
     std::shared_ptr<ParticleSystem> particles;
-    std::shared_ptr<AirplaneLights> planeLights;
     std::shared_ptr<TerrainView> terrain;
     GlobalUniformBufferObject gubo;
 
@@ -116,8 +112,6 @@ private:
 
     void updatePlayerUniform(const glm::mat4& S, int currentImage);
 
-    void updatePlaneLightsUniform(int currentImage);
-
     void updateEnemyUniform(const glm::mat4& S, int currentImage);
 
     void updateBossUniform(const glm::mat4& S, int currentImage);
@@ -127,8 +121,6 @@ private:
     void updateParticlesUniforms(const glm::mat4& S, int currentImage);
 
     void updateLights();
-
-    void updateEnemyLights();
 };
 
 void Project::localInit() {
@@ -143,9 +135,6 @@ void Project::localInit() {
 
     this->particles = std::make_shared<ParticleSystem>();
     particles->init(this);
-
-    this->planeLights = std::make_shared<AirplaneLights>(numberOfEnemies);
-    planeLights->init(this);
 
     this->tiles = std::make_shared<TileView>();
     tiles->init(this);
@@ -185,7 +174,6 @@ void Project::localInit() {
     //gubo.moon.color = glm::vec4(0.965f,0.945f,0.835f, 0.02f);             original night
     //gubo.moon.color = glm::vec4(0.984,0.565,0.384, 0.7f);                 sunset
     gubo.moon.color = glm::vec4(0.0, 0.0, 0.0, 1.0f);
-    gubo.pointLightsAirplaneCounter = 0.0f;
     gubo.spotlight.spotlightColor = glm::vec4(0.0f); // spotLight del dirigibile
 
 
@@ -202,7 +190,6 @@ void Project::localInit() {
 void Project::pipelinesAndDescriptorSetsInit() {
     terrain->pipelineAndDSInit(this, sizeof(GlobalUniformBufferObject));
     particles->pipelineAndDSInit(this);
-    planeLights->pipelineAndDSInit(this);
     bullets->pipelineAndDSInit(this, sizeof(BulletUniformBufferObject), sizeof(FlickeringObject));
     tiles->pipelineAndDSInit(this, sizeof(TileUniformBufferObject), sizeof(GlobalUniformBufferObject));
     planes->pipelineAndDSInit(this, sizeof(PlaneUniformBufferObject), sizeof(GlobalUniformBufferObject));
@@ -393,47 +380,6 @@ void Project::updateParticlesUniforms(const glm::mat4& S, int currentImage)
     }
 }
 
-void Project::updatePlaneLightsUniform(int currentImage)
-{
-    int i = 0;
-    for(auto info:  planes->enemyInfo)
-    {
-        if(info->pEnemy->getType() == ENEMY &&  info->toDraw)
-        {
-            planeLights->planeLights.plubo.WVP[2*i] = info->ubo.worldViewProj * glm::translate(glm::mat4(1.0f),glm::vec3(25.0f,9.0f,-7.0f));
-            planeLights->planeLights.plubo.WVP[2*i+1] = info->ubo.worldViewProj  * glm::translate(glm::mat4(1.0f),glm::vec3(-25.0f,9.0f,-7.0f));
-            ++i;
-        }
-    }
-    planeLights->planeLights.fo.flick.color = glm::vec4(1.0f,0.0f,0.0f,1.0f); // green
-    planeLights->planeLights.fo.flick.size = 0.1;
-    planeLights->planeLights.plubo.counter = 2*i;
-
-    planeLights->planeLights.DS.map(currentImage,&planeLights->planeLights.plubo,sizeof(PlaneLightUniformBufferObject),0);
-    planeLights->planeLights.DS.map(currentImage,&planeLights->planeLights.fo,sizeof(FlickeringSphere),1);
-}
-
-void Project::updateEnemyLights(){
-
-    int i = 0;
-    for(auto info : planes->enemyInfo)
-    {
-        if(info->pEnemy->getType() == ENEMY && info->toDraw)
-        {
-            gubo.pointLightsAirplane[2*i].PointlightPosition = glm::translate(glm::mat4(1.0f),glm::vec3(2.5f,0.0f,-1.45f)) *
-                                                               glm::vec4(info->pEnemy->getPosition().origin,1.0f);
-            gubo.pointLightsAirplane[2*i+1].PointlightPosition = glm::translate(glm::mat4(1.0f),glm::vec3(-2.5f,0.0f,-1.45f)) *
-                                                                 glm::vec4(info->pEnemy->getPosition().origin,1.0f);
-            gubo.pointLightsAirplane[2*i].pointLightColor = glm::vec4(1.0f,0.0f,0.0f,1.0f);
-            gubo.pointLightsAirplane[2*i+1].pointLightColor = glm::vec4(1.0f,0.0f,0.0f,1.0f);
-            gubo.pointLightsAirplane[2*i].size = 1.0;
-            gubo.pointLightsAirplane[2*i+1].size = 1.0;
-            ++i;
-        }
-    }
-    gubo.pointLightsAirplaneCounter = 2*i;
-}
-
 void Project::updateLights()
 {
     gubo.moon.color = isNight ? glm::vec4(1.0f, 1.0f, 1.0f, 0.02f) : constant::moonColor;
@@ -548,7 +494,6 @@ void Project::updateUniformBuffer(uint32_t currentImage) {
 void Project::pipelinesAndDescriptorSetsCleanup() {
     terrain->pipelineAndDSClenup();
     particles->pipelineAndDSCleanup();
-    planeLights->pipelineAndDSCleanup();
     tiles->pipelineAndDSCleanup();
     planes->pipelineAndDSCleanup();
     bullets->pipelineAndDSCleanup();
@@ -558,7 +503,6 @@ void Project::localCleanup() {
     terrain->cleanup();
     bullets->cleanup();
     particles->cleanup();
-    planeLights->cleanup();
     tiles->cleanup();
     planes->cleanup();
 }
@@ -568,11 +512,10 @@ void Project::onWindowResize(int w, int h)
 
 }
 
-void Project::gameLogic()
-{
+void Project::gameLogic() {
     static float quitTimer = 0.0f;
     static bool played = false;
-    if(!played) {
+    if (!played) {
         soundEngine.playIntro();
         played = true;
     }
@@ -582,52 +525,47 @@ void Project::gameLogic()
 
 
     bool shoot = false;
-    getSixAxis(deltaT, time, m, r, shoot,isFirstPerson,isNight);
+    getSixAxis(deltaT, time, m, r, shoot, isFirstPerson, isNight);
 
     //INCREMENT INTERNAL CLOCK
-    for(auto info : planes->enemyInfo)
-    {
+    for (auto info: planes->enemyInfo) {
         info->pEnemy->timePasses(deltaT);
     }
     partita->player->timePasses(deltaT);
-    if(partita->bossSpawned)
+    if (partita->bossSpawned)
         planes->bossInfo->pEnemy->timePasses(deltaT);
 
-    for(auto& p : particles->particles)
+    for (auto &p: particles->particles)
         p.pubo.time += deltaT;
 
-    for(int i = 0; i < gubo.explosionCounter; i++)
-    {
+    for (int i = 0; i < gubo.explosionCounter; i++) {
         gubo.explosions[i].time += deltaT;
     }
 
     //CHECK COLLISION
-    if(partita->state != END)
+    if (partita->state != END)
         partita->checkCollision(deltaT);
 
-    if(partita->state == END)
-    {
+    if (partita->state == END) {
         static auto start = std::chrono::high_resolution_clock::now();
 
         auto end = std::chrono::high_resolution_clock::now();
 
         float duration = std::chrono::duration<float, std::chrono::seconds::period>(end - start).count();
 
-        if(quitTimer == 0.0f && partita->bossDead)
-        {
+        if (quitTimer == 0.0f && partita->bossDead) {
             soundEngine.playZeppelinExpl();
             soundEngine.playVictory();
-        }
-        else if(quitTimer == 0.0f)
-        {
+        } else if (quitTimer == 0.0f) {
             soundEngine.playPlayerExplosion();
             soundEngine.playGameOver();
         }
         quitTimer++;
 
-        if(duration >= Sound::getSoundLength(soundEngine.zeppelinExploding) + Sound::getSoundLength(soundEngine.victory) ||
-                duration >= Sound::getSoundLength(soundEngine.playerExplosion) + Sound::getSoundLength(soundEngine.gameOver))
-        {
+        if (duration >=
+            Sound::getSoundLength(soundEngine.zeppelinExploding) + Sound::getSoundLength(soundEngine.victory) ||
+            duration >=
+            Sound::getSoundLength(soundEngine.playerExplosion) + Sound::getSoundLength(soundEngine.gameOver)) {
             glfwSetWindowShouldClose(window, GL_TRUE);
         }
     }
@@ -642,7 +580,8 @@ void Project::gameLogic()
             particles->newParticle(info->ubo.model);
             soundEngine.playbulletImpact();
             gubo.explosions[gubo.explosionCounter] = pointLightObject{glm::vec4(1.0, 0.5, 0.0, 3.0),
-                                                                      glm::vec4(info->pBullet->getPosition3D().origin, 1.0f),
+                                                                      glm::vec4(info->pBullet->getPosition3D().origin,
+                                                                                1.0f),
                                                                       0.0f,
                                                                       3.0f};
             gubo.explosionCounter++;
@@ -657,15 +596,12 @@ void Project::gameLogic()
 
 
     //Erasing Particles and DS cleanup
-    auto itParticles = std::remove_if(particles->particles.begin(), particles->particles.end(), [&](Particle p)
-    {
+    auto itParticles = std::remove_if(particles->particles.begin(), particles->particles.end(), [&](Particle p) {
         vkDeviceWaitIdle(device);
-        if(p.pubo.time>0.5f) {
+        if (p.pubo.time > 0.5f) {
             p.DS.cleanup();
             return true;
-        }
-        else
-        {
+        } else {
             return false;
         }
     });
@@ -673,29 +609,24 @@ void Project::gameLogic()
     particles->particles.erase(itParticles, particles->particles.end());
 
     //Erasing Dead Planes
-    auto itPlanes = std::remove_if(planes->enemyInfo.begin(), planes->enemyInfo.end(), [&](std::shared_ptr<PlaneInfo> pi)
-    {
-        if(pi->pEnemy->getDead())
-        {
-            soundEngine.playComicalExplosion();
-            for(int i = pi->indexInPubo; i < 20-1; i++)
-                planes->pubo.model[i] = planes->pubo.model[i+1];
-            return true;
-        }
-        else
-            return false;
-    });
+    auto itPlanes = std::remove_if(planes->enemyInfo.begin(), planes->enemyInfo.end(),
+                                   [&](std::shared_ptr<PlaneInfo> pi) {
+                                       if (pi->pEnemy->getDead()) {
+                                           soundEngine.playComicalExplosion();
+                                           for (int i = pi->indexInPubo; i < 20 - 1; i++)
+                                               planes->pubo.model[i] = planes->pubo.model[i + 1];
+                                           return true;
+                                       } else
+                                           return false;
+                                   });
 
     planes->enemyInfo.erase(itPlanes, planes->enemyInfo.end());
 
     //Overwriting explosions
-    for(int i = 0; i < gubo.explosionCounter; i++)
-    {
-        if(gubo.explosions[i].time>0.6f)
-        {
-            for(int j = i; j < gubo.explosionCounter; j++)
-            {
-                gubo.explosions[j] = gubo.explosions[j+1];
+    for (int i = 0; i < gubo.explosionCounter; i++) {
+        if (gubo.explosions[i].time > 0.6f) {
+            for (int j = i; j < gubo.explosionCounter; j++) {
+                gubo.explosions[j] = gubo.explosions[j + 1];
             }
             gubo.explosionCounter--;
         }
@@ -703,26 +634,20 @@ void Project::gameLogic()
 
 
     //MAKE ENEMIES SHOOT
-    if(partita->state != END)
-    {
-        for(auto info : planes->enemyInfo)
-        {
-            if(!info->pEnemy->getDead())
-            {
+    if (partita->state != END) {
+        for (auto info: planes->enemyInfo) {
+            if (!info->pEnemy->getDead()) {
                 auto b = info->pEnemy->shoot(partita->player->getPosition(), deltaT);
-                if (b)
-                {
+                if (b) {
                     bullets->newBullet(b);
                     soundEngine.playEnemyGun();
                 }
             }
         }
         //MAKE PLAYER SHOOT
-        if(shoot)
-        {
+        if (shoot) {
             auto b = partita->player->shoot({}, deltaT);
-            if(b)
-            {
+            if (b) {
                 bullets->newBullet(b);
                 soundEngine.playPlayerGun();
             }
@@ -730,13 +655,10 @@ void Project::gameLogic()
 
 
         //MAKE BOSS SHOOT
-        if(partita->bossSpawned)
-        {
-            if(!planes->bossInfo->pEnemy->getDead())
-            {
+        if (partita->bossSpawned) {
+            if (!planes->bossInfo->pEnemy->getDead()) {
                 auto b = planes->bossInfo->pEnemy->shoot(planes->playerInfo->pEnemy->getPosition(), deltaT);
-                if (b)
-                {
+                if (b) {
                     bullets->newBullet(b);
                     soundEngine.playZeppelinGun();
                 }
@@ -747,23 +669,18 @@ void Project::gameLogic()
 
 
     //MAKE BULLETS MOVE
-    for(auto info : partita->enemies)
-    {
-        for(auto bullet : info->getBullets())
-        {
+    for (auto info: partita->enemies) {
+        for (auto bullet: info->getBullets()) {
             bullet->move(deltaT);
         }
     }
 
-    for(auto bullet : partita->player->getBullets())
-    {
+    for (auto bullet: partita->player->getBullets()) {
         bullet->move(deltaT);
     }
 
-    if(partita->bossSpawned)
-    {
-        for(auto bullet : planes->bossInfo->pEnemy->getBullets())
-        {
+    if (partita->bossSpawned) {
+        for (auto bullet: planes->bossInfo->pEnemy->getBullets()) {
             bullet->move(deltaT);
         }
     }
@@ -779,29 +696,20 @@ void Project::gameLogic()
     partita->player->setPosition(pl_pos.origin);
 
     //MUOVI NEMICI
-    for(auto info : planes->enemyInfo)
-    {
+    for (auto info: planes->enemyInfo) {
         info->pEnemy->moveTowardsPoint(partita->player->getPosition(), deltaT);
     }
 
     //MUOVI BOSS
-    if(partita->bossSpawned)
-    {
+    if (partita->bossSpawned) {
         auto info = planes->bossInfo;
 
         std::shared_ptr<Boss> boss = std::dynamic_pointer_cast<Boss>(info->pEnemy);
 
         boss->bossMovement(partita->player->getPosition(), deltaT);
     }
-
-    //update flickering time for the spheres
-    planeLights->planeLights.fo.flick.time += deltaT;
-    for(int i = 0; i<gubo.pointLightsAirplaneCounter; ++i)
-        gubo.pointLightsAirplane[i].time += deltaT;
-
-    numberOfEnemies = std::count_if(planes->enemyInfo.begin(),planes->enemyInfo.end(),
-                                    [](auto info){return !info->pEnemy->getDead();});
 }
+
 
 void Project::spawnPlane()
 {

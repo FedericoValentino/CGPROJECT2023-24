@@ -29,7 +29,6 @@ struct pointLight{
 
 layout(binding = 2) uniform GlobalUniformBufferObject {
     pointLight lights[MAXBULLETS];
-    pointLight pointLightsAirplane[10 * MAX_PLANE];
     pointLight explosions[MAXBULLETS];
     SpotLight spotlight;
     vec4 ambientLight;
@@ -37,7 +36,6 @@ layout(binding = 2) uniform GlobalUniformBufferObject {
     vec4 eyepos;
     directLight moon;
     int lightCounter;
-    int pointLightsAirplaneCounter;
     int explosionCounter;
 } gubo;
 
@@ -123,26 +121,6 @@ void main()
                                             160, gubo.lights[i].color.xyz);*/
     }
 
-    for(int i = 0; i < gubo.pointLightsAirplaneCounter; ++i)
-    {
-        lightDirection = normalize(gubo.pointLightsAirplane[i].position.xyz - fragPos);
-        halfVector = normalize(lightDirection + cameraDirection);
-        float dist = distance(gubo.pointLightsAirplane[i].position.xyz,fragPos);
-        cookTorrance += gubo.pointLightsAirplane[i].color.xyz * gubo.pointLightsAirplane[i].color.w * pow(g/dist,beta) *
-                        ((k * color.xyz * pointLightIntensityBlink(gubo.pointLightsAirplane[i].size,
-                                            gubo.pointLightsAirplane[i].position,
-                                            gubo.pointLightsAirplane[i].color,
-                                            gubo.pointLightsAirplane[i].time,
-                                            fragPos,
-                                            surfaceNormal)) +
-                        cookTorranceSpecular(k, roughness, refraction, halfVector, surfaceNormal, cameraDirection, lightDirection, specularColor));
-
-        /*specularReflection += phongSpecularNonMetals(fragPos,
-                                                     gubo.pointLightsAirplane[i].position,
-                                                     gubo.eyepos.xyz,
-                                                     surfaceNormal,
-                                                     160, gubo.pointLightsAirplane[i].color.xyz);*/
-    }
 
     for(int i = 0; i < gubo.explosionCounter; ++i)
     {
