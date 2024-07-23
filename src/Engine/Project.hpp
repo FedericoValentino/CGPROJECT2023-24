@@ -232,7 +232,7 @@ void Project::setMapUniform()
     {
         auto info = tiles->floorTiles[i];
         glm::vec3 position = glm::vec3(info->ubo.model[3][0], info->ubo.model[3][1], info->ubo.model[3][2]);
-        bool toDraw = sphereInFrustum(frustumPlanes, position, 3);
+        bool toDraw = sphereInFrustum(frustumPlanes, position, 4);
 
         if(toDraw) {
             tiles->tubo.model[offset] = info->ubo.model;
@@ -246,7 +246,7 @@ void Project::setMapUniform()
     {
         auto info = tiles->houseTiles[i];
         glm::vec3 position = glm::vec3(info->ubo.model[3][0], info->ubo.model[3][1], info->ubo.model[3][2]);
-        bool toDraw = sphereInFrustum(frustumPlanes, position, 3);
+        bool toDraw = sphereInFrustum(frustumPlanes, position, 4);
 
         if(toDraw) {
             tiles->tubo.model[offset] = info->ubo.model;
@@ -261,7 +261,7 @@ void Project::setMapUniform()
         auto info = tiles->skyscraperTiles[i];
 
         glm::vec3 position = glm::vec3(info->ubo.model[3][0], info->ubo.model[3][1], info->ubo.model[3][2]);
-        bool toDraw = sphereInFrustum(frustumPlanes, position, 3);
+        bool toDraw = sphereInFrustum(frustumPlanes, position, 4);
 
         if(toDraw) {
             tiles->tubo.model[offset] = info->ubo.model;
