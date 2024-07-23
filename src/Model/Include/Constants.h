@@ -7,7 +7,7 @@
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 namespace constant{
-    inline constexpr float RADIUS_COLLISION = 5.5f;
+    inline constexpr float RADIUS_COLLISION = 4.0f;
     inline constexpr unsigned int MAPDIM = 25;
     inline constexpr size_t MAXBULLETS = 400;
     inline constexpr unsigned int MAXFLOORSPOTLIGHTS = 40;

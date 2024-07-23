@@ -133,7 +133,7 @@ std::shared_ptr<Plane> Partita::spawn() {
         return plane;
     }
     //TODO change later to < MAX_PLANE
-    else if(killCounter < MAX_PLANE)
+    else if(killCounter < MAX_PLANE && enemies.size() < MAX_PLANE)
     {
         auto pos = randomPos();
         auto rot = glm::vec3(0.0f);
@@ -153,9 +153,11 @@ void Partita::checkCollision(float deltaT) {
 
     //TODO Remove comments
     //Check collision player with skyscrapers.
-    /*for(auto skyscraper : skyscrapers)
-        if(skyscraper->checkCollision(player->getPosition().origin.x,player->getPosition().origin.z,RADIUS_COLLISION))
-            state=END;*/
+    for(auto skyscraper : skyscrapers)
+        if(skyscraper->checkCollision(player->getPosition().origin.x,player->getPosition().origin.z,constant::RADIUS_COLLISION)) {
+            state = END;
+            player->kill();
+        }
 
     //Check Collision of player with other enemies and bosses
     float radius = 4 * (constant::MAPDIM);
