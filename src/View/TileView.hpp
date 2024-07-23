@@ -46,6 +46,10 @@ public:
     Model house;
     Model skyscraper;
 
+    int visibleFloor;
+    int visibleHouse;
+    int visibleSkyscraper;
+
     Texture House;
     Texture Skyscraper;
     Texture Floor;
@@ -174,7 +178,7 @@ public:
             this->floor.bind(commandBuffer);
 
             vkCmdDrawIndexed(commandBuffer,
-                             static_cast<uint32_t>(this->floor.indices.size()), floorTiles.size(), 0, 0, 0);
+                             static_cast<uint32_t>(this->floor.indices.size()), visibleFloor, 0, 0, 0);
         }
 
         if(!houseTiles.empty())
@@ -185,7 +189,7 @@ public:
             this->house.bind(commandBuffer);
 
             vkCmdDrawIndexed(commandBuffer,
-                             static_cast<uint32_t>(this->house.indices.size()), houseTiles.size(), 0, 0, floorTiles.size());
+                             static_cast<uint32_t>(this->house.indices.size()), visibleHouse, 0, 0, visibleFloor);
         }
 
 
@@ -197,7 +201,7 @@ public:
             this->skyscraper.bind(commandBuffer);
 
             vkCmdDrawIndexed(commandBuffer,
-                             static_cast<uint32_t>(this->skyscraper.indices.size()), skyscraperTiles.size(), 0, 0, floorTiles.size() + houseTiles.size());
+                             static_cast<uint32_t>(this->skyscraper.indices.size()), visibleSkyscraper, 0, 0, visibleFloor+visibleHouse);
         }
 
 

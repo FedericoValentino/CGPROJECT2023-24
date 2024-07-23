@@ -88,6 +88,8 @@ private:
     bool isFirstPerson = false;
     bool isNight = false;
 
+    std::array<glm::vec4,6> frustumPlanes;
+
     void localInit() final;
 
     void pipelinesAndDescriptorSetsInit() final;
@@ -164,7 +166,7 @@ void Project::localInit() {
         {
             const glm::mat4& model = tiles->newTile(row, col, partita->map[row][col]->height);
 
-            if (counter < constant::MAXFLOORSPOTLIGHTS && partita->map[row][col]->height == 0 && tiles->canSetTrue(checker, row, col,7) && dist(gen)) {
+            if (counter < constant::MAXFLOORSPOTLIGHTS && partita->map[row][col]->height == 0 && tiles->canSetTrue(checker, row, col,10) && dist(gen)) {
                 checker[row][col] = true;
                 tiles->floorObjectBuilder(model);
                 counter++;
@@ -235,40 +237,59 @@ void Project::setMapUniform()
 {
 
     int offset = 0;
+    tiles->visibleFloor = 0;
+    tiles->visibleHouse = 0;
+    tiles->visibleSkyscraper = 0;
     //Map updates
     for(int i = 0; i < tiles->floorTiles.size(); i++)
     {
         auto info = tiles->floorTiles[i];
+        glm::vec3 position = glm::vec3(info->ubo.model[3][0], info->ubo.model[3][1], info->ubo.model[3][2]);
+        bool toDraw = sphereInFrustum(frustumPlanes, position, 10);
 
-        tiles->tubo.model[i+offset] = info->ubo.model;
-        tiles->tubo.normal[i+offset] = info->ubo.normal;
+        if(toDraw) {
+            tiles->tubo.model[offset] = info->ubo.model;
+            tiles->tubo.normal[offset] = info->ubo.normal;
+            offset++;
+            tiles->visibleFloor++;
+        }
     }
-
-    offset += tiles->floorTiles.size();
 
     for(int i = 0; i < tiles->houseTiles.size(); i++)
     {
         auto info = tiles->houseTiles[i];
+        glm::vec3 position = glm::vec3(info->ubo.model[3][0], info->ubo.model[3][1], info->ubo.model[3][2]);
+        bool toDraw = sphereInFrustum(frustumPlanes, position, 10);
 
-        tiles->tubo.model[i+offset] = info->ubo.model;
-        tiles->tubo.normal[i+offset] = info->ubo.normal;
+        if(toDraw) {
+            tiles->tubo.model[offset] = info->ubo.model;
+            tiles->tubo.normal[offset] = info->ubo.normal;
+            offset++;
+            tiles->visibleHouse++;
+        }
     }
-    offset += tiles->houseTiles.size();
 
     for(int i = 0; i < tiles->skyscraperTiles.size(); i++)
     {
         auto info = tiles->skyscraperTiles[i];
 
-        tiles->tubo.model[i+offset] = info->ubo.model;
-        tiles->tubo.normal[i+offset] = info->ubo.normal;
+        glm::vec3 position = glm::vec3(info->ubo.model[3][0], info->ubo.model[3][1], info->ubo.model[3][2]);
+        bool toDraw = sphereInFrustum(frustumPlanes, position, 10);
+
+        if(toDraw) {
+            tiles->tubo.model[offset] = info->ubo.model;
+            tiles->tubo.normal[offset] = info->ubo.normal;
+            offset++;
+            tiles->visibleSkyscraper++;
+        }
     }
 }
 
 void Project::updateMapUniform(const glm::mat4& S, int currentImage)
 {
-    tiles->DSTiles.map(currentImage, &gubo, sizeof(GlobalUniformBufferObject), 2);
     tiles->DSTiles.map(currentImage, &tiles->tubo, sizeof(TileUniformBufferObject), 0);
-    tiles->DSTiles.map(currentImage,&tiles->floorLights,sizeof(SpotLightsFloorBuffer),5);
+    tiles->DSTiles.map(currentImage, &tiles->floorLights, sizeof(SpotLightsFloorBuffer), 5);
+    tiles->DSTiles.map(currentImage, &gubo, sizeof(GlobalUniformBufferObject), 2);
 }
 
 
@@ -465,9 +486,6 @@ void Project::updateLights()
  */
 void Project::updateUniformBuffer(uint32_t currentImage) {
 
-    static bool mapUniformSet = false;
-
-    std::array<glm::vec4,6> frustumPlanes;
 
     //update Starship world matrix
     glm::mat4 WorldMatrixPlane = updatePlaneMatrix(partita->player->getPosition(), true);
@@ -510,8 +528,7 @@ void Project::updateUniformBuffer(uint32_t currentImage) {
 
     //updateEnemyLights();
 
-    if(!mapUniformSet)
-        setMapUniform();
+    setMapUniform();
 
     updateMapUniform(S, currentImage);
 
