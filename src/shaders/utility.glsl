@@ -21,9 +21,8 @@ vec3 pointLightIntensityBlink(float frequencyIn, vec4 position, vec4 color, floa
 {
     float frequency = frequencyIn;
     vec3 directionToLight = normalize(position.xyz - pos);
-    float attenuation = 1.0 / dot(directionToLight, directionToLight);
     float cosAngIncidence = max(dot(normal, normalize(directionToLight)), 0);
-    vec3 intensity = color.xyz * color.w * attenuation;
+    vec3 intensity = color.xyz * color.w;
     if(time > 0.3f)
     {
         intensity *= abs(cos(frequency * time));
