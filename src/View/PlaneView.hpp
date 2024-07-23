@@ -143,7 +143,7 @@ public:
             vkCmdDrawIndexed(commandBuffer,static_cast<uint32_t>(this->baseEnemy.indices.size()), visibleEnemies, 0, 0, 2);
         }
 
-        if(bossSpawned && !bossInfo->pEnemy->getDead())
+        if(bossSpawned && !bossInfo->pEnemy->getDead() && bossInfo->toDraw)
         {
             this->Boss.bind(commandBuffer);
             pushPlane push{1,BOSS};

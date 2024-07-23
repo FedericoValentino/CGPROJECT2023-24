@@ -330,8 +330,13 @@ void Project::updateBossUniform(const glm::mat4& S, int currentImage)
 {
     if(partita->bossSpawned)
     {
-        planes->bossInfo->toDraw = !planes->bossInfo->pEnemy->getDead();
+
         auto pos = planes->bossInfo->pEnemy->getPosition();
+        if(!planes->bossInfo->pEnemy->getDead())
+            planes->bossInfo->toDraw = sphereInFrustum(frustumPlanes, pos.origin, 4.0f) ;
+        else
+            planes->bossInfo->toDraw = false;
+
 
         planes->bossInfo->ubo.model = glm::mat4(1);
         planes->bossInfo->ubo.model = glm::translate(planes->bossInfo->ubo.model, pos.origin);
