@@ -106,7 +106,7 @@ void main()
         lightDirection = normalize(gubo.lights[i].position.xyz - fragPos);
         halfVector = normalize(lightDirection + cameraDirection);
         float dist = distance(gubo.lights[i].position.xyz,fragPos);
-        cookTorrance += gubo.lights[i].color.xyz * gubo.lights[i].color.w * pow(g/dist,beta) *
+        cookTorrance += gubo.lights[i].color.xyz * gubo.lights[i].color.w * pow(g/dist,beta)*
         ( k * color.xyz * pointLightIntensityBlink(gubo.lights[i].size,
                                                                 gubo.lights[i].position,
                                                                 gubo.lights[i].color,
