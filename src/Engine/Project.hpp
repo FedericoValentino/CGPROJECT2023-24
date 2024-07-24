@@ -155,7 +155,7 @@ void Project::localInit() {
         {
             const glm::mat4& model = tiles->newTile(row, col, partita->map[row][col]->height);
 
-            if (counter < constant::MAXFLOORSPOTLIGHTS && partita->map[row][col]->height == 0 && tiles->canSetTrue(checker, row, col,10) && dist(gen)) {
+            if (counter < constant::MAXFLOORSPOTLIGHTS && partita->map[row][col]->height == 0 && tiles->canSetTrue(checker, row, col, 12) && dist(gen)) {
                 checker[row][col] = true;
                 tiles->floorObjectBuilder(model);
                 counter++;
